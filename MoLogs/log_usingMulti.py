@@ -14,9 +14,7 @@ from __future__ import division
 from __future__ import unicode_literals
 
 from MoLogs import Log
-
 from MoLogs.exceptions import suppress_exception
-
 from MoLogs.log_usingNothing import StructuredLogger
 
 

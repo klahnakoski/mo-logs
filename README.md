@@ -1,4 +1,7 @@
 
+INCOMPLETE
+==========
+
 MoLogs - Structured Logging and Exception Handling
 ==================================================
 
