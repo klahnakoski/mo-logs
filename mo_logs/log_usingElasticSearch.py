@@ -23,7 +23,7 @@ from pyLibrary.meta import use_settings
 from pyLibrary.queries import jx
 from pyLibrary.thread.threads import Thread, Queue
 from pyLibrary.thread.till import Till
-from pyLibrary.times.durations import MINUTE, Duration
+from mo_times.durations import MINUTE, Duration
 
 MAX_BAD_COUNT = 5
 LOG_STRING_LENGTH = 2000

@@ -20,8 +20,8 @@ from mo_logs.strings import expand_template
 from pyLibrary.env.emailer import Emailer
 from pyLibrary.meta import use_settings
 from pyLibrary.thread.threads import Lock
-from pyLibrary.times.dates import Date
-from pyLibrary.times.durations import HOUR, MINUTE, Duration
+from mo_times.dates import Date
+from mo_times.durations import HOUR, MINUTE, Duration
 
 
 class StructuredLogger_usingEmail(StructuredLogger):

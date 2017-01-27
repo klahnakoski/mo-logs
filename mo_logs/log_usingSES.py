@@ -19,11 +19,11 @@ from mo_logs import Log
 from mo_logs.exceptions import ALARM, NOTE
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
+from mo_times.dates import Date
+from mo_times.durations import HOUR, MINUTE
 from pyDots import listwrap, unwrap
 from pyLibrary.meta import use_settings
 from pyLibrary.thread.threads import Lock
-from pyLibrary.times.dates import Date
-from pyLibrary.times.durations import HOUR, MINUTE
 
 WAIT_TO_SEND_MORE = HOUR
 
