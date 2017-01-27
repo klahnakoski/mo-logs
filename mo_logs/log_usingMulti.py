@@ -13,9 +13,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-from MoLogs import Log
-from MoLogs.exceptions import suppress_exception
-from MoLogs.log_usingNothing import StructuredLogger
+from mo_logs import Log
+from mo_logs.exceptions import suppress_exception
+from mo_logs.log_usingNothing import StructuredLogger
 
 
 class StructuredLogger_usingMulti(StructuredLogger):

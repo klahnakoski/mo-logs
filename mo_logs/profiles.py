@@ -29,7 +29,7 @@ _Log = None
 def _late_import():
     global _Log
 
-    from MoLogs import Log as _Log
+    from mo_logs import Log as _Log
     from pyLibrary.thread.threads import Queue
 
     if _Log.cprofiler_stats == None:

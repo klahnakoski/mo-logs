@@ -52,7 +52,7 @@ def set(constants):
                 if caller_module.endswith(prefix):
                     old_value = pyDots.set_attr(caller_globals, name, new_value)
                     if DEBUG:
-                        from MoLogs import Log
+                        from mo_logs import Log
 
                         Log.note("Changed {{module}}[{{attribute}}] from {{old_value}} to {{new_value}}",
                             module= prefix,
@@ -64,6 +64,6 @@ def set(constants):
             errors.append[e]
 
         if errors:
-            from MoLogs import Log
+            from mo_logs import Log
 
             Log.error("Can not set constant {{path}}", path=k, cause=errors)

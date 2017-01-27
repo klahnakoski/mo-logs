@@ -19,9 +19,9 @@ import sys
 from collections import Mapping
 from datetime import datetime
 
-from MoLogs import constants
-from MoLogs.exceptions import Except, suppress_exception
-from MoLogs.strings import indent
+from mo_logs import constants
+from mo_logs.exceptions import Except, suppress_exception
+from mo_logs.strings import indent
 from pyDots import coalesce, listwrap, wrap, unwrap, unwraplist, set_default
 
 _Thread = None
@@ -78,7 +78,7 @@ class Log(object):
             cls.cprofiler.enable()
 
         if settings.profile is True or (isinstance(settings.profile, Mapping) and settings.profile.enabled):
-            from MoLogs import profiles
+            from mo_logs import profiles
 
             if isinstance(settings.profile, bool):
                 profiles.ON = True
@@ -92,7 +92,7 @@ class Log(object):
 
         if settings.log:
             cls.logging_multi = StructuredLogger_usingMulti()
-            from MoLogs.log_usingThread import StructuredLogger_usingThread
+            from mo_logs.log_usingThread import StructuredLogger_usingThread
             cls.main_log = StructuredLogger_usingThread(cls.logging_multi)
 
             for log in listwrap(settings.log):
@@ -103,7 +103,7 @@ class Log(object):
 
     @classmethod
     def stop(cls):
-        from MoLogs import profiles
+        from mo_logs import profiles
 
         if cls.cprofiler and hasattr(cls, "settings"):
             if cls.cprofiler == None:
@@ -126,12 +126,12 @@ class Log(object):
 
         if settings["class"]:
             if settings["class"].startswith("logging.handlers."):
-                from MoLogs.log_usingLogger import StructuredLogger_usingLogger
+                from mo_logs.log_usingLogger import StructuredLogger_usingLogger
 
                 return StructuredLogger_usingLogger(settings)
             else:
                 with suppress_exception:
-                    from MoLogs.log_usingLogger import make_log_from_settings
+                    from mo_logs.log_usingLogger import make_log_from_settings
 
                     return make_log_from_settings(settings)
                   # OH WELL :(
@@ -141,22 +141,22 @@ class Log(object):
         if settings.log_type == "file" or settings.filename:
             return StructuredLogger_usingFile(settings.filename)
         if settings.log_type == "console":
-            from MoLogs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
+            from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
             return StructuredLogger_usingThreadedStream(sys.stdout)
         if settings.log_type == "stream" or settings.stream:
-            from MoLogs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
+            from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
             return StructuredLogger_usingThreadedStream(settings.stream)
         if settings.log_type == "elasticsearch" or settings.stream:
-            from MoLogs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
+            from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
             return StructuredLogger_usingElasticSearch(settings)
         if settings.log_type == "email":
-            from MoLogs.log_usingEmail import StructuredLogger_usingEmail
+            from mo_logs.log_usingEmail import StructuredLogger_usingEmail
             return StructuredLogger_usingEmail(settings)
         if settings.log_type == "ses":
-            from MoLogs.log_usingSES import StructuredLogger_usingSES
+            from mo_logs.log_usingSES import StructuredLogger_usingSES
             return StructuredLogger_usingSES(settings)
         if settings.log_type.lower() in ["nothing", "none", "null"]:
-            from MoLogs.log_usingNothing import StructuredLogger
+            from mo_logs.log_usingNothing import StructuredLogger
             return StructuredLogger()
 
         Log.error("Log type of {{log_type|quote}} is not recognized", log_type=settings.log_type)
@@ -461,9 +461,9 @@ machine_metadata = wrap({
 })
 
 
-from MoLogs.log_usingFile import StructuredLogger_usingFile
-from MoLogs.log_usingMulti import StructuredLogger_usingMulti
-from MoLogs.log_usingStream import StructuredLogger_usingStream
+from mo_logs.log_usingFile import StructuredLogger_usingFile
+from mo_logs.log_usingMulti import StructuredLogger_usingMulti
+from mo_logs.log_usingStream import StructuredLogger_usingStream
 
 
 if not Log.main_log:

@@ -17,7 +17,7 @@ import os
 import sys
 import tempfile
 
-from MoLogs import Log
+from mo_logs import Log
 from pyDots import listwrap, wrap, unwrap
 from pyLibrary.env.files import File
 import mo_json_config

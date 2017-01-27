@@ -15,10 +15,10 @@ from __future__ import unicode_literals
 
 import logging
 
-from MoLogs.exceptions import suppress_exception
-from MoLogs.log_usingThreadedStream import StructuredLogger_usingThreadedStream, time_delta_pusher
-from MoLogs import Log
-from MoLogs.log_usingNothing import StructuredLogger
+from mo_logs.exceptions import suppress_exception
+from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream, time_delta_pusher
+from mo_logs import Log
+from mo_logs.log_usingNothing import StructuredLogger
 from pyDots import unwrap
 from pyLibrary.thread import threads
 from pyLibrary.thread.threads import Thread

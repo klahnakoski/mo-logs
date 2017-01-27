@@ -13,9 +13,9 @@ from __future__ import unicode_literals
 
 from collections import Mapping
 
-from MoLogs import Log, strings
-from MoLogs.exceptions import suppress_exception
-from MoLogs.log_usingNothing import StructuredLogger
+from mo_logs import Log, strings
+from mo_logs.exceptions import suppress_exception
+from mo_logs.log_usingNothing import StructuredLogger
 from pyDots import wrap, coalesce
 from pyLibrary import convert
 from pyLibrary.env.elasticsearch import Cluster

@@ -16,9 +16,9 @@ from __future__ import unicode_literals
 import time
 from thread import allocate_lock
 
-from MoLogs import Log
-from MoLogs.log_usingNothing import StructuredLogger
-from MoLogs.strings import expand_template
+from mo_logs import Log
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import expand_template
 
 
 # from pyLibrary.thread.lock import Lock

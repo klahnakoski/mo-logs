@@ -16,9 +16,9 @@ from __future__ import unicode_literals
 import sys
 from time import time
 
-from MoLogs import Log
-from MoLogs.log_usingNothing import StructuredLogger
-from MoLogs.strings import expand_template
+from mo_logs import Log
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import expand_template
 from pyLibrary.thread.threads import Thread
 from pyLibrary.thread.till import Till
 

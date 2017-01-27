@@ -17,7 +17,7 @@ import json
 import sys
 from collections import Mapping
 
-from MoLogs.strings import indent, expand_template
+from mo_logs.strings import indent, expand_template
 from pyDots import Data, listwrap, unwraplist, set_default, Null
 
 json_encoder = json.JSONEncoder(
@@ -238,7 +238,7 @@ class Explanation(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from MoLogs import Log
+            from mo_logs import Log
 
             Log.error(
                 template="Failure in " + self.template,
@@ -269,7 +269,7 @@ class WarnOnException(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from MoLogs import Log
+            from mo_logs import Log
 
             Log.warning(
                 template="Ignored failure while " + self.template,
@@ -294,7 +294,7 @@ class AssertNoException(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from MoLogs import Log
+            from mo_logs import Log
 
             Log.error(
                 template="Not expected to fail",

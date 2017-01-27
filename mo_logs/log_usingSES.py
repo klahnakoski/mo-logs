@@ -15,10 +15,10 @@ from __future__ import unicode_literals
 
 from boto.ses import connect_to_region
 
-from MoLogs import Log
-from MoLogs.exceptions import ALARM, NOTE
-from MoLogs.log_usingNothing import StructuredLogger
-from MoLogs.strings import expand_template
+from mo_logs import Log
+from mo_logs.exceptions import ALARM, NOTE
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import expand_template
 from pyDots import listwrap, unwrap
 from pyLibrary.meta import use_settings
 from pyLibrary.thread.threads import Lock

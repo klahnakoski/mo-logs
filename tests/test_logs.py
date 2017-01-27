@@ -16,8 +16,8 @@ import zlib
 
 from future.utils import raise_from
 
-from MoLogs import Log, Except
-from MoLogs.log_usingQueue import StructuredLogger_usingQueue
+from mo_logs import Log, Except
+from mo_logs.log_usingQueue import StructuredLogger_usingQueue
 from pyDots import listwrap, wrap
 from pyDots.objects import DataObject
 from pyLibrary import convert

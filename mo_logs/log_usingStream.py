@@ -13,8 +13,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-from MoLogs.log_usingNothing import StructuredLogger
-from MoLogs.strings import expand_template
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import expand_template
 
 
 class StructuredLogger_usingStream(StructuredLogger):
