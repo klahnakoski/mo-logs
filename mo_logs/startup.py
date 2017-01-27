@@ -17,10 +17,10 @@ import os
 import sys
 import tempfile
 
-from pyDots import listwrap, wrap, unwrap
 from MoLogs import Log
+from pyDots import listwrap, wrap, unwrap
 from pyLibrary.env.files import File
-from pyLibrary.jsons import ref
+import mo_json_config
 
 
 # PARAMETERS MATCH argparse.ArgumentParser.add_argument()
@@ -59,7 +59,7 @@ def read_settings(filename=None, defs=None):
             Log.error("Can not file settings file {{filename}}", {
                 "filename": settings_file.abspath
             })
-        settings = ref.get("file:///" + settings_file.abspath)
+        settings = mo_json_config.get("file:///" + settings_file.abspath)
         if defs:
             settings.args = argparse(defs)
         return settings
@@ -74,7 +74,7 @@ def read_settings(filename=None, defs=None):
             "required": False
         })
         args = argparse(defs)
-        settings = ref.get("file://" + args.filename.replace(os.sep, "/"))
+        settings = mo_json_config.get("file://" + args.filename.replace(os.sep, "/"))
         settings.args = args
         return settings
 
