@@ -131,10 +131,6 @@ class Except(Exception):
             trace=self.trace
         )
 
-    def __json__(self):
-        return json_encoder(self.__data__())
-
-
 
 def extract_stack(start=0):
     """
