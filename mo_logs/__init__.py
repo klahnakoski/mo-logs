@@ -63,7 +63,7 @@ class Log(object):
         cls.settings = settings
         cls.trace = coalesce(settings.trace, False)
         if cls.trace:
-            from pyLibrary.thread.threads import Thread as _Thread
+            from mo_threads.threads import Thread as _Thread
             _ = _Thread
 
         if settings.cprofile is False:
@@ -107,7 +107,7 @@ class Log(object):
 
         if cls.cprofiler and hasattr(cls, "settings"):
             if cls.cprofiler == None:
-                from pyLibrary.thread.threads import Queue
+                from mo_threads.threads import Queue
 
                 cls.cprofiler_stats = Queue("cprofiler stats")  # ACCUMULATION OF STATS FROM ALL THREADS
 

@@ -30,7 +30,7 @@ def _late_import():
     global _Log
 
     from mo_logs import Log as _Log
-    from pyLibrary.thread.threads import Queue
+    from mo_threads.threads import Queue
 
     if _Log.cprofiler_stats == None:
         _Log.cprofiler_stats = Queue("cprofiler stats")  # ACCUMULATION OF STATS FROM ALL THREADS

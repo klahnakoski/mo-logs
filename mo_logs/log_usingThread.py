@@ -16,8 +16,8 @@ from __future__ import unicode_literals
 from mo_logs.exceptions import suppress_exception, Except
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
-from pyLibrary.thread.threads import Thread, Queue
-from pyLibrary.thread.till import Till
+from mo_threads.threads import Thread, Queue
+from mo_threads.till import Till
 
 
 class StructuredLogger_usingThread(StructuredLogger):

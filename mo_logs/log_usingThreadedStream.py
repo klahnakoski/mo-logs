@@ -19,8 +19,8 @@ from time import time
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
-from pyLibrary.thread.threads import Thread
-from pyLibrary.thread.till import Till
+from mo_threads.threads import Thread
+from mo_threads.till import Till
 
 
 class StructuredLogger_usingThreadedStream(StructuredLogger):
@@ -41,7 +41,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
             name = "stream"
 
         # WRITE TO STREAMS CAN BE *REALLY* SLOW, WE WILL USE A THREAD
-        from pyLibrary.thread.threads import Queue
+        from mo_threads.threads import Queue
 
         if use_UTF8:
             def utf8_appender(value):

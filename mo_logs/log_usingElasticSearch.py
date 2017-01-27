@@ -21,8 +21,8 @@ from pyLibrary import convert
 from pyLibrary.env.elasticsearch import Cluster
 from pyLibrary.meta import use_settings
 from pyLibrary.queries import jx
-from pyLibrary.thread.threads import Thread, Queue
-from pyLibrary.thread.till import Till
+from mo_threads.threads import Thread, Queue
+from mo_threads.till import Till
 from pyLibrary.times.durations import MINUTE, Duration
 
 MAX_BAD_COUNT = 5
