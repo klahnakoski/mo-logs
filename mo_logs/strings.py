@@ -38,10 +38,10 @@ def _late_import():
     global _Duration
     global _convert
 
-    from pyLibrary.jsons.encoder import json_encoder as _json_encoder
+    from mo_json.encoder import json_encoder as _json_encoder
     from mo_logs import Log as _Log
     from mo_logs.exceptions import Except as _Except
-    from pyLibrary.times.durations import Duration as _Duration
+    from mo_times.durations import Duration as _Duration
     from pyLibrary import convert as _convert
 
     _ = _json_encoder

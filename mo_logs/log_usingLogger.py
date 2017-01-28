@@ -23,6 +23,9 @@ from pyDots import unwrap
 from mo_threads import threads
 from mo_threads.threads import Thread
 
+Thread = None
+
+
 
 # WRAP PYTHON CLASSIC logger OBJECTS
 class StructuredLogger_usingLogger(StructuredLogger):
@@ -31,7 +34,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
         self.logger.addHandler(make_log_from_settings(settings))
 
         # TURNS OUT LOGGERS ARE REALLY SLOW TOO
-        self.queue = threads.Queue("queue for classic logger", max=10000, silent=True)
+        self.queue = mo_threads.Queue("queue for classic logger", max=10000, silent=True)
         self.thread = Thread(
             "pushing to classic logger",
             time_delta_pusher,
