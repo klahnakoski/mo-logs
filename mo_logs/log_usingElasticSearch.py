@@ -13,17 +13,18 @@ from __future__ import unicode_literals
 
 from collections import Mapping
 
-from mo_logs import Log, strings
-from mo_logs.exceptions import suppress_exception
-from mo_logs.log_usingNothing import StructuredLogger
+from mo_threads.threads import Thread, Queue
+from mo_threads.till import Till
+from mo_times.durations import MINUTE, Duration
 from pyDots import wrap, coalesce
 from pyLibrary import convert
 from pyLibrary.env.elasticsearch import Cluster
 from pyLibrary.meta import use_settings
 from pyLibrary.queries import jx
-from mo_threads.threads import Thread, Queue
-from mo_threads.till import Till
-from mo_times.durations import MINUTE, Duration
+
+from mo_logs import Log, strings
+from mo_logs.exceptions import suppress_exception
+from mo_logs.log_usingNothing import StructuredLogger
 
 MAX_BAD_COUNT = 5
 LOG_STRING_LENGTH = 2000

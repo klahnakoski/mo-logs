@@ -14,16 +14,16 @@ from __future__ import division
 from __future__ import unicode_literals
 
 from boto.ses import connect_to_region
+from mo_threads.threads import Lock
+from mo_times.dates import Date
+from mo_times.durations import HOUR, MINUTE
+from pyDots import listwrap, unwrap
+from pyLibrary.meta import use_settings
 
 from mo_logs import Log
 from mo_logs.exceptions import ALARM, NOTE
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
-from mo_times.dates import Date
-from mo_times.durations import HOUR, MINUTE
-from pyDots import listwrap, unwrap
-from pyLibrary.meta import use_settings
-from mo_threads.threads import Lock
 
 WAIT_TO_SEND_MORE = HOUR
 
