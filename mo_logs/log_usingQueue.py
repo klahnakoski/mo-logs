@@ -15,7 +15,7 @@ from __future__ import unicode_literals
 
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
-from mo_threads.threads import Queue
+from mo_threads import Queue
 
 
 class StructuredLogger_usingQueue(StructuredLogger):

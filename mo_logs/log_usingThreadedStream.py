@@ -19,8 +19,7 @@ from time import time
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
-from mo_threads.threads import Thread
-from mo_threads.till import Till
+from mo_threads import Thread, THREAD_STOP, Till
 
 
 class StructuredLogger_usingThreadedStream(StructuredLogger):
@@ -41,7 +40,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
             name = "stream"
 
         # WRITE TO STREAMS CAN BE *REALLY* SLOW, WE WILL USE A THREAD
-        from mo_threads.threads import Queue
+        from mo_threads import Queue
 
         if use_UTF8:
             def utf8_appender(value):
@@ -67,7 +66,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
 
     def stop(self):
         try:
-            self.queue.add(Thread.STOP)  # BE PATIENT, LET REST OF MESSAGE BE SENT
+            self.queue.add(THREAD_STOP)  # BE PATIENT, LET REST OF MESSAGE BE SENT
             self.thread.join()
         except Exception, e:
             if DEBUG_LOGGING:
@@ -100,7 +99,7 @@ def time_delta_pusher(please_stop, appender, queue, interval):
         lines = []
         for log in logs:
             try:
-                if log is Thread.STOP:
+                if log is THREAD_STOP:
                     please_stop.go()
                     next_run = time()
                 else:

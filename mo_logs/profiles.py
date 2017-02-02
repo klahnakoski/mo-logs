@@ -7,18 +7,18 @@
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 
-from __future__ import unicode_literals
-from __future__ import division
 from __future__ import absolute_import
+from __future__ import division
+from __future__ import unicode_literals
 
 import cProfile
 import pstats
 from datetime import datetime
 from time import clock
 
-from pyLibrary.collections import MAX
-from pyDots import wrap
-from pyDots import Data
+from mo_math import MAX
+from mo_dots import Data
+from mo_dots import wrap
 
 ON = False
 profiles = {}
@@ -30,7 +30,7 @@ def _late_import():
     global _Log
 
     from mo_logs import Log as _Log
-    from mo_threads.threads import Queue
+    from mo_threads import Queue
 
     if _Log.cprofiler_stats == None:
         _Log.cprofiler_stats = Queue("cprofiler stats")  # ACCUMULATION OF STATS FROM ALL THREADS
@@ -81,7 +81,7 @@ class Profiler(object):
 
 def write(profile_settings):
     from pyLibrary import convert
-    from pyLibrary.env.files import File
+    from mo_files import File
 
     profs = list(profiles.values())
     for p in profs:

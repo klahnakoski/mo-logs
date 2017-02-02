@@ -22,7 +22,7 @@ from datetime import datetime
 from mo_logs import constants
 from mo_logs.exceptions import Except, suppress_exception
 from mo_logs.strings import indent
-from pyDots import coalesce, listwrap, wrap, unwrap, unwraplist, set_default
+from mo_dots import coalesce, listwrap, wrap, unwrap, unwraplist, set_default
 
 _Thread = None
 
@@ -54,6 +54,9 @@ class Log(object):
         constants - UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
         """
         global _Thread
+        from mo_threads import Thread as _Thread
+        _ = _Thread
+
         if not settings:
             return
         settings = wrap(settings)
@@ -63,8 +66,8 @@ class Log(object):
         cls.settings = settings
         cls.trace = coalesce(settings.trace, False)
         if cls.trace:
-            from mo_threads.threads import Thread as _Thread
-            _ = _Thread
+            from mo_threads import Thread
+            _ = Thread
 
         if settings.cprofile is False:
             settings.cprofile = {"enabled": False}
@@ -107,7 +110,7 @@ class Log(object):
 
         if cls.cprofiler and hasattr(cls, "settings"):
             if cls.cprofiler == None:
-                from mo_threads.threads import Queue
+                from mo_threads import Queue
 
                 cls.cprofiler_stats = Queue("cprofiler stats")  # ACCUMULATION OF STATS FROM ALL THREADS
 
@@ -430,7 +433,7 @@ class Log(object):
 
 def write_profile(profile_settings, stats):
     from pyLibrary import convert
-    from pyLibrary.env.files import File
+    from mo_files import File
 
     acc = stats[0]
     for s in stats[1:]:

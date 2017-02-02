@@ -1,6 +1,6 @@
 
-MoLogs - Structured Logging and Exception Handling
-==================================================
+More Logs! - Structured Logging and Exception Handling
+=============++++=====================================
 
 This library provides two main features
 
@@ -144,7 +144,7 @@ should have no need to create new exception sub-types.
 **Testing for exception "types"**
 
 This library advocates chaining exceptions early and often, and this hides
-important exception types in a long causal chain.   MoLogs allows you to easily
+important exception types in a long causal chain.   More Logs! allows you to easily
 test if a type (or string, or template) can be found in the causal chain by using
 the `in` keyword:   
 

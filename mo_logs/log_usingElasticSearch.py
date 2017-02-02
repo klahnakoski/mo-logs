@@ -13,11 +13,11 @@ from __future__ import unicode_literals
 
 from collections import Mapping
 
-from mo_threads.threads import Thread, Queue
-from mo_threads.till import Till
-from mo_times.durations import MINUTE, Duration
-from pyDots import wrap, coalesce
-from pyLibrary import convert
+import mo_json
+from mo_json import value2json
+from mo_dots import wrap, coalesce
+from mo_threads import Thread, Queue, Till, THREAD_STOP
+from mo_times import MINUTE, Duration
 from pyLibrary.env.elasticsearch import Cluster
 from pyLibrary.meta import use_settings
 from pyLibrary.queries import jx
@@ -37,7 +37,7 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
         settings ARE FOR THE ELASTICSEARCH INDEX
         """
         self.es = Cluster(settings).get_or_create_index(
-            schema=convert.json2value(convert.value2json(SCHEMA), leaves=True),
+            schema=mo_json.json2value(value2json(SCHEMA), leaves=True),
             limit_replicas=True,
             tjson=True,
             settings=settings
@@ -71,7 +71,7 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
                     scrubbed = []
                     try:
                         for i, message in enumerate(mm):
-                            if message is Thread.STOP:
+                            if message is THREAD_STOP:
                                 please_stop.go()
                                 return
                             scrubbed.append(_deep_json_to_string(message, depth=3))
@@ -95,7 +95,7 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
 
     def stop(self):
         with suppress_exception:
-            self.queue.add(Thread.STOP)  # BE PATIENT, LET REST OF MESSAGE BE SENT
+            self.queue.add(THREAD_STOP)  # BE PATIENT, LET REST OF MESSAGE BE SENT
 
         with suppress_exception:
             self.queue.close()
@@ -109,17 +109,17 @@ def _deep_json_to_string(value, depth):
     """
     if isinstance(value, Mapping):
         if depth == 0:
-            return strings.limit(convert.value2json(value), LOG_STRING_LENGTH)
+            return strings.limit(value2json(value), LOG_STRING_LENGTH)
 
         return {k: _deep_json_to_string(v, depth - 1) for k, v in value.items()}
     elif isinstance(value, list):
-        return strings.limit(convert.value2json(value), LOG_STRING_LENGTH)
+        return strings.limit(value2json(value), LOG_STRING_LENGTH)
     elif isinstance(value, (float, int, long)):
         return value
     elif isinstance(value, basestring):
         return strings.limit(value, LOG_STRING_LENGTH)
     else:
-        return strings.limit(convert.value2json(value), LOG_STRING_LENGTH)
+        return strings.limit(value2json(value), LOG_STRING_LENGTH)
 
 
 SCHEMA = {

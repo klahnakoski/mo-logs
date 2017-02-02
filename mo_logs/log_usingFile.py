@@ -21,14 +21,10 @@ from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
 
-# from mo_threads.lock import Lock
-# from mo_threads.till import Till
-
-
 class StructuredLogger_usingFile(StructuredLogger):
     def __init__(self, file):
         assert file
-        from pyLibrary.env.files import File
+        from mo_files import File
 
         self.file = File(file)
         if self.file.exists:
