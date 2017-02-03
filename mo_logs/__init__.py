@@ -25,7 +25,8 @@ from mo_logs import constants
 from mo_logs.exceptions import Except, suppress_exception
 from mo_logs.strings import indent
 
-_Thread = None
+
+# _Thread = None
 
 
 class Log(object):

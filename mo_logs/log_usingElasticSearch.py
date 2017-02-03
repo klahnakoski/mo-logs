@@ -14,12 +14,12 @@ from __future__ import unicode_literals
 from collections import Mapping
 
 import mo_json
-from mo_json import value2json
 from mo_dots import wrap, coalesce
+from mo_json import value2json
+from mo_kwargs import override
 from mo_threads import Thread, Queue, Till, THREAD_STOP
 from mo_times import MINUTE, Duration
 from pyLibrary.env.elasticsearch import Cluster
-from mo_kwargs import override
 from pyLibrary.queries import jx
 
 from mo_logs import Log, strings
