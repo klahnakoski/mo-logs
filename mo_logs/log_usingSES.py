@@ -14,15 +14,15 @@ from __future__ import division
 from __future__ import unicode_literals
 
 from boto.ses import connect_to_region
+from mo_dots import listwrap, unwrap
+from mo_kwargs import override
+from mo_kwargs import override
 from mo_threads import Lock
 from mo_threads.threads import Lock
 from mo_times.dates import Date
 from mo_times.dates import Date
 from mo_times.durations import HOUR, MINUTE
 from mo_times.durations import HOUR, MINUTE
-from pyDots import listwrap, unwrap
-from mo_kwargs import override
-from mo_kwargs import override
 
 from mo_logs import Log
 from mo_logs.exceptions import ALARM, NOTE
