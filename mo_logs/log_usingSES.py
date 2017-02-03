@@ -21,8 +21,8 @@ from mo_times.dates import Date
 from mo_times.durations import HOUR, MINUTE
 from mo_times.durations import HOUR, MINUTE
 from pyDots import listwrap, unwrap
-from pyLibrary.meta import use_settings
-from pyLibrary.meta import use_settings
+from mo_kwargs import override
+from mo_kwargs import override
 
 from mo_logs import Log
 from mo_logs.exceptions import ALARM, NOTE
@@ -34,7 +34,7 @@ WAIT_TO_SEND_MORE = HOUR
 
 class StructuredLogger_usingSES(StructuredLogger):
 
-    @use_settings
+    @override
     def __init__(
         self,
         from_address,

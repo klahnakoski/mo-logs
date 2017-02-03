@@ -45,14 +45,14 @@ def find_packages(where='.', lib_prefix='', exclude=()):
 setup(
     name='mo-logs',
     version="1.0.17029",
-    description='More Logs!',
+    description='More Logs! Structured Logging and Exception Handling',
     long_description=long_desc,
     author='Kyle Lahnakoski',
     author_email='kyle@lahnakoski.com',
     url='https://github.com/klahnakoski/mo-logs',
     license='MPL 2.0',
     packages=find_packages(".", lib_prefix=""),
-    install_requires=['pyDots'],
+    install_requires=['mo-dots'],
     include_package_data=True,
     zip_safe=False,
     classifiers=[  #https://pypi.python.org/pypi?%3Aaction=list_classifiers
