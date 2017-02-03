@@ -44,7 +44,7 @@ def find_packages(where='.', lib_prefix='', exclude=()):
 
 setup(
     name='mo-logs',
-    version="1.0.17029",
+    version="1.0.17035",
     description='More Logs! Structured Logging and Exception Handling',
     long_description=long_desc,
     author='Kyle Lahnakoski',
