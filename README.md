@@ -2,8 +2,8 @@
 INCOMPLETE
 ==========
 
-MoLogs - Structured Logging and Exception Handling
-==================================================
+More Logs - Structured Logging and Exception Handling
+=====================================================
 
 This library provides two main features
 

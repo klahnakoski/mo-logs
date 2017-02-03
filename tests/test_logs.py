@@ -16,13 +16,13 @@ import zlib
 
 from future.utils import raise_from
 
+from mo_json import value2json
 from mo_logs import Log, Except
 from mo_logs.log_usingQueue import StructuredLogger_usingQueue
-from pyDots import listwrap, wrap
-from pyDots.objects import DataObject
-from pyLibrary import convert
-from pyLibrary.testing.fuzzytestcase import FuzzyTestCase
-from pyLibrary.thread.till import Till
+from mo_dots import listwrap, wrap
+from mo_dots.objects import DataObject
+from mo_testing.fuzzytestcase import FuzzyTestCase
+from mo_threads import Till
 
 
 class TestExcept(FuzzyTestCase):
@@ -211,7 +211,7 @@ class TestExcept(FuzzyTestCase):
         except Exception, e:
             class _catcher(logging.Handler):
                 def handle(self, record):
-                    o = convert.value2json(DataObject(record))
+                    o = value2json(DataObject(record))
                     if record:
                         pass
                     if "this is a problem" not in e:

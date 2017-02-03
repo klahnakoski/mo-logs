@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from mo_logs import strings
 
 from mo_logs.strings import expand_template
-from pyLibrary.testing.fuzzytestcase import FuzzyTestCase
+from mo_testing.fuzzytestcase import FuzzyTestCase
 
 
 class TestStrings(FuzzyTestCase):
