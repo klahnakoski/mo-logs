@@ -56,24 +56,24 @@ the log structure. This library also expects all parameter values to be JSON-
 serializable so they can be stored/processed by downstream JSON tools.
 
 ```javascript
-	{//EXAMPLE STRUCTURED LOG
-		"template": "Hello, {{name}}!",
-		"param": {"name": "World!"},
-		"timestamp": 1429721745,
-		"thread": {
-			"name": "Main thread"
-		},
-		"location": {
-			"line": 3,
-			"file": "hello.py",
-			"method": "hello"
-		},
-		"machine": {
+    {//EXAMPLE STRUCTURED LOG
+        "template": "Hello, {{name}}!",
+        "param": {"name": "World!"},
+        "timestamp": 1429721745,
+        "thread": {
+            "name": "Main thread"
+        },
+        "location": {
+            "line": 3,
+            "file": "hello.py",
+            "method": "hello"
+        },
+        "machine": {
             "python": "CPython",
             "os": "Windows10",
             "name": "ekyle-win"
-		}
-	}
+        }
+    }
 ```
 
 **Instead of `raise` use `Log.error()`**
@@ -154,8 +154,8 @@ the `in` keyword:
             # Do something that might raise exception
         except Exception, e:
             if "Failure to work with {{key2}}" in e:
-				# Deal with exception thrown in above code, no matter
-				# how many other exception handlers where in the chain
+                # Deal with exception thrown in above code, no matter
+                # how many other exception handlers where in the chain
 ```
 
 **If you can deal with an exception, then it will never be logged**
@@ -194,8 +194,8 @@ be wrapped because they already captured their trace. If you wrap an `Except`
 object, you simply get back the object you passed.
 
 ```python
-	try:
-		# DO SOME WORK		
+    try:
+        # DO SOME WORK        
     except Exception, e:
         e = Except.wrap(e)
         # DO SOME FANCY ERROR RECOVERY
@@ -220,9 +220,9 @@ structures, they will be logged!
 
 ```python
     def worker(value):
-		name = "tout le monde!"
-		password = "123"
-        Log.note("Hello, {{name}}", locals())  	# DO NOT DO THIS!
+        name = "tout le monde!"
+        password = "123"
+        Log.note("Hello, {{name}}", locals())      # DO NOT DO THIS!
 ```
 
 Despite the fact using `locals()` is a wonderful shortcut for logging it is
@@ -240,17 +240,17 @@ output.
 
 
 ```python
-	# simple.py
-	DEBUG_SHOW_DETAIL = True
+    # simple.py
+    DEBUG_SHOW_DETAIL = True
 
     def worker():
-		if DEBUG_SHOW_DETAIL:
-			Log.note("Starting")
+        if DEBUG_SHOW_DETAIL:
+            Log.note("Starting")
 
         # DO WORK HERE
 
-		if DEBUG_SHOW_DETAIL:
-			Log.note("Done")
+        if DEBUG_SHOW_DETAIL:
+            Log.note("Done")
 
     def main():
         try:
@@ -268,12 +268,12 @@ output.
 These debug variables can be set by configuration file:
 
 ```javascript
-	// settings.json
-	{
-		"debug":{
-			"constants":{"simple.DEBUG_SHOW_DETAILS":false}
-		}
-	}
+    // settings.json
+    {
+        "debug":{
+            "constants":{"simple.DEBUG_SHOW_DETAILS":false}
+        }
+    }
 ```
 
 Configuration
@@ -310,25 +310,25 @@ structure:
 
 
 
-		"log": [
-			{
-				"class": "logging.handlers.RotatingFileHandler",
-				"filename": "examples/logs/examples_etl.log",
-				"maxBytes": 10000000,
-				"backupCount": 100,
-				"encoding": "utf8"
-			},
-			{
-				"log_type": "email",
-				"from_address": "klahnakoski@mozilla.com",
-				"to_address": "klahnakoski@mozilla.com",
-				"subject": "[ALERT][DEV] Problem in ETL Spot",
-				"$ref": "file://~/private.json#email"
-			},
-			{
-				"log_type": "console"
-			}
-		]
+        "log": [
+            {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": "examples/logs/examples_etl.log",
+                "maxBytes": 10000000,
+                "backupCount": 100,
+                "encoding": "utf8"
+            },
+            {
+                "log_type": "email",
+                "from_address": "klahnakoski@mozilla.com",
+                "to_address": "klahnakoski@mozilla.com",
+                "subject": "[ALERT][DEV] Problem in ETL Spot",
+                "$ref": "file://~/private.json#email"
+            },
+            {
+                "log_type": "console"
+            }
+        ]
 
 
 
