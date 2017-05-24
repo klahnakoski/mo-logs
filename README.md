@@ -1,7 +1,4 @@
 
-INCOMPLETE
-==========
-
 More Logs - Structured Logging and Exception Handling
 =====================================================
 
