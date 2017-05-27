@@ -26,7 +26,6 @@ from mo_threads import Till
 
 
 class TestExcept(FuzzyTestCase):
-
     @classmethod
     def setUpClass(cls):
         Log.start({"trace": False})
@@ -34,7 +33,7 @@ class TestExcept(FuzzyTestCase):
     def test_trace_of_simple_raises(self):
         try:
             problem_a()
-        except Exception, e:
+        except Exception as e:
             f = Except.wrap(e)
             self.assertEqual(f.template, "expected exception")
             for i, m in enumerate(listwrap(f.trace).method):
@@ -47,7 +46,7 @@ class TestExcept(FuzzyTestCase):
     def test_full_trace_exists(self):
         try:
             problem_a2()
-        except Exception, e:
+        except Exception as e:
             cause = e.cause
             self.assertEqual(cause.template, "expected exception")
 
@@ -58,10 +57,15 @@ class TestExcept(FuzzyTestCase):
             else:
                 self.fail("expecting stack to show this method")
 
+    def test_bad_log_params(self):
+        for call in [Log.note, Log.warning, Log.error]:
+            self.assertRaises("was expecting a unicode template", call, [{}])
+
+
     def test_full_trace_on_wrap(self):
         try:
             problem_b()
-        except Exception, e:
+        except Exception as e:
             cause = Except.wrap(e)
             self.assertEqual(cause.template, "expected exception")
 
@@ -90,7 +94,7 @@ class TestExcept(FuzzyTestCase):
 
         try:
             raise Exception("problem")
-        except Exception, e:
+        except Exception as e:
             Log.warning("test")
             self.assertEqual(Log.main_log.pop(), WARNING)
 
@@ -164,7 +168,7 @@ class TestExcept(FuzzyTestCase):
 
         try:
             raise Exception("problem")
-        except Exception, e:
+        except Exception as e:
             Log.note("test")
             self.assertEqual(Log.main_log.pop(), WARNING)
 
@@ -194,8 +198,7 @@ class TestExcept(FuzzyTestCase):
         finally:
             Log.main_log = backup_log
 
-
-    #NORMAL RAISING
+    # NORMAL RAISING
     def test_python_raise_from(self):
         def problem_y():
             raise Exception("this is the root cause")
@@ -203,12 +206,12 @@ class TestExcept(FuzzyTestCase):
         def problem_x():
             try:
                 problem_y()
-            except Exception, e:
+            except Exception as e:
                 raise_from(Exception("this is a problem"), e)
 
         try:
             problem_x()
-        except Exception, e:
+        except Exception as e:
             class _catcher(logging.Handler):
                 def handle(self, record):
                     o = value2json(DataObject(record))
@@ -219,11 +222,11 @@ class TestExcept(FuzzyTestCase):
                     if "this is the root cause" in e:
                         Log.error("We do not expect Python to report exception chains")
 
-            log=logging.getLogger()
+            log = logging.getLogger()
             log.addHandler(_catcher())
             log.exception("problem")
 
-    #NORMAL RE-RAISE
+    # NORMAL RE-RAISE
     def test_python_re_raise(self):
         def problem_y():
             raise Exception("this is the root cause")
@@ -231,12 +234,12 @@ class TestExcept(FuzzyTestCase):
         def problem_x():
             try:
                 problem_y()
-            except Exception, f:
+            except Exception as f:
                 raise f
 
         try:
             problem_x()
-        except Exception, e:
+        except Exception as e:
             e = Except.wrap(e)
             self.assertEqual(e.cause, None)  # REALLY, THE CAUSE IS problem_y()
 
@@ -248,13 +251,12 @@ class TestExcept(FuzzyTestCase):
         try:
             bad_unzip()
             assert False
-        except Exception, e:
+        except Exception as e:
             e = Except.wrap(e)
             if "incorrect header check" in e:
                 pass
             else:
                 assert False
-
 
 
 def problem_a():
@@ -268,13 +270,8 @@ def problem_b():
 def problem_a2():
     try:
         problem_b()
-    except Exception, e:
+    except Exception as e:
         Log.error("this is a problem", e)
-
-
-
-
-
 
 
 if __name__ == '__main__':
