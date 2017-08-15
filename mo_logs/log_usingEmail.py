@@ -70,6 +70,7 @@ class StructuredLogger_usingEmail(StructuredLogger):
         self.settings.max_interval = Duration(kwargs.max_interval)
 
     def write(self, template, params):
+        # type: (object, object) -> object
         with self.locker:
             if params.context not in [NOTE, ALARM]:  # SEND ONLY THE NOT BORING STUFF
                 self.accumulation.append((template, params))
@@ -91,7 +92,7 @@ class StructuredLogger_usingEmail(StructuredLogger):
                         content = expand_template(template, params)
                         emails[literal_field(self.settings.to_address)] += [content]
                         for c in self.cc:
-                            if any(c in params.params.error for c in c.contains):
+                            if any(d in params.params.error for d in c.contains):
                                 emails[literal_field(c.to_address)] += [content]
 
                     # SEND TO EACH
