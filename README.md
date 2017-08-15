@@ -4,7 +4,7 @@ More Logs - Structured Logging and Exception Handling
 
 This library provides two main features
 
-* **Structured logging** - output is all JSON (with options to serialize to text)
+* **Structured logging** - output is all JSON (with options to serialize to text for humans)
 * **Exception handling weaved in** - Good logs must represent what happened,
 and that can not be done if the logging library is not intimately familiar with
 the (exceptional) code paths taken.
@@ -117,10 +117,12 @@ make better decisions on appropriate action.
 For example: An abstract document container, implemented on top of a SQL 
 database, should not emit SQLExceptions of any kind: A caller that uses a 
 document container should not need to know how to handle SQLExceptions (or any 
-other implementation-specific exceptions).  Rather, in this example, the 
+other implementation-specific exceptions). Rather, in this example, the 
 caller should be told it "can not add a document", or "can not remove a 
-document". This allows the caller to make reasonable desisions when they do 
-occur.  The original cause (the SQLException) is in the causal chain. 
+document". This allows the caller to make reasonable decisions when they do 
+occur. The original cause (the SQLException) is in the causal chain.
+
+Another example, involves *nested exceptions*: If you catch a particular type of exception, you may not expect to catch the that same type of exception from deeper in the call chain. Narrow exception handling is an illusion. Broad exception handling will force you to consider a variety of failures early; what it means when a block of code fails, no matter the reason.   
 
 **Use named parameters in your error descriptions too**
 

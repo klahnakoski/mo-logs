@@ -16,10 +16,13 @@ from __future__ import unicode_literals
 import sys
 from time import time
 
+from future.utils import text_type
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 from mo_threads import Thread, THREAD_STOP, Till
+
+DEBUG_LOGGING = False
 
 
 class StructuredLogger_usingThreadedStream(StructuredLogger):
@@ -44,7 +47,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
 
         if use_UTF8:
             def utf8_appender(value):
-                if isinstance(value, unicode):
+                if isinstance(value, text_type):
                     value = value.encode('utf8')
                 self.stream.write(value)
 
@@ -58,6 +61,7 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
         self.thread.start()
 
     def write(self, template, params):
+        # type: (object, object) -> object
         try:
             self.queue.add({"template": template, "params": params})
             return self
@@ -106,12 +110,14 @@ def time_delta_pusher(please_stop, appender, queue, interval):
                     expanded = expand_template(log.get("template"), log.get("params"))
                     lines.append(expanded)
             except Exception as e:
-                Log.warning("Trouble formatting logs", cause=e)
+                location = log.get('params', {}).get('location', {})
+                Log.warning("Trouble formatting log from {{location}}", location=location, cause=e)
                 # SWALLOW ERROR, GOT TO KEEP RUNNING
         try:
             appender(u"\n".join(lines) + u"\n")
         except Exception as e:
-            sys.stderr.write(b"Trouble with appender: " + str(e.message) + b"\n")
-            # SWALLOW ERROR, GOT TO KEEP RUNNNIG
+
+            sys.stderr.write(b"Trouble with appender: " + str(e.__class__.__name__) + b"\n")
+            # SWALLOW ERROR, MUST KEEP RUNNING
 
 
