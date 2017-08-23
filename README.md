@@ -195,6 +195,7 @@ your trace for later use. Exceptions thrown from this `Log` library need not
 be wrapped because they already captured their trace. If you wrap an `Except`
 object, you simply get back the object you passed.
 
+
 ```python
     try:
         # DO SOME WORK        
@@ -202,7 +203,6 @@ object, you simply get back the object you passed.
         e = Except.wrap(e)
         # DO SOME FANCY ERROR RECOVERY
  ```
-
 
 Other forms
 -----------
