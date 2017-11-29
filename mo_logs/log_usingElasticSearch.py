@@ -13,18 +13,20 @@ from __future__ import unicode_literals
 
 from collections import Mapping
 
+from mo_future import text_type, binary_type
+
 import mo_json
-from mo_dots import wrap, coalesce
+from jx_python import jx
+from mo_dots import wrap, coalesce, FlatList
 from mo_json import value2json
 from mo_kwargs import override
-from mo_threads import Thread, Queue, Till, THREAD_STOP
-from mo_times import MINUTE, Duration
-from pyLibrary.env.elasticsearch import Cluster
-from jx_python import jx
-
 from mo_logs import Log, strings
 from mo_logs.exceptions import suppress_exception
 from mo_logs.log_usingNothing import StructuredLogger
+from mo_threads import Thread, Queue, Till, THREAD_STOP
+from mo_times import MINUTE, Duration
+from pyLibrary.convert import bytes2base64
+from pyLibrary.env.elasticsearch import Cluster
 
 MAX_BAD_COUNT = 5
 LOG_STRING_LENGTH = 2000
@@ -50,7 +52,6 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
         Thread.run("add debug logs to es", self._insert_loop)
 
     def write(self, template, params):
-        # type: (object, object) -> object
         if params.get("template"):
             # DETECTED INNER TEMPLATE, ASSUME TRACE IS ON, SO DO NOT NEED THE OUTER TEMPLATE
             self.queue.add({"value": params})
@@ -113,12 +114,14 @@ def _deep_json_to_string(value, depth):
             return strings.limit(value2json(value), LOG_STRING_LENGTH)
 
         return {k: _deep_json_to_string(v, depth - 1) for k, v in value.items()}
-    elif isinstance(value, list):
+    elif isinstance(value, (list, FlatList)):
         return strings.limit(value2json(value), LOG_STRING_LENGTH)
     elif isinstance(value, (float, int, long)):
         return value
-    elif isinstance(value, basestring):
+    elif isinstance(value, text_type):
         return strings.limit(value, LOG_STRING_LENGTH)
+    elif isinstance(value, binary_type):
+        return strings.limit(bytes2base64(value), LOG_STRING_LENGTH)
     else:
         return strings.limit(value2json(value), LOG_STRING_LENGTH)
 
@@ -129,51 +132,8 @@ SCHEMA = {
         "dynamic_templates": [
             {"everything_else": {
                 "match": "*",
-                "mapping": {"index": "no"}
+                "mapping": {"index": False}
             }}
-        ],
-        "_all": {"enabled": False},
-        "_source": {"compress": True, "enabled": True},
-        "properties": {
-            "params": {"type": "object", "dynamic": False, "index": "no"},
-            "template": {"type": "object", "dynamic": False, "index": "no"},
-            "context": {
-                "type": "object",
-                "dynamic": False,
-                "properties": {
-                    "$value": {"type": "string"}
-                }
-            },
-            "$object": {"type": "string"},
-            "machine": {
-                "dynamic": True,
-                "properties": {
-                    "python": {
-                        "properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}},
-                    "$object": {"type": "string"},
-                    "os": {"properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}},
-                    "name": {"properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}}
-                }
-            },
-            "location": {
-                "dynamic": True,
-                "properties": {
-                    "$object": {"type": "string"},
-                    "file": {"properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}},
-                    "method": {
-                        "properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}},
-                    "line": {"properties": {"$value": {"index": "not_analyzed", "type": "long", "doc_values": True}}}
-                }
-            },
-            "thread": {
-                "dynamic": True,
-                "properties": {
-                    "$object": {"type": "string"},
-                    "name": {"properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}},
-                    "id": {"properties": {"$value": {"index": "not_analyzed", "type": "string", "doc_values": True}}}
-                }
-            },
-            "timestamp": {"properties": {"$value": {"index": "not_analyzed", "type": "string"}}}
-        }
+        ]
     }}
 }

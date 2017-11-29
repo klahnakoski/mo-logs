@@ -16,7 +16,7 @@ from __future__ import unicode_literals
 import sys
 from time import time
 
-from future.utils import text_type
+from mo_future import text_type
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -61,7 +61,6 @@ class StructuredLogger_usingThreadedStream(StructuredLogger):
         self.thread.start()
 
     def write(self, template, params):
-        # type: (object, object) -> object
         try:
             self.queue.add({"template": template, "params": params})
             return self

@@ -1,6 +1,5 @@
 
-More Logs - Structured Logging and Exception Handling
-=====================================================
+# More Logs - Structured Logging and Exception Handling
 
 This library provides two main features
 
@@ -9,8 +8,7 @@ This library provides two main features
 and that can not be done if the logging library is not intimately familiar with
 the (exceptional) code paths taken.
 
-Motivation
-----------
+## Motivation
 
 Exception handling and logging are undeniably linked. There are many instances
 where exceptions are raised and must be logged, and others where the subsuming 
@@ -23,15 +21,14 @@ This logging module is additionally responsible for raising exceptions,
 collecting the trace and context, and then deducing if it must be logged, or
 if it can be ignored because something can handle it.
 
-**More Reading**
+### More Reading
 
 * **Structured Logging is Good** - https://sites.google.com/site/steveyegge2/the-emacs-problem
 
 
-Basic Usage
------------
+## Basic Usage
 
-**Use `Log.note()` for all logging**
+### Use `Log.note()` for all logging
 
 ```python
     Log.note("Hello, World!")
@@ -41,7 +38,7 @@ There is no need to create logger objects. The `Log` module will keep track of
 what, where and who of every call.
 
 
-**Use named parameters**
+### Use named parameters
 
 Do not use Python's formatting operator "`%`" nor it's `format()` function.
 Using them will create a string at call time, which is a parsing nightmare
@@ -76,7 +73,7 @@ serializable so they can be stored/processed by downstream JSON tools.
     }
 ```
 
-**Instead of `raise` use `Log.error()`**
+### Instead of `raise` use `Log.error()`
 
 ```python
     Log.error("This will throw an error")
@@ -86,7 +83,7 @@ The actual call will always raise an exception, and it manipulates the stack
 trace to ensure the caller is appropriately blamed. Feel free to use the
 `raise` keyword (as in `raise Log.error("")`), if that looks nicer to you. 
 
-**Always chain your exceptions**
+### Always chain your exceptions
 
 The `cause` parameter accepts an `Exception`, or a list of exceptions.
 Chaining is generally good practice that helps you find the root cause of
@@ -99,7 +96,7 @@ a failure.
         Log.error("Describe what you were trying to do", cause=e)
 ```
 
-**Always catch all `Exceptions`**
+### Always catch all `Exceptions`
 
 Catching all exceptions is preferred over the *only-catch-what-you-can-handle*
 strategy. First, exceptions are not lost because we are chaining. Second,
@@ -124,7 +121,7 @@ occur. The original cause (the SQLException) is in the causal chain.
 
 Another example, involves *nested exceptions*: If you catch a particular type of exception, you may not expect to catch the that same type of exception from deeper in the call chain. Narrow exception handling is an illusion. Broad exception handling will force you to consider a variety of failures early; what it means when a block of code fails, no matter the reason.   
 
-**Use named parameters in your error descriptions too**
+### Use named parameters in your error descriptions too
 
 Error logging accepts keyword parameters just like `Log.note()` does
 
@@ -137,13 +134,13 @@ Error logging accepts keyword parameters just like `Log.note()` does
             Log.error("Failure to work with {{key2}}", key2=value2, cause=e)
 ```
 
-**No need to formally type your exceptions**
+### No need to formally type your exceptions
 
 An exception can be uniquely identified by the first-parameter string template
 it is given; exceptions raised with the same template are the same type. You
 should have no need to create new exception sub-types.
 
-**Testing for exception "types"**
+### Testing for exception "types"
 
 This library advocates chaining exceptions early and often, and this hides
 important exception types in a long causal chain.   MoLogs allows you to easily
@@ -160,7 +157,7 @@ the `in` keyword:
                 # how many other exception handlers where in the chain
 ```
 
-**If you can deal with an exception, then it will never be logged**
+### If you can deal with an exception, then it will never be logged
 
 When a caller catches an exception from a callee, it is the caller's
 responsibility to handle that exception, or re-raise it. There are many
@@ -175,8 +172,8 @@ logging an error would be deceptive.
             # Try something else
 ```
 
-**Use `Log.warning()` if your code can deal with an exception, but you still 
-want to log it as an issue**
+### Use `Log.warning()` if your code can deal with an exception, but you still 
+want to log it as an issue
 
 ```python
     def worker(value):
@@ -186,7 +183,7 @@ want to log it as an issue**
         except Exception, e:
             Log.warning("Failure to work with {{key4}}", key4=value4, cause=e)
 ```
-**Don't loose your stack trace!**
+### Don't loose your stack trace!
 
 Be aware your `except` clause can also throw exceptions: In the event you
 catch a vanilla Python Exception, you run the risk of loosing its stack trace.
@@ -204,8 +201,7 @@ object, you simply get back the object you passed.
         # DO SOME FANCY ERROR RECOVERY
  ```
 
-Other forms
------------
+## Other forms
 
 All the `Log` functions accept a `default_params` as a second parameter, like so:
 
@@ -218,7 +214,7 @@ wish to use as a source of parameters. If keyword parameters are used, they
 will override the default values. Be careful when sending whole data
 structures, they will be logged!
 
-**Please, never use locals()**
+### Please, never use locals()
 
 ```python
     def worker(value):
@@ -233,8 +229,7 @@ dangerous because it also picks up sensitive local variables. Even if
 be sent to the structured loggers for recording. 
 
 
-Log 'Levels'
-------------
+## Log 'Levels'
 
 The `logs` module has no concept of logging levels it is expected that debug
 variables (variables prefixed with `DEBUG_` are used to control the logging
@@ -278,8 +273,7 @@ These debug variables can be set by configuration file:
     }
 ```
 
-Configuration
--------------
+## Configuration
 
 The `logs` module will log to the console by default. ```Log.start(settings)```
 will redirect the logging to other streams, as defined by the settings:
@@ -334,8 +328,7 @@ structure:
 
 
 
-Problems with Python Logging
-----------------------------
+## Problems with Python Logging
 
 [Python's default `logging` module](https://docs.python.org/2/library/logging.html#logging.debug)
 comes close to doing the right thing, but fails:  
