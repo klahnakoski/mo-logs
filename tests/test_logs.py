@@ -217,9 +217,9 @@ class TestExcept(FuzzyTestCase):
                     o = value2json(DataObject(record))
                     if record:
                         pass
-                    if "this is a problem" not in e:
+                    if "this is a problem" not in e.args:
                         Log.error("We expect Python to, at least, report the first order problem")
-                    if "this is the root cause" in e:
+                    if "this is the root cause" in e.args:
                         Log.error("We do not expect Python to report exception chains")
 
             log = logging.getLogger()

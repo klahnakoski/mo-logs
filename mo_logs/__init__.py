@@ -17,16 +17,14 @@ import sys
 from collections import Mapping
 from datetime import datetime
 
-from future.utils import text_type
-from mo_dots import coalesce, listwrap, wrap, unwrap, unwraplist, set_default
-
-from mo_logs import constants
+from mo_dots import coalesce, listwrap, wrap, unwrap, unwraplist, set_default, FlatList
+from mo_future import text_type
 from mo_logs.exceptions import Except, suppress_exception
 from mo_logs.strings import indent
+from mo_logs import constants
 
 
-# _Thread = None
-
+_Thread = None
 
 class Log(object):
     """
@@ -55,8 +53,6 @@ class Log(object):
         constants - UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
         """
         global _Thread
-        from mo_threads import Thread as _Thread
-        _ = _Thread
 
         if not settings:
             return
@@ -67,8 +63,8 @@ class Log(object):
         cls.settings = settings
         cls.trace = coalesce(settings.trace, False)
         if cls.trace:
-            from mo_threads import Thread
-            _ = Thread
+            from mo_threads import Thread as _Thread
+            _ = _Thread
 
         if settings.cprofile is False:
             settings.cprofile = {"enabled": False}
@@ -209,8 +205,8 @@ class Log(object):
             f = sys._getframe(stack_depth + 1)
             log_params.location = {
                 "line": f.f_lineno,
-                "file": f.f_code.co_filename.split(os.sep)[-1],
-                "method": f.f_code.co_name
+                "file": text_type(f.f_code.co_filename.split(os.sep)[-1]),
+                "method": text_type(f.f_code.co_name)
             }
             thread = _Thread.current()
             log_params.thread = {"name": thread.name, "id": thread.id}
@@ -371,7 +367,7 @@ class Log(object):
         :return:
         """
         if not isinstance(template, text_type):
-            sys.stderr.write(b"Log.error was expecting a unicode template")
+            sys.stderr.write(str("Log.error was expecting a unicode template"))
             Log.error("Log.error was expecting a unicode template")
 
         if default_params and isinstance(listwrap(default_params)[0], BaseException):
@@ -381,7 +377,18 @@ class Log(object):
         params = dict(unwrap(default_params), **more_params)
 
         add_to_trace = False
-        cause = wrap(unwraplist([Except.wrap(c, stack_depth=1) for c in listwrap(cause)]))
+        if cause == None:
+            pass
+        elif isinstance(cause, list):
+            cause = []
+            for c in listwrap(cause):  # CAN NOT USE LIST-COMPREHENSION IN PYTHON3 (EXTRA STACK DEPTH FROM THE IN-LINED GENERATOR)
+                cause.append(Except.wrap(c, stack_depth=1))
+            cause = FlatList(cause)
+        elif isinstance(cause, BaseException):
+            cause = Except.wrap(cause, stack_depth=1)
+        else:
+            Log.error("can only accept Exception , or list of exceptions")
+
         trace = exceptions.extract_stack(stack_depth + 1)
 
         if add_to_trace:
@@ -439,7 +446,6 @@ class Log(object):
 
 
     def write(self):
-        # type: () -> object
         raise NotImplementedError
 
 
@@ -470,9 +476,9 @@ def write_profile(profile_settings, stats):
 # GET THE MACHINE METADATA
 machine_metadata = wrap({
     "pid":  os.getpid(),
-    "python": platform.python_implementation(),
-    "os": (platform.system() + platform.release()).strip(),
-    "name": platform.node()
+    "python": text_type(platform.python_implementation()),
+    "os": text_type(platform.system() + platform.release()).strip(),
+    "name": text_type(platform.node())
 })
 
 

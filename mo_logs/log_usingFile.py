@@ -14,8 +14,8 @@ from __future__ import division
 from __future__ import unicode_literals
 
 import time
-from thread import allocate_lock
 
+from mo_future import allocate_lock
 from mo_logs import Log
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -34,7 +34,6 @@ class StructuredLogger_usingFile(StructuredLogger):
         self.file_lock = allocate_lock()
 
     def write(self, template, params):
-        # type: (object, object) -> object
         try:
             with self.file_lock:
                 self.file.append(expand_template(template, params))

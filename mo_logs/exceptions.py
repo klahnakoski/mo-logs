@@ -13,26 +13,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import unicode_literals
 
-import json
 import sys
 from collections import Mapping
 
-from future.utils import text_type
-from mo_dots import Data, listwrap, unwraplist, set_default, Null, DataObject, unwrap
-
+from mo_dots import Data, listwrap, unwraplist, set_default, Null
+from mo_future import text_type, PY3
 from mo_logs.strings import indent, expand_template
-
-json_encoder = json.JSONEncoder(
-    skipkeys=False,
-    ensure_ascii=False,  # DIFF FROM DEFAULTS
-    check_circular=True,
-    allow_nan=True,
-    indent=None,
-    separators=None,
-    encoding='utf-8',
-    default=None,
-    sort_keys=False
-).encode
 
 
 FATAL = "FATAL"
@@ -91,7 +77,7 @@ class Except(Exception):
         return expand_template(self.template, self.params)
 
     def __contains__(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, text_type):
             if self.template.find(value) >= 0 or self.message.find(value) >= 0:
                 return True
 
@@ -121,8 +107,12 @@ class Except(Exception):
 
         return output
 
-    def __str__(self):
-        return self.__unicode__().encode('latin1', 'replace')
+    if PY3:
+        def __str__(self):
+            return self.__unicode__()
+    else:
+        def __str__(self):
+            return self.__unicode__().encode('latin1', 'replace')
 
     def __data__(self):
         return Data(
@@ -230,13 +220,17 @@ class Explanation(object):
     def __init__(
         self,
         template,  # human readable template
+        debug=False,
         **more_params
     ):
+        self.debug = debug
         self.template = template
         self.more_params = more_params
 
     def __enter__(self):
-        pass
+        if self.debug:
+            from mo_logs import Log
+            Log.note(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
@@ -261,13 +255,17 @@ class WarnOnException(object):
     def __init__(
         self,
         template,  # human readable template
+        debug=False,
         **more_params
     ):
+        self.debug = debug
         self.template = template
         self.more_params = more_params
 
     def __enter__(self):
-        pass
+        if self.debug:
+            from mo_logs import Log
+            Log.note(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
