@@ -14,8 +14,6 @@ import logging
 import unittest
 import zlib
 
-from future.utils import raise_from
-
 from mo_json import value2json
 from mo_logs import Log, Except
 from mo_logs.log_usingQueue import StructuredLogger_usingQueue
@@ -207,7 +205,7 @@ class TestExcept(FuzzyTestCase):
             try:
                 problem_y()
             except Exception as e:
-                raise_from(Exception("this is a problem"), e)
+                raise Exception("this is a problem")
 
         try:
             problem_x()
