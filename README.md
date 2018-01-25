@@ -96,31 +96,6 @@ a failure.
         Log.error("Describe what you were trying to do", cause=e)
 ```
 
-### Always catch all `Exceptions`
-
-Catching all exceptions is preferred over the *only-catch-what-you-can-handle*
-strategy. First, exceptions are not lost because we are chaining. Second,
-we catch unexpected `Exceptions` early and we annotate them with a
-description of what the local code was intending to do. This annotation
-effectively groups the possible errors (known, or not) into a class, which
-can be used by callers to decide on appropriate mitigation.  
-
-To repeat: When using dependency injection, callers can not reasonably be
-expected to know about the types of failures that can happen deep down the
-call chain. This makes it vitally important that methods summarize all
-exceptions, both known and unknown, so their callers have the information to
-make better decisions on appropriate action.  
-
-For example: An abstract document container, implemented on top of a SQL 
-database, should not emit SQLExceptions of any kind: A caller that uses a 
-document container should not need to know how to handle SQLExceptions (or any 
-other implementation-specific exceptions). Rather, in this example, the 
-caller should be told it "can not add a document", or "can not remove a 
-document". This allows the caller to make reasonable decisions when they do 
-occur. The original cause (the SQLException) is in the causal chain.
-
-Another example, involves *nested exceptions*: If you catch a particular type of exception, you may not expect to catch the that same type of exception from deeper in the call chain. Narrow exception handling is an illusion. Broad exception handling will force you to consider a variety of failures early; what it means when a block of code fails, no matter the reason.   
-
 ### Use named parameters in your error descriptions too
 
 Error logging accepts keyword parameters just like `Log.note()` does
@@ -200,6 +175,42 @@ object, you simply get back the object you passed.
         e = Except.wrap(e)
         # DO SOME FANCY ERROR RECOVERY
  ```
+
+### Always catch all `Exceptions`
+
+Catching all exceptions is preferred over the *only-catch-what-you-can-handle*
+strategy. First, exceptions are not lost because we are chaining. Second,
+we catch unexpected `Exceptions` early and we annotate them with a
+description of what the local code was intending to do. This annotation
+effectively groups the possible errors (known, or not) into a class, which
+can be used by callers to decide on appropriate mitigation.  
+
+To repeat: When using dependency injection, callers can not reasonably be
+expected to know about the types of failures that can happen deep down the
+call chain. This makes it vitally important that methods summarize all
+exceptions, both known and unknown, so their callers have the information to
+make better decisions on appropriate action.  
+
+For example: An abstract document container, implemented on top of a SQL 
+database, should not emit SQLExceptions of any kind: A caller that uses a 
+document container should not need to know how to handle SQLExceptions (or any 
+other implementation-specific exceptions). Rather, in this example, the 
+caller should be told it "can not add a document", or "can not remove a 
+document". This allows the caller to make reasonable decisions when they do 
+occur. The original cause (the SQLException) is in the causal chain.
+
+Another example, involves *nested exceptions*: If you catch a particular type of exception, you may inadvertently catch the that same type of exception from deeper in the call chain. Narrow exception handling is an illusion. Broad exception handling will force you to consider a variety of failures early; force you to consider what it means when a block of code fails; and force you to describe it for others.
+
+### Don't make methods you do not need
+
+There is an argument that suggests you shoul break your code into methods, rather than catching exceptions: The method name will describe action that failed, and the stack trace can be inspected to make mitigation decisions. But this is a poor solution:
+
+* More methods means more complexity; the programmer must find the method, remember he method, and wonder if it is used elsewhere.
+* Catching exceptions allows you to add parameters
+* Catching exceptions makes it clear the error is important; someone might remove your method when refactoring
+* Compiler optimizations can interfere with the call stack
+* The name of the method might get very long to descibe the problem
+
 
 ## Other forms
 
@@ -298,7 +309,7 @@ structure:
 
             # DO WORK HERE
 
-        except Exception, e:
+        except Exception as e:
             Log.error("Complain, or not", e)
         finally:
             Log.stop()
