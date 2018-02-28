@@ -206,10 +206,10 @@ Another example, involves *nested exceptions*: If you catch a particular type of
 There is an argument that suggests you shoul break your code into methods, rather than catching exceptions: The method name will describe action that failed, and the stack trace can be inspected to make mitigation decisions. But this is a poor solution:
 
 * More methods means more complexity; the programmer must find the method, remember he method, and wonder if it is used elsewhere.
-* Catching exceptions allows you to add parameters
+* Catching exceptions allows you to include important state information.
 * Catching exceptions makes it clear the error is important; someone might remove your method when refactoring
 * Compiler optimizations can interfere with the call stack
-* The name of the method might get very long to descibe the problem
+* The name of the method might get very long to describe the problem
 
 
 ## Other forms
