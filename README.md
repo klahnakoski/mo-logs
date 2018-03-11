@@ -21,10 +21,6 @@ This logging module is additionally responsible for raising exceptions,
 collecting the trace and context, and then deducing if it must be logged, or
 if it can be ignored because something can handle it.
 
-### More Reading
-
-* **Structured Logging is Good** - https://sites.google.com/site/steveyegge2/the-emacs-problem
-
 
 ## Basic Usage
 
@@ -47,6 +43,10 @@ for log analysis tools.
 ```python
     Log.note("Hello, {{name}}!", name="World!")
 ```
+
+
+## Exception Handling
+
 
 All logs are structured logs; the parameters will be included, unchanged, in
 the log structure. This library also expects all parameter values to be JSON-
@@ -348,4 +348,7 @@ comes close to doing the right thing, but fails:
   * It even has stack trace with `exc_info` parameter, but only if an exception is being handled.
   * Python 2.x has no builtin exception chaining, but [Python 3 does](https://www.python.org/dev/peps/pep-3134/)
 
+### More Reading
+
+* **Structured Logging is Good** - https://sites.google.com/site/steveyegge2/the-emacs-problem
 
