@@ -21,10 +21,6 @@ This logging module is additionally responsible for raising exceptions,
 collecting the trace and context, and then deducing if it must be logged, or
 if it can be ignored because something can handle it.
 
-### More Reading
-
-* **Structured Logging is Good** - https://sites.google.com/site/steveyegge2/the-emacs-problem
-
 
 ## Basic Usage
 
@@ -37,16 +33,65 @@ if it can be ignored because something can handle it.
 There is no need to create logger objects. The `Log` module will keep track of
 what, where and who of every call.
 
-
-### Use named parameters
+### Using named parameters
 
 Do not use Python's formatting operator "`%`" nor it's `format()` function.
 Using them will create a string at call time, which is a parsing nightmare
 for log analysis tools.
 
+Instead, use a string template and keyword arguments to set the named parameters
+
 ```python
     Log.note("Hello, {{name}}!", name="World!")
 ```
+
+### Parametric parameters
+
+All the `Log` functions accept a `default_params` as a second parameter, like so:
+
+```python
+    Log.note("Hello, {{name}}!", {"name": "World!"})
+```
+
+this is meant for the situation your code already has a bundled structure you
+wish to use as a source of parameters. If keyword parameters are used, they
+will override the default values. Be careful when sending whole data
+structures, they will be logged!
+
+### Formatting parameters
+
+There are a variety of formatting parameters. They can be applied by using the 
+pipe (`|`) symbol.  
+
+In this example we cast the `name` to uppercase
+
+```python
+    Log.note("Hello, {{name|upper}}!", name="World!")
+```
+
+Parameters also accept additional arguments:
+
+```python
+    Log.note("pi is {{pi|round(places=3)}}!", pi=3.14159265)
+```
+
+You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the methods available.
+
+### Please, never use locals()
+
+```python
+    def worker(value):
+        name = "tout le monde!"
+        password = "123"
+        Log.note("Hello, {{name}}", locals())      # DO NOT DO THIS!
+```
+
+Despite the fact using `locals()` is a wonderful shortcut for logging it is
+dangerous because it also picks up sensitive local variables. Even if
+`{{name}}` is the only value in the template, the whole `locals()` dict will
+be sent to the structured loggers for recording. 
+
+## Exception Handling
 
 All logs are structured logs; the parameters will be included, unchanged, in
 the log structure. This library also expects all parameter values to be JSON-
@@ -212,34 +257,6 @@ There is an argument that suggests you shoul break your code into methods, rathe
 * The name of the method might get very long to describe the problem
 
 
-## Other forms
-
-All the `Log` functions accept a `default_params` as a second parameter, like so:
-
-```python
-    Log.note("Hello, {{name}}!", {"name": "World!"})
-```
-
-this is meant for the situation your code already has a bundled structure you
-wish to use as a source of parameters. If keyword parameters are used, they
-will override the default values. Be careful when sending whole data
-structures, they will be logged!
-
-### Please, never use locals()
-
-```python
-    def worker(value):
-        name = "tout le monde!"
-        password = "123"
-        Log.note("Hello, {{name}}", locals())      # DO NOT DO THIS!
-```
-
-Despite the fact using `locals()` is a wonderful shortcut for logging it is
-dangerous because it also picks up sensitive local variables. Even if
-`{{name}}` is the only value in the template, the whole `locals()` dict will
-be sent to the structured loggers for recording. 
-
-
 ## Log 'Levels'
 
 The `logs` module has no concept of logging levels it is expected that debug
@@ -343,9 +360,13 @@ structure:
 
 [Python's default `logging` module](https://docs.python.org/2/library/logging.html#logging.debug)
 comes close to doing the right thing, but fails:  
+
   * It has keyword parameters, but they are expanded at call time so the values are lost in a string.  
   * It has `extra` parameters, but they are lost if not used by the matching `Formatter`.  
   * It even has stack trace with `exc_info` parameter, but only if an exception is being handled.
   * Python 2.x has no builtin exception chaining, but [Python 3 does](https://www.python.org/dev/peps/pep-3134/)
 
+### More Reading
+
+* **Structured Logging is Good** - https://sites.google.com/site/steveyegge2/the-emacs-problem
 
