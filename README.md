@@ -60,7 +60,7 @@ structures, they will be logged!
 
 ### Formatting parameters
 
-There are a variety of formatting parameters. They can be applied by using the 
+There are a variety of formatters, and they can be applied by using the 
 pipe (`|`) symbol.  
 
 In this example we cast the `name` to uppercase
@@ -69,13 +69,13 @@ In this example we cast the `name` to uppercase
     Log.note("Hello, {{name|upper}}!", name="World!")
 ```
 
-Parameters also accept additional arguments:
+Some formatters accept arguments:
 
 ```python
     Log.note("pi is {{pi|round(places=3)}}!", pi=3.14159265)
 ```
 
-You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the methods available.
+You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the formatters available.
 
 ### Please, never use locals()
 

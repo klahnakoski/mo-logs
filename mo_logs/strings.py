@@ -23,9 +23,11 @@ from datetime import timedelta, date
 from json.encoder import encode_basestring
 
 from mo_dots import coalesce, wrap, get_module
-from mo_future import text_type, xrange, binary_type, round as _round, PY3
+from mo_future import text_type, xrange, binary_type, round as _round, PY3, get_function_name
 from mo_logs.convert import datetime2unix, datetime2string, value2json, milli2datetime, unix2datetime
 from mo_logs.url import value2url_param
+
+FORMATTERS = {}
 
 _json_encoder = None
 _Log = None
@@ -53,6 +55,15 @@ def _late_import():
     _ = _Duration
 
 
+def formatter(func):
+    """
+    register formatters
+    """
+    FORMATTERS[get_function_name(func)]=func
+    return func
+
+
+@formatter
 def datetime(value):
     """
     Convert from unix timestamp to GMT string
@@ -69,6 +80,7 @@ def datetime(value):
     return datetime2string(value, "%Y-%m-%d %H:%M:%S")
 
 
+@formatter
 def unicode(value):
     """
     Convert to a unicode string
@@ -80,6 +92,7 @@ def unicode(value):
     return text_type(value)
 
 
+@formatter
 def unix(value):
     """
     Convert a date, or datetime to unix timestamp
@@ -96,6 +109,7 @@ def unix(value):
     return str(datetime2unix(value))
 
 
+@formatter
 def url(value):
     """
     convert FROM dict OR string TO URL PARAMETERS
@@ -103,6 +117,7 @@ def url(value):
     return value2url_param(value)
 
 
+@formatter
 def html(value):
     """
     convert FROM unicode TO HTML OF THE SAME
@@ -110,6 +125,7 @@ def html(value):
     return cgi.escape(value)
 
 
+@formatter
 def upper(value):
     """
     convert to uppercase
@@ -119,6 +135,7 @@ def upper(value):
     return value.upper()
 
 
+@formatter
 def lower(value):
     """
     convert to lowercase
@@ -128,6 +145,7 @@ def lower(value):
     return value.lower()
 
 
+@formatter
 def newline(value):
     """
     ADD NEWLINE, IF SOMETHING
@@ -135,6 +153,7 @@ def newline(value):
     return "\n" + toString(value).lstrip("\n")
 
 
+@formatter
 def replace(value, find, replace):
     """
     :param value: focal value
@@ -145,6 +164,7 @@ def replace(value, find, replace):
     return value.replace(find, replace)
 
 
+@formatter
 def json(value, pretty=True):
     """
     convert value to JSON
@@ -157,6 +177,7 @@ def json(value, pretty=True):
     return _json_encoder(value, pretty=pretty)
 
 
+@formatter
 def tab(value):
     """
     convert single value to tab-delimited form, including a header
@@ -174,6 +195,7 @@ def tab(value):
         text_type(value)
 
 
+@formatter
 def indent(value, prefix=u"\t", indent=None):
     """
     indent given string, using prefix * indent as prefix for each line
@@ -195,6 +217,7 @@ def indent(value, prefix=u"\t", indent=None):
         raise Exception(u"Problem with indent of value (" + e.message + u")\n" + text_type(toString(value)))
 
 
+@formatter
 def outdent(value):
     """
     remove common whitespace prefix from lines
@@ -216,6 +239,7 @@ def outdent(value):
         _Log.error("can not outdent value", e)
 
 
+@formatter
 def round(value, decimal=None, digits=None, places=None):
     """
     :param value:  THE VALUE TO ROUND
@@ -238,6 +262,7 @@ def round(value, decimal=None, digits=None, places=None):
     return format.format(_round(value, decimal))
 
 
+@formatter
 def percent(value, decimal=None, digits=None, places=None):
     """
     display value as a percent (1 = 100%)
@@ -262,6 +287,7 @@ def percent(value, decimal=None, digits=None, places=None):
     return format.format(_round(value, decimal + 2))
 
 
+@formatter
 def find(value, find, start=0):
     """
     Return index of `find` in `value` beginning at `start`
@@ -286,6 +312,7 @@ def find(value, find, start=0):
         return i
 
 
+@formatter
 def strip(value):
     """
     REMOVE WHITESPACE (INCLUDING CONTROL CHARACTERS)
@@ -309,6 +336,7 @@ def strip(value):
     return ""
 
 
+@formatter
 def trim(value):
     """
     Alias for `strip`
@@ -318,6 +346,7 @@ def trim(value):
     return strip(value)
 
 
+@formatter
 def between(value, prefix, suffix, start=0):
     """
     Return first substring between `prefix` and `suffix`
@@ -349,6 +378,7 @@ def between(value, prefix, suffix, start=0):
     return value[s:e]
 
 
+@formatter
 def right(value, len):
     """
     Return the `len` last characters of a string
@@ -361,6 +391,7 @@ def right(value, len):
     return value[-len:]
 
 
+@formatter
 def right_align(value, length):
     """
     :param value: string to right align
@@ -378,6 +409,7 @@ def right_align(value, length):
         return value[-length:]
 
 
+@formatter
 def left_align(value, length):
     if length <= 0:
         return u""
@@ -390,6 +422,7 @@ def left_align(value, length):
         return value[:length]
 
 
+@formatter
 def left(value, len):
     """
     return the `len` left-most characters in value
@@ -402,6 +435,7 @@ def left(value, len):
     return value[0:len]
 
 
+@formatter
 def comma(value):
     """
     FORMAT WITH THOUSANDS COMMA (,) SEPARATOR
@@ -417,6 +451,7 @@ def comma(value):
     return output
 
 
+@formatter
 def quote(value):
     """
     return JSON-quoted value
@@ -432,6 +467,7 @@ def quote(value):
     return output
 
 
+@formatter
 def hex(value):
     """
     return `value` in hex format
@@ -444,6 +480,7 @@ def hex(value):
 _SNIP = "...<snip>..."
 
 
+@formatter
 def limit(value, length):
     # LIMIT THE STRING value TO GIVEN LENGTH, CHOPPING OUT THE MIDDLE IF REQUIRED
     if len(value) <= length:
@@ -456,6 +493,7 @@ def limit(value, length):
         return value[:lhs] + _SNIP + value[-rhs:]
 
 
+@formatter
 def split(value, sep="\n"):
     # GENERATOR VERSION OF split()
     # SOMETHING TERRIBLE HAPPENS, SOMETIMES, IN PYPY
@@ -586,7 +624,7 @@ def _simple_expand(template, seq):
                 if len(parts) > 1:
                     val = eval(parts[0] + "(val, " + ("(".join(parts[1::])))
                 else:
-                    val = globals()[func_name](val)
+                    val = FORMATTERS[func_name](val)
             val = toString(val)
             return val
         except Exception as e:
