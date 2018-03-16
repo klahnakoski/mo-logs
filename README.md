@@ -35,15 +35,24 @@ what, where and who of every call.
 
 ### Using named parameters
 
-Do not use Python's formatting operator "`%`" nor it's `format()` function.
-Using them will create a string at call time, which is a parsing nightmare
-for log analysis tools.
-
-Instead, use a string template and keyword arguments to set the named parameters
+All logging calls accept a string template with named parameters. Keyword arguments
+can be added to the call to provide values. The template and arguments are not 
+combined at call time, rather they are held in a JSON-izable data structure for 
+structured logging. The template is only expanded *if* the log is serialized for humans.  
 
 ```python
     Log.note("Hello, {{name}}!", name="World!")
 ```
+
+**Do not use Python's string formatting features:**
+ 
+* [string formatting operator (`%`)](http://python-reference.readthedocs.io/en/latest/docs/str/formatting.html), 
+* [the `format()` function](https://docs.python.org/3/library/stdtypes.html#str.format) 
+* [literal string intrpolation](https://www.python.org/dev/peps/pep-0498/).
+
+Using any of these will expand the string template at call time, which is a parsing
+nightmare for log analysis tools.
+
 
 ### Parametric parameters
 
