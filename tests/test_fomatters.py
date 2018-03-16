@@ -10,13 +10,20 @@
 
 from __future__ import unicode_literals
 
+from math import pi
+
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
 from mo_logs.strings import expand_template
 
 
-class TestExcept(FuzzyTestCase):
+class TestFormatters(FuzzyTestCase):
 
     def test_upper(self):
         test = expand_template("Hello {{name|upper}}", {"name": "world"})
         self.assertEqual(test, "Hello WORLD")
+
+
+    def test_places(self):
+        test = expand_template("pi = {{pi|round(places=3)}}", {"pi": pi})
+        self.assertEqual(test, "pi = 3.14")
