@@ -256,6 +256,39 @@ class TestExcept(FuzzyTestCase):
             else:
                 assert False
 
+    def test_recursive_loop(self):
+        def oh_no():
+            try:
+                oh_no()
+            except BaseException as e:
+                Log.error("this is a problem", e)
+
+        try:
+            oh_no()
+            self.assertTrue(False, "should not happen")
+        except Exception as e:
+            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
+
+    def test_deep_recursive_loop(self):
+        def oh_no():
+            try:
+                fine1()
+            except Exception as e:
+                Log.error("this is a problem", e)
+
+        def fine1():
+            fine2()
+
+        def fine2():
+            oh_no()
+
+        try:
+            oh_no()
+            self.assertTrue(False, "should not happen")
+        except Exception as e:
+            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
+
+
 
 def problem_a():
     problem_b()
