@@ -16,7 +16,7 @@ from __future__ import unicode_literals
 import sys
 from collections import Mapping
 
-from mo_dots import Data, listwrap, unwraplist, set_default, Null
+from mo_dots import Data, listwrap, unwraplist, set_default, Null, coalesce
 from mo_future import text_type, PY3
 from mo_logs.strings import indent, expand_template
 
@@ -70,14 +70,21 @@ class Except(Exception):
             e.cause = unwraplist([Except.wrap(c) for c in listwrap(e.cause)])
             return Except(**e)
         else:
-            if hasattr(e, "message") and e.message:
-                cause = Except(ERROR, text_type(e.message), trace=_extract_traceback(0))
+            tb = getattr(e, '__traceback__')
+            if tb is not None:
+                trace = _parse_traceback(tb)
             else:
-                cause = Except(ERROR, text_type(e), trace=_extract_traceback(0))
+                trace = _extract_traceback(0)
+
+            cause = Except.wrap(getattr(e, '__cause__'))
+            if hasattr(e, "message") and e.message:
+                output = Except(ERROR, text_type(e.message), trace=trace, cause=cause)
+            else:
+                output = Except(ERROR, text_type(e), trace=trace, cause=cause)
 
             trace = extract_stack(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
-            cause.trace.extend(trace)
-            return cause
+            output.trace.extend(trace)
+            return output
 
     @property
     def message(self):
@@ -173,7 +180,10 @@ def _extract_traceback(start):
     tb = sys.exc_info()[2]
     for i in range(start):
         tb = tb.tb_next
+    return _parse_traceback(tb)
 
+
+def _parse_traceback(tb):
     trace = []
     n = 0
     while tb is not None:
