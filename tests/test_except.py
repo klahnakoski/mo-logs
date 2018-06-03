@@ -13,7 +13,9 @@ from __future__ import unicode_literals
 import logging
 import unittest
 import zlib
+from unittest import skipIf, skip
 
+from mo_future import PY2, text_type
 from mo_json import value2json
 from mo_logs import Log, Except
 from mo_logs.log_usingQueue import StructuredLogger_usingQueue
@@ -256,6 +258,40 @@ class TestExcept(FuzzyTestCase):
             else:
                 assert False
 
+    @skip("this is too complicated for now")
+    def test_recursive_loop(self):
+        def oh_no():
+            try:
+                oh_no()
+            except BaseException as e:
+                Log.error("this is a problem", e)
+
+        try:
+            oh_no()
+            self.assertTrue(False, "should not happen")
+        except Exception as e:
+            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
+
+    @skip("this is too complicated for now")
+    def test_deep_recursive_loop(self):
+        def oh_no():
+            try:
+                fine1()
+            except Exception as e:
+                Log.error("this is a problem", e)
+
+        def fine1():
+            fine2()
+
+        def fine2():
+            oh_no()
+
+        try:
+            oh_no()
+            self.assertTrue(False, "should not happen")
+        except Exception as e:
+            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
+
 
 def problem_a():
     problem_b()
@@ -278,3 +314,4 @@ if __name__ == '__main__':
         unittest.main()
     finally:
         Log.stop()
+

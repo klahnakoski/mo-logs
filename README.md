@@ -35,15 +35,24 @@ what, where and who of every call.
 
 ### Using named parameters
 
-Do not use Python's formatting operator "`%`" nor it's `format()` function.
-Using them will create a string at call time, which is a parsing nightmare
-for log analysis tools.
-
-Instead, use a string template and keyword arguments to set the named parameters
+All logging calls accept a string template with named parameters. Keyword arguments
+can be added to the call to provide values. The template and arguments are not 
+combined at call time, rather they are held in a JSON-izable data structure for 
+structured logging. The template is only expanded *if* the log is serialized for humans.  
 
 ```python
     Log.note("Hello, {{name}}!", name="World!")
 ```
+
+**Do not use Python's string formatting features:**
+ 
+* [string formatting operator (`%`)](http://python-reference.readthedocs.io/en/latest/docs/str/formatting.html), 
+* [the `format()` function](https://docs.python.org/3/library/stdtypes.html#str.format) 
+* [literal string intrpolation](https://www.python.org/dev/peps/pep-0498/).
+
+Using any of these will expand the string template at call time, which is a parsing
+nightmare for log analysis tools.
+
 
 ### Parametric parameters
 
@@ -60,7 +69,7 @@ structures, they will be logged!
 
 ### Formatting parameters
 
-There are a variety of formatting parameters. They can be applied by using the 
+There are a variety of formatters, and they can be applied by using the 
 pipe (`|`) symbol.  
 
 In this example we cast the `name` to uppercase
@@ -69,13 +78,13 @@ In this example we cast the `name` to uppercase
     Log.note("Hello, {{name|upper}}!", name="World!")
 ```
 
-Parameters also accept additional arguments:
+Some formatters accept arguments:
 
 ```python
     Log.note("pi is {{pi|round(places=3)}}!", pi=3.14159265)
 ```
 
-You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the methods available.
+You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the formatters available.
 
 ### Please, never use locals()
 
@@ -137,7 +146,7 @@ a failure.
 ```python
     try:
         # Do something that might raise exception
-    except Exception, e:
+    except Exception as e:
         Log.error("Describe what you were trying to do", cause=e)
 ```
 
@@ -150,7 +159,7 @@ Error logging accepts keyword parameters just like `Log.note()` does
         try:
             Log.note("Start working with {{key1}}", key1=value1)
             # Do something that might raise exception
-        except Exception, e:
+        except Exception as e:
             Log.error("Failure to work with {{key2}}", key2=value2, cause=e)
 ```
 
@@ -163,7 +172,7 @@ should have no need to create new exception sub-types.
 ### Testing for exception "types"
 
 This library advocates chaining exceptions early and often, and this hides
-important exception types in a long causal chain.   MoLogs allows you to easily
+important exception types in a long causal chain. `mo-logs` allows you to easily
 test if a type (or string, or template) can be found in the causal chain by using
 the `in` keyword:   
 
@@ -171,7 +180,7 @@ the `in` keyword:
     def worker(value):
         try:
             # Do something that might raise exception
-        except Exception, e:
+        except Exception as e:
             if "Failure to work with {{key2}}" in e:
                 # Deal with exception thrown in above code, no matter
                 # how many other exception handlers where in the chain
@@ -188,19 +197,18 @@ logging an error would be deceptive.
     def worker(value):
         try:
             Log.error("Failure to work with {{key3}}", key3=value3)
-        except Exception, e:
+        except Exception as e:
             # Try something else
 ```
 
-### Use `Log.warning()` if your code can deal with an exception, but you still 
-want to log it as an issue
+### Use `Log.warning()` if your code can deal with an exception, but you still want to log it as an issue
 
 ```python
     def worker(value):
         try:
             Log.note("Start working with {{key4}}", key4=value4)
             # Do something that might raise exception
-        except Exception, e:
+        except Exception as e:
             Log.warning("Failure to work with {{key4}}", key4=value4, cause=e)
 ```
 ### Don't loose your stack trace!
@@ -216,7 +224,7 @@ object, you simply get back the object you passed.
 ```python
     try:
         # DO SOME WORK        
-    except Exception, e:
+    except Exception as e:
         e = Except.wrap(e)
         # DO SOME FANCY ERROR RECOVERY
  ```
@@ -244,22 +252,32 @@ caller should be told it "can not add a document", or "can not remove a
 document". This allows the caller to make reasonable decisions when they do 
 occur. The original cause (the SQLException) is in the causal chain.
 
-Another example, involves *nested exceptions*: If you catch a particular type of exception, you may inadvertently catch the that same type of exception from deeper in the call chain. Narrow exception handling is an illusion. Broad exception handling will force you to consider a variety of failures early; force you to consider what it means when a block of code fails; and force you to describe it for others.
+Another example, involves *nested exceptions*: If you catch a particular type 
+of exception, you may inadvertently catch the that same type of exception 
+from deeper in the call chain. Narrow exception handling is an illusion. 
+Broad exception handling will force you to consider a variety of failures 
+early; force you to consider what it means when a block of code fails; and 
+force you to describe it for others.
 
 ### Don't make methods you do not need
 
-There is an argument that suggests you shoul break your code into methods, rather than catching exceptions: The method name will describe action that failed, and the stack trace can be inspected to make mitigation decisions. But this is a poor solution:
+There is an argument that suggests you should break your code into methods, 
+rather than catching exceptions: The method name will describe action that 
+failed, and the stack trace can be inspected to make mitigation decisions. 
+But this is a poor solution:
 
-* More methods means more complexity; the programmer must find the method, remember he method, and wonder if it is used elsewhere.
+* More methods means more complexity; the programmer must find the method, 
+remember the method, and wonder if it is used elsewhere.
 * Catching exceptions allows you to include important state information.
-* Catching exceptions makes it clear the error is important; someone might remove your method when refactoring
+* Catching exceptions makes it clear the error is important; someone might 
+remove your method when refactoring
 * Compiler optimizations can interfere with the call stack
 * The name of the method might get very long to describe the problem
 
 
 ## Log 'Levels'
 
-The `logs` module has no concept of logging levels it is expected that debug
+The `mo-logs` module has no concept of logging levels it is expected that debug
 variables (variables prefixed with `DEBUG_` are used to control the logging
 output.
 
@@ -284,7 +302,7 @@ output.
 
             # DO WORK HERE
 
-        except Exception, e:
+        except Exception as e:
             Log.error("Complain, or not", e)
         finally:
             Log.stop()

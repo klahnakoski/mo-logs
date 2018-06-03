@@ -1,3 +1,2 @@
-/build
-/dist
-/mo_logs.egg-info
+.egg-info
+.*pyc

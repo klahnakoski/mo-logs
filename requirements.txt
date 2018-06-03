@@ -1,2 +1,2 @@
-mo-future
+mo-future>=2.4.18148
 mo-dots
