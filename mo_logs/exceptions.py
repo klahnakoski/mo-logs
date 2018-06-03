@@ -46,7 +46,7 @@ class Except(Exception):
         self.type = type
         self.template = template
         self.params = set_default(kwargs, params)
-        self.cause = cause
+        self.cause = Except.wrap(cause)
 
         if not trace:
             self.trace=extract_stack(2)
@@ -70,13 +70,13 @@ class Except(Exception):
             e.cause = unwraplist([Except.wrap(c) for c in listwrap(e.cause)])
             return Except(**e)
         else:
-            tb = getattr(e, '__traceback__')
+            tb = getattr(e, '__traceback__', None)
             if tb is not None:
                 trace = _parse_traceback(tb)
             else:
                 trace = _extract_traceback(0)
 
-            cause = Except.wrap(getattr(e, '__cause__'))
+            cause = Except.wrap(getattr(e, '__cause__', None))
             if hasattr(e, "message") and e.message:
                 output = Except(ERROR, text_type(e.message), trace=trace, cause=cause)
             else:
@@ -158,16 +158,13 @@ def extract_stack(start=0):
         f = f.f_back
 
     stack = []
-    n = 0
     while f is not None:
         stack.append({
-            "depth": n,
             "line": f.f_lineno,
             "file": f.f_code.co_filename,
             "method": f.f_code.co_name
         })
         f = f.f_back
-        n += 1
     return stack
 
 
@@ -185,17 +182,14 @@ def _extract_traceback(start):
 
 def _parse_traceback(tb):
     trace = []
-    n = 0
     while tb is not None:
         f = tb.tb_frame
         trace.append({
-            "depth": n,
             "file": f.f_code.co_filename,
             "line": tb.tb_lineno,
             "method": f.f_code.co_name
         })
         tb = tb.tb_next
-        n += 1
     trace.reverse()
     return trace
 
