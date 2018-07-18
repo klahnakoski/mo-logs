@@ -92,11 +92,11 @@ class Log(object):
 
         if settings.log:
             cls.logging_multi = StructuredLogger_usingMulti()
-            from mo_logs.log_usingThread import StructuredLogger_usingThread
-            cls.main_log = StructuredLogger_usingThread(cls.logging_multi)
-
             for log in listwrap(settings.log):
                 Log.add_log(Log.new_instance(log))
+
+            from mo_logs.log_usingThread import StructuredLogger_usingThread
+            cls.main_log = StructuredLogger_usingThread(cls.logging_multi)
 
         if settings.cprofile.enabled == True:
             Log.alert("cprofiling is enabled, writing to {{filename}}", filename=os.path.abspath(settings.cprofile.filename))
@@ -123,8 +123,9 @@ class Log(object):
 
         if profiles.ON and hasattr(cls, "settings"):
             profiles.write(cls.settings.profile)
-        cls.main_log.stop()
-        cls.main_log = StructuredLogger_usingStream(sys.stdout)
+
+        main_log, cls.main_log = cls.main_log, StructuredLogger_usingStream(sys.stdout)
+        main_log.stop()
 
     @classmethod
     def new_instance(cls, settings):
@@ -149,6 +150,9 @@ class Log(object):
         if settings.log_type == "console":
             from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
             return StructuredLogger_usingThreadedStream(sys.stdout)
+        if settings.log_type == "mozlog":
+            from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
+            return StructuredLogger_usingMozLog(sys.stdout, coalesce(settings.app_name, settings.appname))
         if settings.log_type == "stream" or settings.stream:
             from mo_logs.log_usingThreadedStream import StructuredLogger_usingThreadedStream
             return StructuredLogger_usingThreadedStream(settings.stream)
@@ -250,7 +254,7 @@ class Log(object):
             cause = Except(exceptions.UNEXPECTED, text_type(cause), trace=exceptions._extract_traceback(0))
 
         trace = exceptions.extract_stack(1)
-        e = Except(exceptions.UNEXPECTED, template, params, cause, trace)
+        e = Except(type=exceptions.UNEXPECTED, template=template, params=params, cause=cause, trace=trace)
         Log.note(
             "{{error}}",
             error=e,
@@ -343,7 +347,7 @@ class Log(object):
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
         trace = exceptions.extract_stack(stack_depth + 1)
 
-        e = Except(exceptions.WARNING, template, params, cause, trace)
+        e = Except(type=exceptions.WARNING, template=template, params=params, cause=cause, trace=trace)
         Log.note(
             "{{error|unicode}}",
             error=e,
@@ -401,7 +405,7 @@ class Log(object):
         if add_to_trace:
             cause[0].trace.extend(trace[1:])
 
-        e = Except(exceptions.ERROR, template, params, causes, trace)
+        e = Except(type=exceptions.ERROR, template=template, params=params, cause=cause, trace=trace)
         raise_from_none(e)
 
     @classmethod
@@ -434,7 +438,7 @@ class Log(object):
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
         trace = exceptions.extract_stack(stack_depth + 1)
 
-        e = Except(exceptions.ERROR, template, params, cause, trace)
+        e = Except(type=exceptions.ERROR, template=template, params=params, cause=cause, trace=trace)
 
         error_mode = cls.error_mode
         with suppress_exception:
