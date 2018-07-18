@@ -34,11 +34,11 @@ class Except(Exception):
     @staticmethod
     def new_instance(desc):
         return Except(
-            desc.type,
-            desc.template,
-            desc.params,
-            [Except.new_instance(c) for c in listwrap(desc.cause)],
-            desc.trace
+            type=desc.type,
+            template=desc.template,
+            params=desc.params,
+            cause=[Except.new_instance(c) for c in listwrap(desc.cause)],
+            trace=desc.trace
         )
 
     def __init__(self, type=ERROR, template=Null, params=Null, cause=Null, trace=Null, **kwargs):
@@ -78,9 +78,9 @@ class Except(Exception):
 
             cause = Except.wrap(getattr(e, '__cause__', None))
             if hasattr(e, "message") and e.message:
-                output = Except(ERROR, text_type(e.message), trace=trace, cause=cause)
+                output = Except(type=ERROR, template=text_type(e.message), trace=trace, cause=cause)
             else:
-                output = Except(ERROR, text_type(e), trace=trace, cause=cause)
+                output = Except(type=ERROR, template=text_type(e), trace=trace, cause=cause)
 
             trace = extract_stack(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
             output.trace.extend(trace)
