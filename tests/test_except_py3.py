@@ -27,7 +27,7 @@ class TestExcept(FuzzyTestCase):
     def test_cause_captured(self):
         try:
             try:
-                exec (
+                exec(
                     (
                         "try:\n"
                         "    print(1/0)\n"
