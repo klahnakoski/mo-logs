@@ -27,12 +27,16 @@ class TestExcept(FuzzyTestCase):
     def test_cause_captured(self):
         try:
             try:
-                eval("""
-                try:
-                    1/0
-                except Exception as e:
-                    raise Exception("test") from e
-                """)
+                exec(
+                    (
+                        "try:\n"
+                        "    print(1/0)\n"
+                        "except Exception as e:\n"
+                        "    raise Exception(\"test\") from e"
+                    ),
+                    globals(),
+                    locals()
+                )
             except Exception as f:
                 Log.error("expected", cause=f)
         except Exception as g:
