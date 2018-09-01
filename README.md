@@ -183,7 +183,7 @@ the `in` keyword:
         except Exception as e:
             if "Failure to work with {{key2}}" in e:
                 # Deal with exception thrown in above code, no matter
-                # how many other exception handlers where in the chain
+                # how many other exception handlers were in the chain
 ```
 
 ### If you can deal with an exception, then it will never be logged
