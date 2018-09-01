@@ -84,7 +84,7 @@ class Log(object):
             cls.cprofiler.enable()
 
         if settings.profile is True or (isinstance(settings.profile, Mapping) and settings.profile.enabled):
-            from mo_logs import profiles
+            from mo_threads import profiles
 
             if isinstance(settings.profile, bool):
                 profiles.ON = True
