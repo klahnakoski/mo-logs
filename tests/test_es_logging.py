@@ -22,6 +22,18 @@ TEST_CONFIG = Data(
     index="test-es-logging",
     type="log"
 )
+GET_RECENT_LOG = {
+    "query": {
+        "nested": {
+            "path": "~N~",
+            "query": {"term": {"~N~.template.~s~": "this is a {{type}} test"}}
+        }
+    },
+    "from": 0,
+    "size": 1,
+    "sort": [{"~N~.timestamp.~n~": "desc"}],
+    "stored_fields": ["_source"]
+}
 
 
 class TestESLogging(FuzzyTestCase):
@@ -37,18 +49,12 @@ class TestESLogging(FuzzyTestCase):
         es = self._after_test()
 
         # VERIFY LOG
-        result = es.search({
-            "query": {"term": {"template.~s~": "this is a {{type}} test"}},
-            "from": 0,
-            "size": 1,
-            "sort": [{"timestamp.~n~": "desc"}],
-            "stored_fields": ["_source"]
-        }).hits.hits[0]._source
-        expected = {
+        result = es.search(GET_RECENT_LOG).hits.hits[0]._source
+        expected = {"~N~": [{
             "context": {"~s~": "NOTE"},
             "template": {"~s~": "this is a {{type}} test"},
             "params": {"type": {"~s~": "basic"}, "~e~": 1}
-        }
+        }]}
         self.assertEqual(result, expected)
 
         self.assertIsNotNone(result.machine.name)
@@ -65,18 +71,12 @@ class TestESLogging(FuzzyTestCase):
         es = self._after_test()
 
         # VERIFY LOG
-        result = es.search({
-            "query": {"term": {"template.~s~": "this is a {{type}} test"}},
-            "from": 0,
-            "size": 1,
-            "sort": [{"timestamp.~n~": "desc"}],
-            "stored_fields": ["_source"]
-        }).hits.hits[0]._source
-        expected = {
+        result = es.search(GET_RECENT_LOG).hits.hits[0]._source
+        expected = {"~N~": [{
             "context": {"~s~": "WARNING"},
             "template": {"~s~": "this is a {{type}} test"},
             "params": {"type": {"~s~": "basic"}, "~e~": 1}
-        }
+        }]}
         self.assertEqual(result, expected)
 
         self.assertIsNotNone(result.machine.name)
@@ -93,18 +93,12 @@ class TestESLogging(FuzzyTestCase):
         es = self._after_test()
 
         # VERIFY LOG
-        result = es.search({
-            "query": {"term": {"template.~s~": "this is a {{type}} test"}},
-            "from": 0,
-            "size": 1,
-            "sort": [{"timestamp.~n~": "desc"}],
-            "stored_fields": ["_source"]
-        }).hits.hits[0]._source
-        expected = {
+        result = es.search(GET_RECENT_LOG).hits.hits[0]._source
+        expected = {"~N~": [{
             "context": {"~s~": "ALARM"},
             "template": {"~s~": "this is a {{type}} test"},
             "params": {"type": {"~s~": "basic"}, "~e~": 1}
-        }
+        }]}
         self.assertEqual(result, expected)
 
         self.assertIsNotNone(result.machine.name)

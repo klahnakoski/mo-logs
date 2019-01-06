@@ -18,7 +18,7 @@ from collections import Mapping
 
 from mo_dots import Data, listwrap, unwraplist, Null
 from mo_future import text_type, PY3
-from mo_logs.strings import indent, expand_template
+from mo_logs.strings import indent, expand_template, CR
 
 FATAL = "FATAL"
 ERROR = "ERROR"
@@ -52,7 +52,7 @@ class Except(Exception, LogItem):
             trace=desc.trace
         )
 
-    def __init__(self, context=ERROR, template=Null, params=Null, cause=Null, trace=Null):
+    def __init__(self, context=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
         if context == None:
             raise ValueError("expecting context to not be None")
 
@@ -122,7 +122,7 @@ class Except(Exception, LogItem):
         return False
 
     def __unicode__(self):
-        output = self.context + ": " + self.template + "\n"
+        output = self.context + ": " + self.template + CR
         if self.params:
             output = expand_template(output, self.params)
 

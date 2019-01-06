@@ -113,10 +113,10 @@ def time_delta_pusher(please_stop, appender, queue, interval):
                 Log.warning("Trouble formatting log from {{location}}", location=location, cause=e)
                 # SWALLOW ERROR, GOT TO KEEP RUNNING
         try:
-            appender(u"\n".join(lines) + u"\n")
+            appender(uCR.join(lines) + uCR)
         except Exception as e:
 
-            sys.stderr.write(str("Trouble with appender: ") + str(e.__class__.__name__) + str("\n"))
+            sys.stderr.write(str("Trouble with appender: ") + str(e.__class__.__name__) + str(CR))
             # SWALLOW ERROR, MUST KEEP RUNNING
 
 

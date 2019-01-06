@@ -15,8 +15,10 @@ import sys
 from collections import Mapping
 from datetime import date, datetime
 
+from mo_math.randoms import Random
+
 from jx_python import jx
-from mo_dots import wrap, coalesce, FlatList, listwrap
+from mo_dots import wrap, coalesce, FlatList, listwrap, Null
 from mo_future import text_type, binary_type, number_types
 from mo_json import value2json, json2value, datetime2unix
 from mo_kwargs import override
@@ -54,10 +56,13 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
         kwargs.retry.times = coalesce(kwargs.retry.times, 3)
         kwargs.retry.sleep = Duration(coalesce(kwargs.retry.sleep, MINUTE)).seconds
 
+        kwargs.host = Random.sample(listwrap(host), 1)[0]
+
         self.es = Cluster(kwargs).get_or_create_index(
             schema=json2value(value2json(SCHEMA), leaves=True),
             limit_replicas=True,
             typed=True,
+            id={"id": "_id"},  # USE DEFAULT id AND version
             kwargs=kwargs,
         )
         self.batch_size = batch_size
@@ -131,6 +136,10 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
 
 def flatten_causal_chain(log_item, output=None):
     output = output or []
+
+    if isinstance(log_item, text_type):
+        output.append({"template": log_item})
+        return
 
     output.append(log_item)
     for c in listwrap(log_item.cause):
