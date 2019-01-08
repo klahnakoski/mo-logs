@@ -1,2 +1,4 @@
 mo-json
 mo-threads
+mo-testing
+pyLibrary

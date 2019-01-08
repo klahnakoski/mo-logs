@@ -9,21 +9,22 @@
 #
 
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
+from __future__ import absolute_import, division, unicode_literals
 
-from mo_logs.log_usingNothing import StructuredLogger
-from mo_logs.strings import expand_template
+import re
+
 from mo_threads import Queue
 
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import CR, expand_template
+
+DATE_PATTERN = r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)* - "
 
 class StructuredLogger_usingQueue(StructuredLogger):
-
     def __init__(self, name=None):
         queue_name = "log messages to queue"
         if name:
-            queue_name += " "+name
+            queue_name += " " + name
         self.queue = Queue(queue_name)
 
     def write(self, template, params):
@@ -35,10 +36,16 @@ class StructuredLogger_usingQueue(StructuredLogger):
     def pop(self):
         lines = self.queue.pop()
         output = []
-        for l in lines.split("\n"):
-            if l[19:22] == " - ":
-                l = l[22:]
+        for l in lines.split(CR):
+            # REMOVE FIRST PART, THE TIMESTAMP
+            # 0123456789012345678901234567890
+            # 2019-01-06 19:13:49.937542 -
+            prefix = re.match(DATE_PATTERN, l)
+            if prefix:
+                l = l[len(prefix.group(0)):]
+            if not l.strip():
+                continue
             if l.strip().startswith("File"):
                 continue
             output.append(l)
-        return "\n".join(output).strip()
+        return CR.join(output).strip()

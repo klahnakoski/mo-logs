@@ -12,17 +12,20 @@ from __future__ import unicode_literals
 
 import logging
 import unittest
+from unittest import skip
 import zlib
-from unittest import skipIf, skip
 
-from mo_future import PY2, text_type
-from mo_json import value2json
-from mo_logs import Log, Except
-from mo_logs.log_usingQueue import StructuredLogger_usingQueue
 from mo_dots import listwrap, wrap
 from mo_dots.objects import DataObject
+from mo_json import value2json
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
+
+from mo_logs import Except, Log
+try:
+    from utils.log_usingQueue import StructuredLogger_usingQueue
+except Exception:
+    from test_logs.utils.log_usingQueue import StructuredLogger_usingQueue
 
 
 class TestExcept(FuzzyTestCase):
