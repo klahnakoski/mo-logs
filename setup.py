@@ -10,7 +10,7 @@ setup(
     long_description_content_type=str(u'text/markdown'),
     include_package_data=True,
     classifiers=["Development Status :: 4 - Beta","Topic :: Software Development :: Libraries","Topic :: Software Development :: Libraries :: Python Modules","License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)","Programming Language :: Python :: 2.7","Programming Language :: Python :: 3.6"],
-    install_requires=["mo-dots","mo-future>=2.4.18148"],
+    install_requires=["mo-dots","mo-future>=2.24"],
     version=str(u'2.28.19023'),
     url=str(u'https://github.com/klahnakoski/mo-logs'),
     zip_safe=False,
