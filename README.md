@@ -1,6 +1,14 @@
 
 # More Logs - Structured Logging and Exception Handling
 
+
+|Branch      |Status   |
+|------------|---------|
+|master      | [![Build Status](https://travis-ci.org/klahnakoski/mo-logs.svg?branch=master)](https://travis-ci.org/klahnakoski/mo-logs) |
+|dev         | [![Build Status](https://travis-ci.org/klahnakoski/mo-logs.svg?branch=dev)](https://travis-ci.org/klahnakoski/mo-logs)    |
+
+
+
 This library provides two main features
 
 * **Structured logging** - output is all JSON (with options to serialize to text for humans)
