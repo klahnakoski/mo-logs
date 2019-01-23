@@ -1,0 +1,17 @@
+language: python
+python:
+  - "2.7"
+  - "3.6"
+
+env:
+  global:
+      - PYTHONPATH=.
+
+install:
+  - "pip install ."
+  - "pip install -r tests/requirements.txt"
+
+# command to run tests
+script:
+  - "python -m unittest discover tests"
+
