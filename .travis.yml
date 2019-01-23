@@ -8,8 +8,8 @@ env:
       - PYTHONPATH=.
 
 install:
-  - "pip install -r requirements.txt"
-  - "pip install -r tests/requirements.txt"
+  - "pip install --verbose -r requirements.txt"
+  - "pip install --verbose -r tests/requirements.txt"
 
 # command to run tests
 script:
