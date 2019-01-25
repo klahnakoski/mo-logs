@@ -10,8 +10,9 @@
 
 from __future__ import unicode_literals
 
-from mo_logs import constants
 from mo_testing.fuzzytestcase import FuzzyTestCase
+
+from mo_logs import constants
 
 
 class TestConstants(FuzzyTestCase):
