@@ -22,6 +22,7 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
 from mo_logs import Except, Log
+
 try:
     from utils.log_usingQueue import StructuredLogger_usingQueue
 except Exception:

@@ -12,10 +12,11 @@ from __future__ import unicode_literals
 
 from jx_base.expressions import NULL
 from mo_dots import Data
-from mo_logs import Log, machine_metadata
-from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from pyLibrary.env.elasticsearch import Cluster
+
+from mo_logs import Log
+from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 
 TEST_CONFIG = Data(
     host="http://localhost",
