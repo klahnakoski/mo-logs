@@ -22,7 +22,7 @@ from mo_logs import Log
 from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 
 
-IS_TRAVIS = os.environ['TRAVIS']
+IS_TRAVIS = os.environ.get('TRAVIS')
 
 
 TEST_CONFIG = Data(
