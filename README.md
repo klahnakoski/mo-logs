@@ -175,7 +175,7 @@ Error logging accepts keyword parameters just like `Log.note()` does
 
 An exception can be uniquely identified by the first-parameter string template
 it is given; exceptions raised with the same template are the same type. You
-should have no need to create new exception sub-types.
+should have no need to create new exception types.
 
 ### Testing for exception "types"
 
@@ -193,6 +193,21 @@ the `in` keyword:
                 # Deal with exception thrown in above code, no matter
                 # how many other exception handlers were in the chain
 ```
+
+For those who may abhor the use of magic strings, feel free to use constants instead:
+
+```python
+    KEY_ERROR = "Failure to work with {{key}}"
+
+    try:
+        Log.error(KEY_ERROR, key=42)        
+    except Exception as e:
+        if KEY_ERROR in e:
+            Log.note("dealt with key error")
+```
+
+
+
 
 ### If you can deal with an exception, then it will never be logged
 
@@ -275,12 +290,14 @@ failed, and the stack trace can be inspected to make mitigation decisions.
 But this is a poor solution:
 
 * More methods means more complexity; the programmer must find the method, 
-remember the method, and wonder if it is used elsewhere.
-* Catching exceptions allows you to include important state information.
-* Catching exceptions makes it clear the error is important; someone might 
-remove your method when refactoring
+  remember the method, and wonder if it is used elsewhere.
+* Methods can be removed while refactoring; exceptions make it clear 
+  the error is important
 * Compiler optimizations can interfere with the call stack
-* The name of the method might get very long to describe the problem
+* The method name might be very long to describe the problem
+* Inspecting stack traces makes for messy code.
+* A stack trace does not include state information that an exception can 
+  capture.
 
 
 ## Log 'Levels'
@@ -327,7 +344,7 @@ These debug variables can be set by configuration file:
     }
 ```
 
-## Configuration
+## Log Configuration
 
 The `logs` module will log to the console by default. ```Log.start(settings)```
 will redirect the logging to other streams, as defined by the settings:
