@@ -10,6 +10,9 @@
 
 from __future__ import unicode_literals
 
+import os
+from unittest import skipIf
+
 from jx_base.expressions import NULL
 from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase
@@ -17,6 +20,10 @@ from pyLibrary.env.elasticsearch import Cluster
 
 from mo_logs import Log
 from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
+
+
+IS_TRAVIS = os.environ.get('TRAVIS')
+
 
 TEST_CONFIG = Data(
     host="http://localhost",
@@ -37,9 +44,14 @@ GET_RECENT_LOG = {
 }
 
 
+@skipIf(IS_TRAVIS, "ES logging not tested on travis")
 class TestESLogging(FuzzyTestCase):
 
-    cluster = Cluster(TEST_CONFIG)
+    cluster = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.cluster = Cluster(TEST_CONFIG)
 
     def setUp(self):
         Log.start({"trace": True})
