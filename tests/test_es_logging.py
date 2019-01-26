@@ -43,7 +43,8 @@ GET_RECENT_LOG = {
     "stored_fields": ["_source"]
 }
 
-@skipIf(IS_TRAVIS)
+
+@skipIf(IS_TRAVIS, "ES logging not tested on travis")
 class TestESLogging(FuzzyTestCase):
 
     cluster = Cluster(TEST_CONFIG)
