@@ -47,7 +47,10 @@ GET_RECENT_LOG = {
 @skipIf(IS_TRAVIS, "ES logging not tested on travis")
 class TestESLogging(FuzzyTestCase):
 
-    cluster = Cluster(TEST_CONFIG)
+    cluster = None
+
+    def setUpClass(cls):
+        cls.cluster = Cluster(TEST_CONFIG)
 
     def setUp(self):
         Log.start({"trace": True})
