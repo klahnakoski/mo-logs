@@ -14,7 +14,7 @@ import os
 import platform
 import sys
 
-from mo_dots import Data, FlatList, coalesce, listwrap, unwraplist, wrap
+from mo_dots import Data, FlatList, coalesce, is_data, is_list, listwrap, unwraplist, wrap
 from mo_future import PY3, is_text, text_type
 
 from mo_logs import constants
