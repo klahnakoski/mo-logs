@@ -18,6 +18,6 @@
     "name": "mo-logs",
     "packages": ["mo_logs"],
     "url": "https://github.com/klahnakoski/mo-logs",
-    "version": "2.37.19026",
+    "version": "2.38.19026",
     "zip_safe": false
 }
