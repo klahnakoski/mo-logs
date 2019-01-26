@@ -49,6 +49,7 @@ class TestESLogging(FuzzyTestCase):
 
     cluster = None
 
+    @classmethod
     def setUpClass(cls):
         cls.cluster = Cluster(TEST_CONFIG)
 
