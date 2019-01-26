@@ -39,7 +39,7 @@ if it can be ignored because something can handle it.
 ```
 
 There is no need to create logger objects. The `Log` module will keep track of
-what, where and who of every call.
+what, where and when of every call.
 
 ### Using named parameters
 
