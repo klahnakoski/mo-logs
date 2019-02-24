@@ -11,11 +11,12 @@
 from __future__ import unicode_literals
 
 import logging
+import sys
 import unittest
 from unittest import skip
 import zlib
 
-from mo_dots import listwrap, wrap
+from mo_dots import listwrap, wrap, Data
 from mo_dots.objects import DataObject
 from mo_json import value2json
 from mo_testing.fuzzytestcase import FuzzyTestCase
@@ -296,6 +297,13 @@ class TestExcept(FuzzyTestCase):
         except Exception as e:
             self.assertIn("recursive", e, "expecting the recursive loop to be identified")
 
+    def test_locals_in_stack_trace(self):
+        try:
+            problem_c("test_value")
+        except Exception as e:
+            tb = sys.exc_info()[2]
+            self.assertEqual(tb.tb_next.tb_frame.f_locals['a'].value, "test_value")
+
 
 def problem_a():
     problem_b()
@@ -310,6 +318,12 @@ def problem_a2():
         problem_b()
     except Exception as e:
         Log.error("this is a problem", e)
+
+
+def problem_c(value):
+    a = Data(value=value)
+    b="something"
+    c = 1/0
 
 
 if __name__ == '__main__':
