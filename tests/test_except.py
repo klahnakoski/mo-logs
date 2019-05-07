@@ -81,6 +81,40 @@ class TestExcept(FuzzyTestCase):
             else:
                 self.fail("expecting stack to show this method")
 
+    def test_local_variable_capture(self):
+        a = {"c": "a", "b": "d"}
+        b = {"c": "b"}
+
+        A = '{\n    "b": "d",\n    "c": "a"\n}'
+        B = '{"c": "b"}'
+
+        log_queue = StructuredLogger_usingQueue("abba")
+        backup_log, Log.main_log = Log.main_log, log_queue
+
+        Log.note("{{a}} and {{b}}")
+        self.assertEqual(Log.main_log.pop(), A + ' and ' + B)
+
+        Log.warning("{{a}} and {{b}}", a=a, b=b)
+        self.assertEqual(Log.main_log.pop(), A + ' and ' + B)
+
+
+    def test_missing_local_variable(self):
+        a = {"c": "a", "b": "d"}
+        b = {"c": "b"}
+
+        log_queue = StructuredLogger_usingQueue("abba")
+        backup_log, Log.main_log = Log.main_log, log_queue
+
+        try:
+            Log.note("{{c}}")
+            Log.error("not expected")
+        except Exception as e:
+            self.assertTrue("c local is not found" in e)
+
+
+
+
+
     def test_warning_keyword_parameters(self):
         a = {"c": "a", "b": "d"}
         b = {"c": "b"}
