@@ -534,34 +534,6 @@ def expand_template(template, value):
     return _expand(template, (value,))
 
 
-class Template(object):
-
-    __slots__ = ["template"]
-
-
-    def vars(self):
-        """
-        :return: top level variable names
-        """
-
-    def __call__(self, vars):
-
-
-
-def parse_template(template):
-    """
-
-    :param template:
-    :return: function that accepts locals() and return a string
-    """
-    if is_text(template):
-        seq = template.split("{{")
-
-
-
-
-
-
 def common_prefix(*args):
     prefix = args[0]
     for a in args[1:]:
