@@ -2,4 +2,3 @@ mo-json
 mo-threads
 mo-testing
 pyLibrary
-jx-python
