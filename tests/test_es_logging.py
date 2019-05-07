@@ -16,10 +16,8 @@ from unittest import skipIf
 from jx_base.expressions import NULL
 from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase
-from pyLibrary.env.elasticsearch import Cluster
 
 from mo_logs import Log
-from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 
 
 IS_TRAVIS = os.environ.get('TRAVIS')
@@ -51,6 +49,7 @@ class TestESLogging(FuzzyTestCase):
 
     @classmethod
     def setUpClass(cls):
+        from pyLibrary.env.elasticsearch import Cluster
         cls.cluster = Cluster(TEST_CONFIG)
 
     def setUp(self):
@@ -126,6 +125,7 @@ class TestESLogging(FuzzyTestCase):
         self._delete_testindex()
 
         # CREATE INDEX, AND LOG
+        from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
         self.es_logger = Log.main_log = self.es_logger = StructuredLogger_usingElasticSearch(TEST_CONFIG)
         self.temp = Log.main_log
 

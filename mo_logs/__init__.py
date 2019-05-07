@@ -176,11 +176,6 @@ class Log(object):
         if not is_text(template):
             Log.error("Log.note was expecting a unicode template")
 
-        tb = sys.exc_info()[2]
-
-        self.assertEqual(tb.tb_next.tb_frame.f_locals['a'].value, "test_value")
-
-
         Log._annotate(
             LogItem(
                 context=exceptions.NOTE,
