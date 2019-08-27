@@ -28,6 +28,9 @@ def set(constants):
     for full_path, new_value in constants.leaves():
         errors = []
         k_path = split_field(full_path)
+        if len(k_path) < 2:
+            from mo_logs import Log
+            Log.error("expecting <module>.<constant> format, not {{path|quote}}", path=k_path)
         name = k_path[-1]
         try:
             old_value = mo_dots_set_attr(sys.modules, k_path, new_value)
@@ -45,12 +48,7 @@ def set(constants):
             module_path = caller_module.split("/")
 
             # ENSURE THERE IS SOME EVIDENCE THE MODULE MATCHES THE PATH
-            num_match = None
-            for i, (kk, p) in enumerate(zip(reversed(k_path[:-1]), reversed(module_path))):
-                if kk != p:
-                    break
-                num_match = i
-            if num_match is None:
+            if k_path[-2] != module_path[-1]:
                 continue
 
             old_value = mo_dots_set_attr(caller_globals, [name], new_value)
