@@ -15,7 +15,7 @@ import traceback
 from unittest import skipIf
 
 from mo_dots import Data
-from mo_future import PY2, text_type
+from mo_future import PY2, text
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
 from mo_logs import Log
@@ -44,5 +44,5 @@ class TestExcept(FuzzyTestCase):
                 Log.error("expected", cause=f)
         except Exception as g:
             self.assertIn("division by zero", g)
-            self.assertEqual(g.cause.cause.message, text_type('division by zero'))
+            self.assertEqual(g.cause.cause.message, text('division by zero'))
 
