@@ -25,7 +25,7 @@ from mo_threads import Till
 from mo_logs import Except, Log
 
 try:
-    from utils.log_usingQueue import StructuredLogger_usingQueue
+    from .utils.log_usingQueue import StructuredLogger_usingQueue
 except Exception:
     from test_logs.utils.log_usingQueue import StructuredLogger_usingQueue
 
