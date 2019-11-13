@@ -13,7 +13,6 @@ from __future__ import unicode_literals
 import os
 from unittest import skipIf
 
-from jx_base.expressions import NULL
 from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
@@ -22,7 +21,6 @@ from mo_threads import Till
 from mo_times import Date
 
 IS_TRAVIS = os.environ.get('TRAVIS')
-
 
 TEST_CONFIG = Data(
     host="http://localhost",
@@ -164,3 +162,10 @@ class TestESLogging(FuzzyTestCase):
         except Exception as e:
             pass
         self.cluster.get_metadata(after=Date.now())
+
+
+class NullOp(object):
+    pass
+
+NULL = NullOp()
+
