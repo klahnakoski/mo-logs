@@ -26,7 +26,7 @@ from mo_logs import Except, Log
 
 try:
     from tests.utils.log_usingQueue import StructuredLogger_usingQueue
-except Exception:
+except Exception as e:
     from test_logs.utils.log_usingQueue import StructuredLogger_usingQueue
 
 
