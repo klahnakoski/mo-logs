@@ -443,21 +443,21 @@ def _set_attr(obj_, path, value):
     #     dummy_cache.append(obj.get(attr_name))
     #     return old_value
 
+    err = []
     try:
         setattr(obj, attr_name, new_value)
-
-        print("set attribute =\n\n"+getattr(obj, attr_name))
-
-        # dummy_cache.append(getattr(obj, attr_name))
-        return old_value
     except Exception as e:
-        try:
+        err.append(e)
 
-            obj[attr_name] = new_value
-            dummy_cache.append(obj.get(attr_name))
-            return old_value
-        except Exception as f:
-            get_logger().error(PATH_NOT_FOUND, cause=[f, e])
+    try:
+        obj[attr_name] = new_value
+    except Exception as f:
+        err.append(f)
+
+    if err:
+        get_logger().error(PATH_NOT_FOUND, cause=err)
+    else:
+        return old_value
 
 
 def lower_match(value, candidates):
