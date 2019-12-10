@@ -448,6 +448,7 @@ def _set_attr(obj_, path, value):
         _ = "a" + getattr(obj, attr_name)
         return old_value
     except Exception as e:
+        get_logger().warning("problem", cause=e)
         try:
             obj[attr_name] = new_value
             return old_value
