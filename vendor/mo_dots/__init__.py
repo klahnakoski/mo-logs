@@ -441,7 +441,7 @@ def _set_attr(obj_, path, value):
     except Exception as e:
         try:
             obj[attr_name] = new_value
-            print("set item =\n\n"+text(obj.get(attr_name)))
+            dummy_cache.append(obj.get(attr_name))
             return old_value
         except Exception as f:
             get_logger().error(PATH_NOT_FOUND, cause=[f, e])
@@ -451,7 +451,8 @@ def lower_match(value, candidates):
     return [v for v in candidates if v.lower()==value.lower()]
 
 
-memory = []
+dummy_cache = []  # TRICK THE OPTIMIZER TO ACTUALLY CHANGE THE MODULE VALUE
+
 
 def wrap(v):
     """
