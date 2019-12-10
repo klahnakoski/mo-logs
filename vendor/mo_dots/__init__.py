@@ -437,15 +437,18 @@ def _set_attr(obj_, path, value):
 
     if is_data(obj):
         obj[attr_name] = new_value
+        dummy_cache.append(obj.get(attr_name))
         return old_value
 
     try:
         setattr(obj, attr_name, new_value)
+        dummy_cache.append(getattr(obj, attr_name))
         return old_value
     except Exception as e:
         try:
 
             obj[attr_name] = new_value
+            dummy_cache.append(obj.get(attr_name))
             return old_value
         except Exception as f:
             get_logger().error(PATH_NOT_FOUND, cause=[f, e])
@@ -453,6 +456,9 @@ def _set_attr(obj_, path, value):
 
 def lower_match(value, candidates):
     return [v for v in candidates if v.lower()==value.lower()]
+
+
+dummy_cache = []  # REQUIRED SO THAT OPTIMIZER DOES NOT REMOVE READ CALLS
 
 
 def wrap(v):
