@@ -3,3 +3,5 @@ mo-threads>3
 mo-testing>3
 jx-python>3
 pyLibrary>3
+mo-kwargs>=3.20.19344
+jx-elasticsearch
