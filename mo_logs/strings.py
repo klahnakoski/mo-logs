@@ -80,8 +80,13 @@ def datetime(value):
     else:
         value = milli2datetime(value)
 
-    return datetime2string(value, "%Y-%m-%d %H:%M:%S.%f").rstrip(".000000").rstrip("000")
-
+    output = datetime2string(value, "%Y-%m-%d %H:%M:%S.%f")
+    if output.endswith(".000000"):
+        return output[:-6]
+    elif output.endswith("000"):
+        return output[:-3]
+    else:
+        return output
 
 @formatter
 def unicode(value):
@@ -533,11 +538,14 @@ def expand_template(template, value):
     :param value: Data HOLDING THE PARAMTER VALUES
     :return: UNICODE STRING WITH VARIABLES EXPANDED
     """
-    value = wrap(value)
-    if is_text(template):
-        return _simple_expand(template, (value,))
+    try:
+        value = wrap(value)
+        if is_text(template):
+            return _simple_expand(template, (value,))
 
-    return _expand(template, (value,))
+        return _expand(template, (value,))
+    except Exception as e:
+        return "FAIL TO EXPAND: " + template
 
 
 def common_prefix(*args):
