@@ -3,24 +3,22 @@
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
-# You can obtain one at http://mozilla.org/MPL/2.0/.
+# You can obtain one at http://mozilla.org/MPL/2.0/.O
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 
 from __future__ import unicode_literals
 
-import os
 from unittest import skipIf
 
-from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase
-
-from mo_logs import Log
 from mo_threads import Till
 from mo_times import Date
 
-IS_TRAVIS = os.environ.get('TRAVIS')
+from mo_dots import Data
+from mo_logs import Log
+from tests.config import IS_TRAVIS
 
 TEST_CONFIG = Data(
     host="http://localhost",
