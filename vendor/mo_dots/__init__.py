@@ -445,10 +445,13 @@ def _set_attr(obj_, path, value):
 
     try:
         setattr(obj, attr_name, new_value)
-        _ = "a" + getattr(obj, attr_name)
+        if is_text(new_value):
+            _ = new_value + True
+        else:
+            _ = "a" + getattr(obj, attr_name)
         return old_value
     except Exception as e:
-        get_logger().warning("problem", cause=e)
+        get_logger().warning("problem", cause =e)
         try:
             obj[attr_name] = new_value
             return old_value
