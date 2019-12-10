@@ -5,7 +5,7 @@ python:
 
 env:
   global:
-      - PYTHONPATH=.
+      - PYTHONPATH=.:vendor
 
 install:
   - "pip install coverage"
