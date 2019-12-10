@@ -435,18 +435,20 @@ def _set_attr(obj_, path, value):
         old_value = None
         new_value = value
 
-    if is_data(obj):
-        print(obj)
-        print(attr_name)
-        print(new_value)
-        obj[attr_name] = new_value
-        dummy_cache.append(obj.get(attr_name))
-        return old_value
+    # if is_data(obj):
+    #     print(obj)
+    #     print(attr_name)
+    #     print(new_value)
+    #     obj[attr_name] = new_value
+    #     dummy_cache.append(obj.get(attr_name))
+    #     return old_value
 
     try:
         setattr(obj, attr_name, new_value)
+
         print("set attribute =\n\n"+text(getattr(obj, attr_name)))
-        dummy_cache.append(getattr(obj, attr_name))
+
+        # dummy_cache.append(getattr(obj, attr_name))
         return old_value
     except Exception as e:
         try:
