@@ -445,7 +445,7 @@ def _set_attr(obj_, path, value):
         try:
 
             obj[attr_name] = new_value
-            print("set item =\n\n"+obj[attr_name])
+            print("set item =\n\n"+obj.get(attr_name))
             return old_value
         except Exception as f:
             get_logger().error(PATH_NOT_FOUND, cause=e)
