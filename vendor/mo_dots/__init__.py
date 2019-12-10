@@ -440,6 +440,9 @@ def _set_attr(obj_, path, value):
     print(new_value)
     try:
         setattr(obj, attr_name, new_value)
+
+        print("result = "+getattr(obj, attr_name))
+
         return old_value
     except Exception as e:
         try:
