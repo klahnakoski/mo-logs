@@ -446,7 +446,7 @@ def _set_attr(obj_, path, value):
     try:
         setattr(obj, attr_name, new_value)
 
-        print("set attribute =\n\n"+text(getattr(obj, attr_name)))
+        print("set attribute =\n\n"+getattr(obj, attr_name))
 
         # dummy_cache.append(getattr(obj, attr_name))
         return old_value
