@@ -431,22 +431,21 @@ def _set_attr(obj_, path, value):
             new_value = None
         else:
             new_value = _get(old_value, CLASS)(value)  # TRY TO MAKE INSTANCE OF SAME CLASS
-    except Exception as e:
+    except Exception:
         old_value = None
         new_value = value
 
-    print(obj)
-    print(attr_name)
-    print(new_value)
     try:
         setattr(obj, attr_name, new_value)
 
-        print("result = "+getattr(obj, attr_name))
+        print("set attribute =\n\n"+getattr(obj, attr_name))
 
         return old_value
     except Exception as e:
         try:
+
             obj[attr_name] = new_value
+            print("set item =\n\n"+obj[attr_name])
             return old_value
         except Exception as f:
             get_logger().error(PATH_NOT_FOUND, cause=e)
