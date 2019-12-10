@@ -448,7 +448,7 @@ def _set_attr(obj_, path, value):
             print("set item =\n\n"+obj.get(attr_name))
             return old_value
         except Exception as f:
-            get_logger().error(PATH_NOT_FOUND, cause=e)
+            get_logger().error(PATH_NOT_FOUND, cause=[f, e])
 
 
 def lower_match(value, candidates):
