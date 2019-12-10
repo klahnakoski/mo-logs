@@ -445,7 +445,7 @@ def _set_attr(obj_, path, value):
 
     try:
         setattr(obj, attr_name, new_value)
-        _ = ""+getattr(obj, attr_name)
+        print(""+getattr(obj, attr_name))
         return old_value
     except Exception as e:
         try:
