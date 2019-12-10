@@ -437,15 +437,11 @@ def _set_attr(obj_, path, value):
 
     try:
         setattr(obj, attr_name, new_value)
-
-        print("set attribute =\n\n"+getattr(obj, attr_name))
-
         return old_value
     except Exception as e:
         try:
-
             obj[attr_name] = new_value
-            print("set item =\n\n"+text(obj.get(attr_name)))
+            obj.get(attr_name)  # REQUIRED TO FORCE SIDE-EFFECT?
             return old_value
         except Exception as f:
             get_logger().error(PATH_NOT_FOUND, cause=[f, e])
