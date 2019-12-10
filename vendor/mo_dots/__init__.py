@@ -454,7 +454,7 @@ def _set_attr(obj_, path, value):
     except Exception as f:
         err.append(f)
 
-    if err:
+    if len(err)==2:
         get_logger().error(PATH_NOT_FOUND, cause=err)
     else:
         return old_value
