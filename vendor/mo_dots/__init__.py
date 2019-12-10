@@ -435,7 +435,7 @@ def _set_attr(obj_, path, value):
         old_value = None
         new_value = value
 
-    if isinstance(obj, dict):
+    if is_data(obj):
         obj[attr_name] = new_value
         return old_value
 
