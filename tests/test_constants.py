@@ -32,3 +32,6 @@ class TestConstants(FuzzyTestCase):
 
         constants.set({"tests": {"test_constants": {"CONSTANT": True}}})
         self.assertEqual(CONSTANT, True, "expecting change")
+
+        constants.set({"tests": {"test_constants": {"CONSTANT": "true"}}})
+        self.assertEqual(CONSTANT, "true", "expecting change")
