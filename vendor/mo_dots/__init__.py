@@ -424,7 +424,8 @@ def _set_attr(obj_, path, value):
     # ACTUAL SETTING OF VALUE
     try:
         old_value = _get_attr(obj, [attr_name])
-        if old_value == None:
+        old_type = _get(old_value, CLASS)
+        if old_value == None or old_type in (bool, int, float, text, binary_type):
             old_value = None
             new_value = value
         elif value == None:
