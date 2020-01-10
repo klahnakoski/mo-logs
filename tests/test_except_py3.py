@@ -10,11 +10,8 @@
 
 from __future__ import unicode_literals
 
-import sys
-import traceback
 from unittest import skipIf
 
-from mo_dots import Data
 from mo_future import PY2, text
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
