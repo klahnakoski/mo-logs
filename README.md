@@ -113,26 +113,31 @@ All logs are structured logs; the parameters will be included, unchanged, in
 the log structure. This library also expects all parameter values to be JSON-
 serializable so they can be stored/processed by downstream JSON tools.
 
-```javascript
-    {//EXAMPLE STRUCTURED LOG
+```json
+    { //EXAMPLE STRUCTURED LOG
         "template": "Hello, {{name}}!",
-        "param": {"name": "World!"},
-        "timestamp": 1429721745,
-        "thread": {
-            "name": "Main thread"
-        },
+        "params": {"name": "World!"},
+        "context": "NOTE",
+        "format": "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} - {{thread.name}} - \"{{location.file}}:{{location.line}}\" - ({{location.method}}) - Hello, {{params.name}}!",
         "location": {
-            "line": 3,
-            "file": "hello.py",
-            "method": "hello"
+            "file": "/home/kyle/code/example.py",
+            "line": 10,
+            "method": "worker"
         },
         "machine": {
-            "python": "CPython",
+            "name": "klahnakoski-39477",
             "os": "Windows10",
-            "name": "ekyle-win"
-        }
+            "pid": 18060,
+            "python": "CPython"
+        },
+        "thread": {
+            "id": 14352,
+            "name": "Main Thread"
+        },
+        "timestamp": 1578673471
     }
 ```
+
 
 ### Instead of `raise` use `Log.error()`
 
@@ -275,7 +280,7 @@ document". This allows the caller to make reasonable decisions when they do
 occur. The original cause (the SQLException) is in the causal chain.
 
 Another example, involves *nested exceptions*: If you catch a particular type 
-of exception, you may inadvertently catch the that same type of exception 
+of exception, you may inadvertently catch the same type of exception 
 from deeper in the call chain. Narrow exception handling is an illusion. 
 Broad exception handling will force you to consider a variety of failures 
 early; force you to consider what it means when a block of code fails; and 
