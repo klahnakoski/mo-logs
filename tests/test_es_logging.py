@@ -46,7 +46,7 @@ class TestESLogging(FuzzyTestCase):
 
     @classmethod
     def setUpClass(cls):
-        from pyLibrary.env.elasticsearch import Cluster
+        from jx_elasticsearch.elasticsearch import Cluster
         cls.cluster = Cluster(TEST_CONFIG)
 
     def setUp(self):
