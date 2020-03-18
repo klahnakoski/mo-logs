@@ -107,14 +107,15 @@ dangerous because it also picks up sensitive local variables. Even if
 `{{name}}` is the only value in the template, the whole `locals()` dict will
 be sent to the structured loggers for recording. 
 
-## Exception Handling
+### Destination: Database!
 
 All logs are structured logs; the parameters will be included, unchanged, in
 the log structure. This library also expects all parameter values to be JSON-
 serializable so they can be stored/processed by downstream JSON tools.
 
+**Example structured log** 
 ```json
-    { //EXAMPLE STRUCTURED LOG
+    {
         "template": "Hello, {{name}}!",
         "params": {"name": "World!"},
         "context": "NOTE",
@@ -138,6 +139,7 @@ serializable so they can be stored/processed by downstream JSON tools.
     }
 ```
 
+## Exception Handling
 
 ### Instead of `raise` use `Log.error()`
 
@@ -379,28 +381,35 @@ structure:
             Log.stop()
 ```
 
+The configuration file
 
+    "log": [
+        {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "examples/logs/examples_etl.log",
+            "maxBytes": 10000000,
+            "backupCount": 100,
+            "encoding": "utf8"
+        },
+        {
+            "log_type": "email",
+            "from_address": "klahnakoski@mozilla.com",
+            "to_address": "klahnakoski@mozilla.com",
+            "subject": "[ALERT][DEV] Problem in ETL Spot",
+            "$ref": "file://~/private.json#email"
+        },
+        {
+            "log_type": "console"
+        }
+    ]
 
-        "log": [
-            {
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": "examples/logs/examples_etl.log",
-                "maxBytes": 10000000,
-                "backupCount": 100,
-                "encoding": "utf8"
-            },
-            {
-                "log_type": "email",
-                "from_address": "klahnakoski@mozilla.com",
-                "to_address": "klahnakoski@mozilla.com",
-                "subject": "[ALERT][DEV] Problem in ETL Spot",
-                "$ref": "file://~/private.json#email"
-            },
-            {
-                "log_type": "console"
-            }
-        ]
+## Capturing logs
 
+You can capture all the logging message and send them to your own logging with 
+
+    Log.set_logger(myLogger)
+    
+where `myLogger` is an instance that can accept a call to `write(template, parameters)`. If you logging library can only handle strings, then use `message = expand_template(template, params)`.
 
 
 ## Problems with Python Logging
