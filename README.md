@@ -107,14 +107,15 @@ dangerous because it also picks up sensitive local variables. Even if
 `{{name}}` is the only value in the template, the whole `locals()` dict will
 be sent to the structured loggers for recording. 
 
-## Exception Handling
+### Destination: Database!
 
 All logs are structured logs; the parameters will be included, unchanged, in
 the log structure. This library also expects all parameter values to be JSON-
 serializable so they can be stored/processed by downstream JSON tools.
 
+**Example structured log** 
 ```json
-    { //EXAMPLE STRUCTURED LOG
+    {
         "template": "Hello, {{name}}!",
         "params": {"name": "World!"},
         "context": "NOTE",
@@ -138,6 +139,7 @@ serializable so they can be stored/processed by downstream JSON tools.
     }
 ```
 
+## Exception Handling
 
 ### Instead of `raise` use `Log.error()`
 
@@ -288,20 +290,14 @@ force you to describe it for others.
 
 ### Don't make methods you do not need
 
-There is an argument that suggests you should break your code into methods, 
-rather than catching exceptions: The method name will describe action that 
-failed, and the stack trace can be inspected to make mitigation decisions. 
-But this is a poor solution:
+There is an argument that suggests you should break your code into logical methods, rather than catching exceptions: The method name will describe action that failed, and the stack trace can be inspected to make mitigation decisions. Additional methods is a poor solution:
 
-* More methods means more complexity; the programmer must find the method, 
-  remember the method, and wonder if it is used elsewhere.
-* Methods can be removed while refactoring; exceptions make it clear 
-  the error is important
+* More methods means more complexity; the programmer must find the method, remember the method, and wonder if the method is used elsewhere.
+* Methods can be removed while refactoring; exceptions make it clear the error is important
 * Compiler optimizations can interfere with the call stack
-* The method name might be very long to describe the problem
+* The method name is not an appropriate description of the problem: May words may be required for clarity.
 * Inspecting stack traces makes for messy code.
-* A stack trace does not include state information that an exception can 
-  capture.
+* A stack trace does not include runtime values that are vital for describing the problem.
 
 
 ## Log 'Levels'
@@ -337,7 +333,9 @@ output.
             Log.stop()
 ```
 
-These debug variables can be set by configuration file:
+This pattern of using explict debug variables allows the programmer to switch logging on and off on individual subsystems that share that variable: Either multiple debug variables in a single module, or multiple modules sharing a single debug variable.
+
+These debug variables can be switched on/off by configuration file:
 
 ```javascript
     // settings.json
@@ -348,18 +346,21 @@ These debug variables can be set by configuration file:
     }
 ```
 
+To keep logging to a single line, you may consider this pattern:
+
+    DEBUG and Log.note("error: {{value}}", value=expensive_function()) 
+
+Notice the `expensive_function()` is not run when `DEBUG` is false.
+
 ## Log Configuration
 
-The `logs` module will log to the console by default. ```Log.start(settings)```
+The `mo-logs` library will log to the console by default. ```Log.start(settings)```
 will redirect the logging to other streams, as defined by the settings:
 
  *  **log** - List of all log-streams and their parameters
  *  **trace** - Show more details in every log line (default False)
- *  **cprofile** - Used to enable the builtin python c-profiler (default False)
- *  **profile** - Used to enable pyLibrary's simple profiling (default False)
-    (eg with Profiler("some description"):)
- *  **constants** - Map absolute path of module constants to the values that will
-    be assigned. Used mostly to set debugging constants in modules.
+ *  **cprofile** - Used to enable the builtin python c-profiler, ensuring the cprofiler is turned on for all spawned threads. (default False)
+ *  **constants** - Map absolute path of module constants to the values that will be assigned. Used mostly to set debugging constants in modules.
 
 Of course, logging should be the first thing to be setup (aside from digesting
 settings of course). For this reason, applications should have the following
@@ -379,28 +380,39 @@ structure:
             Log.stop()
 ```
 
+Example configuration file
 
+```json
+{
+    "log": [
+        {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "examples/logs/examples_etl.log",
+            "maxBytes": 10000000,
+            "backupCount": 100,
+            "encoding": "utf8"
+        },
+        {
+            "log_type": "email",
+            "from_address": "klahnakoski@mozilla.com",
+            "to_address": "klahnakoski@mozilla.com",
+            "subject": "[ALERT][DEV] Problem in ETL Spot",
+            "$ref": "file://~/private.json#email"
+        },
+        {
+            "log_type": "console"
+        }
+    ]
+}
+```
 
-        "log": [
-            {
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": "examples/logs/examples_etl.log",
-                "maxBytes": 10000000,
-                "backupCount": 100,
-                "encoding": "utf8"
-            },
-            {
-                "log_type": "email",
-                "from_address": "klahnakoski@mozilla.com",
-                "to_address": "klahnakoski@mozilla.com",
-                "subject": "[ALERT][DEV] Problem in ETL Spot",
-                "$ref": "file://~/private.json#email"
-            },
-            {
-                "log_type": "console"
-            }
-        ]
+## Capturing logs
 
+You can capture all the logging message and send them to your own logging with 
+
+    Log.set_logger(myLogger)
+    
+where `myLogger` is an instance that can accept a calls to `write(template, parameters)`. If your logging library can only handle strings, then use `message = expand_template(template, params)`.
 
 
 ## Problems with Python Logging
