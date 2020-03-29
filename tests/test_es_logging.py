@@ -144,6 +144,7 @@ class TestESLogging(FuzzyTestCase):
                     break
                 q.slow_queue.refresh()
             else:
+                print("wait for es log content")
                 Till(seconds=1).wait()
 
         self.es_logger.stop()
