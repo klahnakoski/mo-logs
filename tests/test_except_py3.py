@@ -41,5 +41,5 @@ class TestExcept(FuzzyTestCase):
                 Log.error("expected", cause=f)
         except Exception as g:
             self.assertIn("division by zero", g)
-            self.assertEqual(g.cause.cause.message, text('division by zero'))
+            self.assertEqual(g.cause.cause.message, text('ZeroDivisionError: division by zero'))
 
