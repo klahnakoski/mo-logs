@@ -40,7 +40,7 @@ class TestExcept(FuzzyTestCase):
             problem_a()
         except Exception as e:
             f = Except.wrap(e)
-            self.assertEqual(f.template, "expected exception")
+            self.assertEqual(f.template, "Exception: expected exception")
             for i, m in enumerate(listwrap(f.trace).method):
                 if m == "test_trace_of_simple_raises":
                     self.assertEqual(i, 2)
@@ -53,7 +53,7 @@ class TestExcept(FuzzyTestCase):
             problem_a2()
         except Exception as e:
             cause = e.cause
-            self.assertEqual(cause.template, "expected exception")
+            self.assertEqual(cause.template, "Exception: expected exception")
 
             for i, m in enumerate(listwrap(cause.trace).method):
                 if m == "test_full_trace_exists":
@@ -72,7 +72,7 @@ class TestExcept(FuzzyTestCase):
             problem_b()
         except Exception as e:
             cause = Except.wrap(e)
-            self.assertEqual(cause.template, "expected exception")
+            self.assertEqual(cause.template, "Exception: expected exception")
 
             for i, m in enumerate(listwrap(cause.trace).method):
                 if m == "test_full_trace_on_wrap":
@@ -119,7 +119,7 @@ class TestExcept(FuzzyTestCase):
         params = {"a": a, "b": b}
 
         WARNING = 'WARNING: test'
-        CAUSE = '\ncaused by\n\tERROR: problem'
+        CAUSE = '\ncaused by\n\tERROR: Exception: problem'
         A = '{\n    "b": "d",\n    "c": "a"\n}'
         B = '{"c": "b"}'
         AC = 'a'
