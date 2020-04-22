@@ -12,7 +12,7 @@ This library provides two main features
 
 * **Structured logging** - output is all JSON (with options to serialize to text for humans)
 * **Exception handling weaved in** - Good logs must represent what happened,
-and that can not be done if the logging library is not intimately familiar with
+and that can only be done if the logging library is intimately familiar with
 the (exceptional) code paths taken.
 
 ## Motivation
@@ -179,7 +179,7 @@ Error logging accepts keyword parameters just like `Log.note()` does
 
 ### No need to formally type your exceptions
 
-An exception can be uniquely identified by the first-parameter string template
+An exception can be uniquely identified by the message template
 it is given; exceptions raised with the same template are the same type. You
 should have no need to create new exception types.
 
@@ -295,8 +295,8 @@ There is an argument that suggests you should break your code into logical metho
 * More methods means more complexity; the programmer must find the method, remember the method, and wonder if the method is used elsewhere.
 * Methods can be removed while refactoring; exceptions make it clear the error is important
 * Compiler optimizations can interfere with the call stack
-* The method name is not an appropriate description of the problem: May words may be required for clarity.
-* Inspecting stack traces makes for messy code.
+* The method name is not an appropriate description of the problem: Many words may be required for clarity.
+* Code that inspects its own stack trace is messy code.
 * A stack trace does not include runtime values that are vital for describing the problem.
 
 
