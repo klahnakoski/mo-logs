@@ -1,0 +1,2 @@
+Requirement already satisfied: mo-dots in c:\python37\lib\site-packages (3.53.20059)
+Requirement already satisfied: mo-future>=3.51.20059 in c:\python37\lib\site-packages (from mo-dots) (3.70.20151)
