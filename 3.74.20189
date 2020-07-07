@@ -1,2 +1,15 @@
-Requirement already satisfied: mo-dots in c:\python37\lib\site-packages (3.53.20059)
-Requirement already satisfied: mo-future>=3.51.20059 in c:\python37\lib\site-packages (from mo-dots) (3.70.20151)
+Collecting mo-dots
+  Using cached mo-dots-3.74.20189.tar.gz (16 kB)
+Processing c:\users\kyle\appdata\local\pip\cache\wheels\20\d2\ea\d4b599b3e49c2f1dde5fc99a01d4cd7680f5e1d6cad98fa3f0\mo_future-3.71.20168-py3-none-any.whl
+Building wheels for collected packages: mo-dots
+  Building wheel for mo-dots (setup.py): started
+  Building wheel for mo-dots (setup.py): finished with status 'done'
+  Created wheel for mo-dots: filename=mo_dots-3.74.20189-py3-none-any.whl size=18759 sha256=bc41ef5cdf0210cf8e3259f2a106df1db2791bf89b29bfb5997b22246240aedf
+  Stored in directory: c:\users\kyle\appdata\local\pip\cache\wheels\0b\4d\a8\f0969611caaa7e19fcb047ed1ba7dda6fbd32b07ee23b0dc5e
+Successfully built mo-dots
+Installing collected packages: mo-future, mo-dots
+  Attempting uninstall: mo-future
+    Found existing installation: mo-future 3.70.20151
+    Uninstalling mo-future-3.70.20151:
+      Successfully uninstalled mo-future-3.70.20151
+Successfully installed mo-dots-3.74.20189 mo-future-3.71.20168
