@@ -3,5 +3,5 @@ git+git://github.com/klahnakoski/mo-threads.git
 git+git://github.com/klahnakoski/mo-testing.git
 git+git://github.com/klahnakoski/mo-kwargs.git
 git+git://github.com/klahnakoski/pyLibrary.git
-git+git://github.com/klahnakoski/jx-elasticsearch.git
 git+git://github.com/klahnakoski/jx-python.git
+git+git://github.com/klahnakoski/jx-elasticsearch.git
