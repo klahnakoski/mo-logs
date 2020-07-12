@@ -1,7 +1,7 @@
-mo-json>3
-mo-threads>3
-mo-testing>3
-jx-python>3
-pyLibrary>3
-mo-kwargs>=3.20.19344
+git+git://github.com/klahnakoski/mo-json.git
+git+git://github.com/klahnakoski/mo-threads.git
+git+git://github.com/klahnakoski/mo-testing.git
+git+git://github.com/klahnakoski/mo-kwargs.git
+git+git://github.com/klahnakoski/pyLibrary.git
+git+git://github.com/klahnakoski/jx-python.git
 git+git://github.com/klahnakoski/jx-elasticsearch.git
