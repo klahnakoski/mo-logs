@@ -13,6 +13,7 @@ from __future__ import unicode_literals
 import logging
 import sys
 import unittest
+from importlib import reload
 from unittest import skip
 import zlib
 
@@ -245,6 +246,9 @@ class TestExcept(FuzzyTestCase):
                 problem_y()
             except Exception as e:
                 raise Exception("this is a problem")
+
+        logging.shutdown()
+        reload(logging)
 
         try:
             problem_x()

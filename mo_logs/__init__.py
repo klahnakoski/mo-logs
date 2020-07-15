@@ -14,7 +14,7 @@ import platform
 import sys
 from datetime import datetime
 
-from mo_dots import Data, FlatList, coalesce, is_list, listwrap, unwraplist, to_data, dict_to_data, is_data
+from mo_dots import Data, FlatList, coalesce, is_list, listwrap, unwraplist, dict_to_data, is_data
 from mo_future import PY3, is_text, text
 from mo_kwargs import override
 from mo_logs import constants as _constants, exceptions, strings, startup
@@ -103,9 +103,10 @@ class Log(object):
     def new_instance(cls, log_type=None, settings=None):
         if settings["class"]:
             if settings["class"].startswith("logging.handlers."):
+                from mo_logs.log_usingThread import StructuredLogger_usingThread
                 from mo_logs.log_usingHandler import StructuredLogger_usingHandler
 
-                return StructuredLogger_usingHandler(settings)
+                return StructuredLogger_usingThread(StructuredLogger_usingHandler(settings))
             else:
                 with suppress_exception:
                     from mo_logs.log_usingLogger import make_log_from_settings
@@ -123,6 +124,10 @@ class Log(object):
         if log_type == "console":
             from mo_logs.log_usingThread import StructuredLogger_usingThread
             return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
+        if log_type == "print":
+            from mo_logs.log_usingThread import StructuredLogger_usingThread
+            from mo_logs.log_usingPrint import StructuredLogger_usingPrint
+            return StructuredLogger_usingThread(StructuredLogger_usingPrint())
         if log_type == "mozlog":
             from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
             return StructuredLogger_usingMozLog(STDOUT, coalesce(settings.app_name, settings.appname))

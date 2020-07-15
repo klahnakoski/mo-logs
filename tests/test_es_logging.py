@@ -10,7 +10,7 @@
 
 from __future__ import unicode_literals
 
-from unittest import skipIf
+from unittest import skipIf, skip
 
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till

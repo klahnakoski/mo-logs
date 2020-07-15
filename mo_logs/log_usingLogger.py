@@ -31,7 +31,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
             self.min_level = getattr(logging, min_level.upper())
         else:
             self.min_level = min_level
-        self.count=0
+        self.count = 0
         self.logger = logging.getLogger(name if name else None)
         self.logger.setLevel(logging.NOTSET)
 
