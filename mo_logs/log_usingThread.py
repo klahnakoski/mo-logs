@@ -51,33 +51,36 @@ class StructuredLogger_usingThread(StructuredLogger):
             raise e  # OH NO!
 
     def stop(self):
+        self.queue.close()
+
         try:
             self.queue.add(THREAD_STOP)  # BE PATIENT, LET REST OF MESSAGE BE SENT
             self.thread.join()
-            Log.note("joined on thread")
         except Exception as e:
             Log.note("problem in threaded logger" + str(e))
 
-        with suppress_exception:
-            self.queue.close()
-
 
 def worker(logger, queue, period, please_stop):
+    please_stop.then(lambda: queue.close)
+
     try:
-        while True:
+        while not please_stop:
             log = queue.pop(till=please_stop)
-            if not log:
-                break
             logs = [log] + queue.pop_all()
             for log in logs:
                 if log is THREAD_STOP:
                     please_stop.go()
-                else:
-                    logger.write(**log)
+                    continue
+
+                logger.write(**log)
             (Till(seconds=period) | please_stop).wait()
+
+        # ONE LAST DRAIN
+        for log in queue.pop_all():
+            if log is not THREAD_STOP:
+                logger.write(**log)
     except Exception as e:
         import sys
         sys.stderr.write("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
-    finally:
-        Log.note("stop the child")
-        logger.stop()
+
+
