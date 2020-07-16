@@ -11,9 +11,9 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import logging
-from importlib import reload
+from unittest import skipIf
 
-from mo_future import StringIO
+from mo_future import StringIO, PY2
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
@@ -21,7 +21,10 @@ from mo_logs import Log
 
 
 class TestLoggers(FuzzyTestCase):
+
+    @skipIf(PY2, "py2 does not have reload")
     def test_logging(self):
+        from importlib import reload
         logging.shutdown()
         reload(logging)
 
