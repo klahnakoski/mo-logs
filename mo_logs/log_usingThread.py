@@ -11,6 +11,8 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+from time import sleep
+
 from mo_logs import Except, Log, suppress_exception
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_threads import Queue, THREAD_STOP, Thread, Till
@@ -51,8 +53,6 @@ class StructuredLogger_usingThread(StructuredLogger):
             raise e  # OH NO!
 
     def stop(self):
-        self.queue.close()
-
         try:
             self.queue.add(THREAD_STOP)  # BE PATIENT, LET REST OF MESSAGE BE SENT
             self.thread.join()
