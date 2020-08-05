@@ -1,3 +1,4 @@
-mo-future>=3
-mo-dots>=3.73.20189
+mo-future
+mo-dots
 mo-kwargs
+mo-imports

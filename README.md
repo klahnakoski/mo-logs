@@ -160,9 +160,28 @@ a failure.
 ```python
     try:
         # Do something that might raise exception
-    except Exception as e:
-        Log.error("Describe what you were trying to do", cause=e)
+    except Exception as cause:
+        Log.error("Describe what you were trying to do", cause=cause)
 ```
+
+### Use `raise from`?
+
+Python3 attaches the full stacktrace to exceptions and allows chaining with `raise from`.  We can replace 
+
+```python
+    from mo_logs import Log 
+    Log.error("description", cause=cause)
+```
+
+with 
+
+```python
+    from mo_logs.exceptions import ERROR, Except 
+    raise Except(ERROR, "description") from cause
+```
+
+which is a bit more clunky, especially when passing dynamic parameters. Plus it breaks the `Log.<type>()` calling pattern; switching between an `error` and a `warning` is more than a name change.
+
 
 ### Use named parameters in your error descriptions too
 
@@ -173,8 +192,8 @@ Error logging accepts keyword parameters just like `Log.note()` does
         try:
             Log.note("Start working with {{key1}}", key1=value1)
             # Do something that might raise exception
-        except Exception as e:
-            Log.error("Failure to work with {{key2}}", key2=value2, cause=e)
+        except Exception as cause:
+            Log.error("Failure to work with {{key2}}", key2=value2, cause=cause)
 ```
 
 ### No need to formally type your exceptions
@@ -194,8 +213,8 @@ the `in` keyword:
     def worker(value):
         try:
             # Do something that might raise exception
-        except Exception as e:
-            if "Failure to work with {{key2}}" in e:
+        except Exception as cause:
+            if "Failure to work with {{key2}}" in cause:
                 # Deal with exception thrown in above code, no matter
                 # how many other exception handlers were in the chain
 ```
@@ -207,8 +226,8 @@ For those who may abhor the use of magic strings, feel free to use constants ins
 
     try:
         Log.error(KEY_ERROR, key=42)        
-    except Exception as e:
-        if KEY_ERROR in e:
+    except Exception as cause:
+        if KEY_ERROR in cause:
             Log.note("dealt with key error")
 ```
 
@@ -226,7 +245,7 @@ logging an error would be deceptive.
     def worker(value):
         try:
             Log.error("Failure to work with {{key3}}", key3=value3)
-        except Exception as e:
+        except Exception as cause:
             # Try something else
 ```
 
@@ -237,8 +256,8 @@ logging an error would be deceptive.
         try:
             Log.note("Start working with {{key4}}", key4=value4)
             # Do something that might raise exception
-        except Exception as e:
-            Log.warning("Failure to work with {{key4}}", key4=value4, cause=e)
+        except Exception as cause:
+            Log.warning("Failure to work with {{key4}}", key4=value4, cause=cause)
 ```
 ### Don't loose your stack trace!
 
@@ -253,8 +272,8 @@ object, you simply get back the object you passed.
 ```python
     try:
         # DO SOME WORK        
-    except Exception as e:
-        e = Except.wrap(e)
+    except Exception as cause:
+        cause = Except.wrap(cause)
         # DO SOME FANCY ERROR RECOVERY
  ```
 
@@ -302,8 +321,8 @@ There is an argument that suggests you should break your code into logical metho
 
 ## Log 'Levels'
 
-The `mo-logs` module has no concept of logging levels it is expected that debug
-variables (variables prefixed with `DEBUG_` are used to control the logging
+The `mo-logs` module has no concept of logging "levels". It's expected you use debug
+variables: Variables prefixed with `DEBUG_` are used to control the logging
 output.
 
 
@@ -327,8 +346,8 @@ output.
 
             # DO WORK HERE
 
-        except Exception as e:
-            Log.error("Complain, or not", e)
+        except Exception as cause:
+            Log.error("Complain, or not", cause)
         finally:
             Log.stop()
 ```
@@ -357,7 +376,7 @@ Notice the `expensive_function()` is not run when `DEBUG` is false.
 The `mo-logs` library will log to the console by default. ```Log.start(settings)```
 will redirect the logging to other streams, as defined by the settings:
 
- *  **log** - List of all log-streams and their parameters
+ *  **logs** - List of all log-streams and their parameters
  *  **trace** - Show more details in every log line (default False)
  *  **cprofile** - Used to enable the builtin python c-profiler, ensuring the cprofiler is turned on for all spawned threads. (default False)
  *  **constants** - Map absolute path of module constants to the values that will be assigned. Used mostly to set debugging constants in modules.
@@ -374,8 +393,8 @@ structure:
 
             # DO WORK HERE
 
-        except Exception as e:
-            Log.error("Complain, or not", e)
+        except Exception as cause:
+            Log.error("Complain, or not", cause)
         finally:
             Log.stop()
 ```
@@ -383,8 +402,9 @@ structure:
 Example configuration file
 
 ```json
-{
-    "log": [
+{"debug":{
+    "trace":true,
+    "log":[
         {
             "class": "logging.handlers.RotatingFileHandler",
             "filename": "examples/logs/examples_etl.log",
@@ -403,7 +423,7 @@ Example configuration file
             "log_type": "console"
         }
     ]
-}
+}}
 ```
 
 ## Capturing logs
