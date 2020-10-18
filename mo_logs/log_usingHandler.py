@@ -52,7 +52,7 @@ def make_log_from_settings(settings):
         temp = __import__(path, globals(), locals(), [class_name], 0)
         constructor = object.__getattribute__(temp, class_name)
     except Exception as e:
-        Log.error("Can not find class {{class}}",  {"class": path}, cause=e)
+        Log.error("Can not find class {{class}}", {"class": path}, cause=e)
 
     # IF WE NEED A FILE, MAKE SURE DIRECTORY EXISTS
     if settings.filename != None:
@@ -62,10 +62,10 @@ def make_log_from_settings(settings):
         if not f.parent.exists:
             f.parent.create()
 
-    settings['class'] = None
-    settings['cls'] = None
-    settings['log_type'] = None
-    settings['settings'] = None
+    settings["class"] = None
+    settings["cls"] = None
+    settings["log_type"] = None
+    settings["settings"] = None
     params = unwrap(settings)
     try:
         log_instance = constructor(**params)

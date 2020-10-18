@@ -54,13 +54,15 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
         kwargs.retry.sleep = Duration(coalesce(kwargs.retry.sleep, MINUTE)).seconds
         kwargs.host = randoms.sample(listwrap(host), 1)[0]
 
-        rollover_interval = coalesce(kwargs.rollover.interval, kwargs.rollover.max, "year")
+        rollover_interval = coalesce(
+            kwargs.rollover.interval, kwargs.rollover.max, "year"
+        )
         rollover_max = coalesce(kwargs.rollover.max, kwargs.rollover.interval, "year")
 
         schema = set_default(
             kwargs.schema,
             {"mappings": {kwargs.type: {"properties": {"~N~": {"type": "nested"}}}}},
-            json2value(value2json(SCHEMA), leaves=True)
+            json2value(value2json(SCHEMA), leaves=True),
         )
 
         self.es = RolloverIndex(
@@ -104,14 +106,9 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
                             continue
                         try:
                             chain = flatten_causal_chain(message.value)
-                            scrubbed.append(
-                                {
-                                    "value": [
-                                        _deep_json_to_string(link, depth=3)
-                                        for link in chain
-                                    ]
-                                }
-                            )
+                            scrubbed.append({"value": [
+                                _deep_json_to_string(link, depth=3) for link in chain
+                            ]})
                         except Exception as e:
                             Log.warning("Problem adding to scrubbed list", cause=e)
 
@@ -187,10 +184,9 @@ def _deep_json_to_string(value, depth):
 SCHEMA = {
     "settings": {"index.number_of_shards": 6, "index.number_of_replicas": 2},
     "mappings": {
-        "_default_": {
-            "dynamic_templates": [
-                {"everything_else": {"match": "*", "mapping": {"index": False}}}
-            ]
-        },
+        "_default_": {"dynamic_templates": [{"everything_else": {
+            "match": "*",
+            "mapping": {"index": False},
+        }}]},
     },
 }

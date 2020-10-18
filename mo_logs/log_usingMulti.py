@@ -11,11 +11,10 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from mo_imports import expect
+from mo_logs import Log
+
 from mo_logs.exceptions import suppress_exception, Except
 from mo_logs.log_usingNothing import StructuredLogger
-
-Log = expect("Log")
 
 
 class StructuredLogger_usingMulti(StructuredLogger):
@@ -30,7 +29,11 @@ class StructuredLogger_usingMulti(StructuredLogger):
             except Exception as e:
                 e = Except.wrap(e)
                 bad.append(m)
-                Log.warning("Logger {{type|quote}} failed! It will be removed.", type=m.__class__.__name__, cause=e)
+                Log.warning(
+                    "Logger {{type|quote}} failed! It will be removed.",
+                    type=m.__class__.__name__,
+                    cause=e,
+                )
         with suppress_exception:
             for b in bad:
                 self.many.remove(b)
