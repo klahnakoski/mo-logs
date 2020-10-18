@@ -5,3 +5,4 @@ mo-kwargs
 jx-python
 jx-elasticsearch
 boto
+beautifulsoup4
