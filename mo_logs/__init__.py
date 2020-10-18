@@ -16,9 +16,10 @@ from datetime import datetime
 
 from mo_dots import Data, FlatList, coalesce, is_list, listwrap, unwraplist, dict_to_data, is_data
 from mo_future import PY3, is_text, text, STDOUT
-from mo_imports import export
+from mo_imports import delay_import
 from mo_kwargs import override
-from mo_logs import constants as _constants, exceptions, strings, startup
+
+from mo_logs import constants as _constants, exceptions, strings
 from mo_logs.exceptions import Except, LogItem, suppress_exception
 from mo_logs.log_usingFile import StructuredLogger_usingFile
 from mo_logs.log_usingMulti import StructuredLogger_usingMulti
@@ -438,10 +439,10 @@ def raise_from_none(e):
 if PY3:
     exec("def raise_from_none(e):\n    raise e from None\n", globals(), locals())
 
-export("mo_logs.startup", Log)
-export("mo_logs.log_usingFile", Log)
-export("mo_logs.log_usingMulti", Log)
-export("mo_logs.log_usingThread", Log)
+StructuredLogger_usingFile = delay_import("mo_logs.log_usingFile.StructuredLogger_usingFile")
+StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
+StructuredLogger_usingThread = delay_import("mo_logs.log_usingThread.StructuredLogger_usingThread")
+startup = delay_import("mo_logs.startup")
 
 if not Log.main_log:
     Log.main_log = StructuredLogger_usingStream(STDOUT)

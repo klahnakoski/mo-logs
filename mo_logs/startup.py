@@ -16,9 +16,9 @@ import sys
 import tempfile
 
 from mo_dots import coalesce, listwrap, unwrap, to_data
-from mo_imports import expect
 
-Log = expect("Log")
+from mo_logs import Log
+
 
 # PARAMETERS MATCH argparse.ArgumentParser.add_argument()
 # https://docs.python.org/dev/library/argparse.html#the-add-argument-method
@@ -34,8 +34,6 @@ Log = expect("Log")
 # help - A brief description of what the argument does.
 # metavar - A name for the argument in usage messages.
 # dest - The name of the attribute to be added to the object returned by parse_args().
-
-
 class _ArgParser(_argparse.ArgumentParser):
     def error(self, message):
         Log.error("argparse error: {{error}}", error=message)

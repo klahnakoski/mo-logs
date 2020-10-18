@@ -65,7 +65,8 @@ class TestExcept(FuzzyTestCase):
 
     def test_bad_log_params(self):
         for call in [Log.note, Log.warning, Log.error]:
-            self.assertRaises("was expecting a unicode template", call, [{}])
+            with self.assertRaises("was expecting a unicode template"):
+                call({})
 
 
     def test_full_trace_on_wrap(self):
