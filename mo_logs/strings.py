@@ -228,7 +228,7 @@ def tab(value):
 
 
 @formatter
-def indent(value, prefix=u"\t", indent=None):
+def indent(value, prefix="\t", indent=None):
     """
     indent given string, using prefix * indent as prefix for each line
     :param value:
@@ -247,7 +247,7 @@ def indent(value, prefix=u"\t", indent=None):
         return prefix + (CR + prefix).join(lines) + suffix
     except Exception as e:
         raise Exception(
-            u"Problem with indent of value (" + e.message + u")\n" + text(toString(value))
+            "Problem with indent of value (" + e.message + ")\n" + text(toString(value))
         )
 
 
@@ -413,9 +413,9 @@ def between(value, prefix=None, suffix=None, start=0):
         if e == -1:
             return None
 
-    s = value.rfind(prefix, start, e) + len(
-        prefix
-    )  # WE KNOW THIS EXISTS, BUT THERE MAY BE A RIGHT-MORE ONE
+    s = value.rfind(
+        prefix, start, e
+    ) + len(prefix)  # WE KNOW THIS EXISTS, BUT THERE MAY BE A RIGHT-MORE ONE
 
     return value[s:e]
 
@@ -429,7 +429,7 @@ def right(value, len):
     :return:
     """
     if len <= 0:
-        return u""
+        return ""
     return value[-len:]
 
 
@@ -441,7 +441,7 @@ def right_align(value, length):
     :return:
     """
     if length <= 0:
-        return u""
+        return ""
 
     value = text(value)
 
@@ -454,7 +454,7 @@ def right_align(value, length):
 @formatter
 def left_align(value, length):
     if length <= 0:
-        return u""
+        return ""
 
     value = text(value)
 
@@ -473,7 +473,7 @@ def left(value, len):
     :return:
     """
     if len <= 0:
-        return u""
+        return ""
     return value[0:len]
 
 
@@ -610,7 +610,9 @@ if PY3:
     delchars = "".join(c for c in map(chr, range(256)) if not c.isalnum())
 else:
     delchars = "".join(
-        c.decode("latin1") for c in map(chr, range(256)) if not c.decode("latin1").isalnum()
+        c.decode("latin1")
+        for c in map(chr, range(256))
+        if not c.decode("latin1").isalnum()
     )
 
 
@@ -681,9 +683,9 @@ def _simple_expand(template, seq):
                 else:
                     val = val[var]
             for func_name in ops[1:]:
-                parts = func_name.split('(')
+                parts = func_name.split("(")
                 if len(parts) > 1:
-                    val = eval(parts[0] + "(val, " + ("(".join(parts[1::])))
+                    val = eval(parts[0] + "(val, " + "(".join(parts[1::]))
                 else:
                     val = FORMATTERS[func_name](val)
             val = toString(val)
@@ -702,7 +704,9 @@ def _simple_expand(template, seq):
                     _late_import()
 
                 _Log.warning(
-                    "Can not expand " + "|".join(ops) + " in template: {{template_|json}}",
+                    "Can not expand "
+                    + "|".join(ops)
+                    + " in template: {{template_|json}}",
                     template_=template,
                     cause=e,
                 )
@@ -730,17 +734,19 @@ def toString(val):
         return val
     elif isinstance(val, binary_type):
         try:
-            return val.decode('utf8')
+            return val.decode("utf8")
         except Exception as _:
             pass
 
         try:
-            return val.decode('latin1')
+            return val.decode("latin1")
         except Exception as e:
             if not _Log:
                 _late_import()
 
-            _Log.error(text(type(val)) + " type can not be converted to unicode", cause=e)
+            _Log.error(
+                text(type(val)) + " type can not be converted to unicode", cause=e
+            )
     else:
         try:
             return text(val)
@@ -748,7 +754,9 @@ def toString(val):
             if not _Log:
                 _late_import()
 
-            _Log.error(text(type(val)) + " type can not be converted to unicode", cause=e)
+            _Log.error(
+                text(type(val)) + " type can not be converted to unicode", cause=e
+            )
 
 
 def edit_distance(s1, s2):
@@ -809,11 +817,15 @@ def apply_diff(text, diff, reverse=False, verify=True):
     hunks = [
         (new_diff[start_hunk], new_diff[start_hunk + 1 : end_hunk])
         for new_diff in [
-            [d.lstrip() for d in diff if d.lstrip() and d != "\\ No newline at end of file"]
+            [
+                d.lstrip()
+                for d in diff
+                if d.lstrip() and d != "\\ No newline at end of file"
+            ]
             + ["@@"]
         ]  # ANOTHER REPAIR
         for start_hunk, end_hunk in pairwise(
-            i for i, l in enumerate(new_diff) if l.startswith('@@')
+            i for i, l in enumerate(new_diff) if l.startswith("@@")
         )
     ]
     for header, hunk_body in reversed(hunks) if reverse else hunks:
@@ -845,17 +857,21 @@ def apply_diff(text, diff, reverse=False, verify=True):
             # DETECT THIS PROBLEM FOR THIS HUNK AND FIX THE DIFF
             if reverse:
                 last_lines = [
-                    o for b, o in zip(reversed(hunk_body), reversed(output)) if b != "+" + o
+                    o
+                    for b, o in zip(reversed(hunk_body), reversed(output))
+                    if b != "+" + o
                 ]
                 if not last_lines:
                     return hunk_body
 
                 last_line = last_lines[0]
                 for problem_index, problem_line in enumerate(hunk_body):
-                    if problem_line.startswith('-') and problem_line.endswith('+' + last_line):
+                    if problem_line.startswith("-") and problem_line.endswith(
+                        "+" + last_line
+                    ):
                         split_point = len(problem_line) - (len(last_line) + 1)
                         break
-                    elif problem_line.startswith('+' + last_line + "-"):
+                    elif problem_line.startswith("+" + last_line + "-"):
                         split_point = len(last_line) + 1
                         break
                 else:
@@ -865,10 +881,12 @@ def apply_diff(text, diff, reverse=False, verify=True):
                     return hunk_body
                 last_line = output[-1]
                 for problem_index, problem_line in enumerate(hunk_body):
-                    if problem_line.startswith('+') and problem_line.endswith('-' + last_line):
+                    if problem_line.startswith("+") and problem_line.endswith(
+                        "-" + last_line
+                    ):
                         split_point = len(problem_line) - (len(last_line) + 1)
                         break
-                    elif problem_line.startswith('-' + last_line + "+"):
+                    elif problem_line.startswith("-" + last_line + "+"):
                         split_point = len(last_line) + 1
                         break
                 else:
@@ -886,13 +904,13 @@ def apply_diff(text, diff, reverse=False, verify=True):
         if reverse:
             new_output = (
                 output[: add.start - 1]
-                + [d[1:] for d in hunk_body if d and d[0] == '-']
+                + [d[1:] for d in hunk_body if d and d[0] == "-"]
                 + output[add.start + add.length - 1 :]
             )
         else:
             new_output = (
                 output[: add.start - 1]
-                + [d[1:] for d in hunk_body if d and d[0] == '+']
+                + [d[1:] for d in hunk_body if d and d[0] == "+"]
                 + output[add.start + remove.length - 1 :]
             )
         output = new_output
@@ -902,7 +920,7 @@ def apply_diff(text, diff, reverse=False, verify=True):
         if set(text) != set(original):  # bugzilla-etl diffs are a jumble
 
             for t, o in zip_longest(text, original):
-                if t in ['reports: https://goo.gl/70o6w6\r']:
+                if t in ["reports: https://goo.gl/70o6w6\r"]:
                     break  # KNOWN INCONSISTENCIES
                 if t != o:
                     if not _Log:

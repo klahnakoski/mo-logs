@@ -71,7 +71,7 @@ def read_settings(defs=None, filename=None, default_filename=None, complain=True
         "type": str,
         "dest": "filename",
         "default": None,
-        "required": False
+        "required": False,
     })
     args = argparse(defs, complain)
 
@@ -79,13 +79,16 @@ def read_settings(defs=None, filename=None, default_filename=None, complain=True
         filename,
         args.filename if args.filename.endswith(".json") else None,
         default_filename,
-        "./config.json"
+        "./config.json",
     )
     settings_file = File(args.filename)
     if settings_file.exists:
         Log.note("Using {{filename}} for configuration", filename=settings_file.abspath)
     else:
-        Log.error("Can not read configuration file {{filename}}", filename=settings_file.abspath)
+        Log.error(
+            "Can not read configuration file {{filename}}",
+            filename=settings_file.abspath,
+        )
 
     settings = mo_json_config.get_file(settings_file)
     settings.args = args
@@ -111,16 +114,18 @@ class SingleInstance:
 
     Remember that this works by creating a lock file with a filename based on the full path to the script file.
     """
+
     def __init__(self, flavor_id=""):
         self.initialized = False
         appname = os.path.splitext(os.path.abspath(sys.argv[0]))[0]
-        basename = ((appname + '-%s') % flavor_id).replace("/", "-").replace(":", "").replace("\\", "-").replace("-.-", "-") + '.lock'
-        self.lockfile = os.path.normpath(tempfile.gettempdir() + '/' + basename)
-
+        basename = ((appname + "-%s") % flavor_id).replace("/", "-").replace(
+            ":", ""
+        ).replace("\\", "-").replace("-.-", "-") + ".lock"
+        self.lockfile = os.path.normpath(tempfile.gettempdir() + "/" + basename)
 
     def __enter__(self):
         Log.note("SingleInstance.lockfile = " + self.lockfile)
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             try:
                 # file already exists, we try to remove (in case previous execution was interrupted)
                 if os.path.exists(self.lockfile):
@@ -129,9 +134,10 @@ class SingleInstance:
             except Exception as e:
                 Log.alarm("Another instance is already running, quitting.")
                 sys.exit(-1)
-        else: # non Windows
+        else:  # non Windows
             import fcntl
-            self.fp = open(self.lockfile, 'w')
+
+            self.fp = open(self.lockfile, "w")
             try:
                 fcntl.lockf(self.fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
@@ -147,16 +153,16 @@ class SingleInstance:
         if not temp:
             return
         try:
-            if sys.platform == 'win32':
-                if hasattr(self, 'fd'):
+            if sys.platform == "win32":
+                if hasattr(self, "fd"):
                     os.close(self.fd)
                     os.unlink(self.lockfile)
             else:
                 import fcntl
+
                 fcntl.lockf(self.fp, fcntl.LOCK_UN)
                 if os.path.isfile(self.lockfile):
                     os.unlink(self.lockfile)
         except Exception as e:
             Log.warning("Problem with SingleInstance __del__()", e)
             sys.exit(-1)
-

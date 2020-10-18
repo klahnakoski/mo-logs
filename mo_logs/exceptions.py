@@ -27,7 +27,6 @@ NOTE = "NOTE"
 
 
 class LogItem(object):
-
     def __init__(self, context, format, template, params):
         self.context = context
         self.format = format
@@ -39,7 +38,6 @@ class LogItem(object):
 
 
 class Except(Exception, LogItem):
-
     @staticmethod
     def new_instance(desc):
         return Except(
@@ -47,10 +45,12 @@ class Except(Exception, LogItem):
             template=desc.template,
             params=desc.params,
             cause=[Except.new_instance(c) for c in listwrap(desc.cause)],
-            trace=desc.trace
+            trace=desc.trace,
         )
 
-    def __init__(self, context=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
+    def __init__(
+        self, context=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_
+    ):
         if context == None:
             raise ValueError("expecting context to not be None")
 
@@ -58,11 +58,7 @@ class Except(Exception, LogItem):
 
         Exception.__init__(self)
         LogItem.__init__(
-            self,
-            context=context,
-            format=None,
-            template=template,
-            params=params
+            self, context=context, format=None, template=template, params=params
         )
 
         if not trace:
@@ -87,20 +83,32 @@ class Except(Exception, LogItem):
             e.cause = unwraplist([Except.wrap(c) for c in listwrap(e.cause)])
             return Except(**e)
         else:
-            tb = getattr(e, '__traceback__', None)
+            tb = getattr(e, "__traceback__", None)
             if tb is not None:
                 trace = _parse_traceback(tb)
             else:
                 trace = get_traceback(0)
 
-            cause = Except.wrap(getattr(e, '__cause__', None))
+            cause = Except.wrap(getattr(e, "__cause__", None))
             message = getattr(e, "message", None)
             if message:
-                output = Except(context=ERROR, template=e.__class__.__name__+": "+text(message), trace=trace, cause=cause)
+                output = Except(
+                    context=ERROR,
+                    template=e.__class__.__name__ + ": " + text(message),
+                    trace=trace,
+                    cause=cause,
+                )
             else:
-                output = Except(context=ERROR, template=e.__class__.__name__+": "+text(e), trace=trace, cause=cause)
+                output = Except(
+                    context=ERROR,
+                    template=e.__class__.__name__ + ": " + text(e),
+                    trace=trace,
+                    cause=cause,
+                )
 
-            trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
+            trace = get_stacktrace(
+                stack_depth + 2
+            )  # +2 = to remove the caller, and it's call to this' Except.wrap()
             output.trace.extend(trace)
             return output
 
@@ -134,22 +142,25 @@ class Except(Exception, LogItem):
                 try:
                     cause_strings.append(text(c))
                 except Exception as e:
-                    sys.stderr("Problem serializing cause"+text(c))
+                    sys.stderr("Problem serializing cause" + text(c))
 
             output += "caused by\n\t" + "and caused by\n\t".join(cause_strings)
 
         return output
 
     if PY3:
+
         def __str__(self):
             return self.__unicode__()
+
     else:
+
         def __str__(self):
-            return self.__unicode__().encode('latin1', 'replace')
+            return self.__unicode__().encode("latin1", "replace")
 
     def __data__(self):
-        output = Data({k:getattr(self,k) for k in vars(self)})
-        output.cause=unwraplist([c.__data__() for c in listwrap(output.cause)])
+        output = Data({k: getattr(self, k) for k in vars(self)})
+        output.cause = unwraplist([c.__data__() for c in listwrap(output.cause)])
         return output
 
 
@@ -178,7 +189,7 @@ def get_stacktrace(start=0):
         stack.append({
             "file": f.f_code.co_filename,
             "line": f.f_lineno,
-            "method": f.f_code.co_name
+            "method": f.f_code.co_name,
         })
         f = f.f_back
     return stack
@@ -203,7 +214,7 @@ def _parse_traceback(tb):
         trace.append({
             "file": f.f_code.co_filename,
             "line": tb.tb_lineno,
-            "method": f.f_code.co_name
+            "method": f.f_code.co_name,
         })
         tb = tb.tb_next
     trace.reverse()
@@ -232,6 +243,7 @@ class Suppress(object):
         if not exc_val or isinstance(exc_val, self.context):
             return True
 
+
 suppress_exception = Suppress(Exception)
 
 
@@ -242,12 +254,7 @@ class Explanation(object):
     CHAIN EXCEPTION AND RE-RAISE
     """
 
-    def __init__(
-        self,
-        template,  # human readable template
-        debug=False,
-        **more_params
-    ):
+    def __init__(self, template, debug=False, **more_params):  # human readable template
         self.debug = debug
         self.template = template
         self.more_params = more_params
@@ -255,6 +262,7 @@ class Explanation(object):
     def __enter__(self):
         if self.debug:
             from mo_logs import Log
+
             Log.note(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -265,7 +273,7 @@ class Explanation(object):
                 template="Failure in " + self.template,
                 default_params=self.more_params,
                 cause=exc_val,
-                stack_depth=1
+                stack_depth=1,
             )
 
             return True
@@ -277,12 +285,7 @@ class WarnOnException(object):
     IF THERE IS AN EXCEPTION WRAP ISSUE A WARNING
     """
 
-    def __init__(
-        self,
-        template,  # human readable template
-        debug=False,
-        **more_params
-    ):
+    def __init__(self, template, debug=False, **more_params):  # human readable template
         self.debug = debug
         self.template = template
         self.more_params = more_params
@@ -290,6 +293,7 @@ class WarnOnException(object):
     def __enter__(self):
         if self.debug:
             from mo_logs import Log
+
             Log.note(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -300,7 +304,7 @@ class WarnOnException(object):
                 template="Ignored failure while " + self.template,
                 default_params=self.more_params,
                 cause=exc_val,
-                stack_depth=1
+                stack_depth=1,
             )
 
             return True
@@ -321,12 +325,9 @@ class AssertNoException(object):
         if isinstance(exc_val, Exception):
             from mo_logs import Log
 
-            Log.error(
-                template="Not expected to fail",
-                cause=exc_val,
-                stack_depth=1
-            )
+            Log.error(template="Not expected to fail", cause=exc_val, stack_depth=1)
 
             return True
+
 
 assert_no_exception = AssertNoException()

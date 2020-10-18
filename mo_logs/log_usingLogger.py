@@ -44,18 +44,20 @@ class StructuredLogger_usingLogger(StructuredLogger):
         except Exception as cause:
             cause = exceptions.Except.wrap(cause)
             import sys
-            sys.stderr.write("can not write to logger: "+text(cause))
+
+            sys.stderr.write("can not write to logger: " + text(cause))
 
     def stop(self):
         try:
             self.logger.shutdown()
         except Exception:
             import sys
+
             sys.stderr.write("Failure in the logger shutdown")
 
 
 MAP = {
     exceptions.ERROR: logging.ERROR,
     exceptions.WARNING: logging.WARNING,
-    exceptions.NOTE: logging.INFO
+    exceptions.NOTE: logging.INFO,
 }
