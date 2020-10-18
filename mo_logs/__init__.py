@@ -14,6 +14,8 @@ import platform
 import sys
 from datetime import datetime
 
+from mo_imports import delay_import
+
 from mo_dots import (
     Data,
     FlatList,
@@ -25,13 +27,23 @@ from mo_dots import (
     is_data,
 )
 from mo_future import PY3, is_text, text, STDOUT
-from mo_imports import delay_import
 from mo_kwargs import override
-
 from mo_logs import constants as _constants, exceptions, strings
 from mo_logs.exceptions import Except, LogItem, suppress_exception
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 from mo_logs.strings import CR, indent
+
+StructuredLogger_usingFile = delay_import(
+    "mo_logs.log_usingFile.StructuredLogger_usingFile"
+)
+StructuredLogger_usingMulti = delay_import(
+    "mo_logs.log_usingMulti.StructuredLogger_usingMulti"
+)
+StructuredLogger_usingThread = delay_import(
+    "mo_logs.log_usingThread.StructuredLogger_usingThread"
+)
+startup_read_settings = delay_import("mo_logs.startup.read_settings")
+
 
 _Thread = None
 
@@ -357,7 +369,7 @@ class Log(object):
         :return:
         """
         if not is_text(template):
-            sys.stderr.write(str("Log.error was expecting a unicode template"))
+            # sys.stderr.write(str("Log.error was expecting a unicode template"))
             Log.error("Log.error was expecting a unicode template")
 
         if default_params and isinstance(listwrap(default_params)[0], BaseException):
@@ -443,7 +455,7 @@ class LoggingContext:
         self.config = None
 
     def __enter__(self):
-        self.config = config = startup.read_settings()
+        self.config = config = startup_read_settings()
         from mo_logs import constants
 
         constants.set(config.constants)
@@ -479,17 +491,6 @@ def raise_from_none(e):
 
 if PY3:
     exec("def raise_from_none(e):\n    raise e from None\n", globals(), locals())
-
-StructuredLogger_usingFile = delay_import(
-    "mo_logs.log_usingFile.StructuredLogger_usingFile"
-)
-StructuredLogger_usingMulti = delay_import(
-    "mo_logs.log_usingMulti.StructuredLogger_usingMulti"
-)
-StructuredLogger_usingThread = delay_import(
-    "mo_logs.log_usingThread.StructuredLogger_usingThread"
-)
-startup = delay_import("mo_logs.startup")
 
 if not Log.main_log:
     Log.main_log = StructuredLogger_usingStream(STDOUT)
