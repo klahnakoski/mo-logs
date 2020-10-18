@@ -4,3 +4,4 @@ mo-testing
 mo-kwargs
 jx-python
 jx-elasticsearch
+boto
