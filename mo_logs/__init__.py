@@ -30,8 +30,6 @@ from mo_kwargs import override
 
 from mo_logs import constants as _constants, exceptions, strings
 from mo_logs.exceptions import Except, LogItem, suppress_exception
-from mo_logs.log_usingFile import StructuredLogger_usingFile
-from mo_logs.log_usingMulti import StructuredLogger_usingMulti
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 from mo_logs.strings import CR, indent
 
