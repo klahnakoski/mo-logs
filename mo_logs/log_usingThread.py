@@ -11,12 +11,10 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from mo_imports import expect
-from mo_logs import Except, Log
-from mo_logs.log_usingNothing import StructuredLogger
 from mo_threads import Queue, THREAD_STOP, Thread, Till
 
-Log = expect("Log")
+from mo_logs import Except, Log
+from mo_logs.log_usingNothing import StructuredLogger
 
 DEBUG = False
 PERIOD = 0.3
@@ -35,11 +33,7 @@ class StructuredLogger_usingThread(StructuredLogger):
             allow_add_after_close=True,
         )
         self.thread = Thread(
-            "Thread for " + self.__class__.__name__,
-            worker,
-            logger,
-            self.queue,
-            period
+            "Thread for " + self.__class__.__name__, worker, logger, self.queue, period
         )
         # worker WILL BE RESPONSIBLE FOR THREAD stop()
         self.thread.parent.remove_child(self.thread)
@@ -82,6 +76,7 @@ def worker(logger, queue, period, please_stop):
                 logger.write(**log)
     except Exception as e:
         import sys
-        sys.stderr.write("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))
 
-
+        sys.stderr.write(
+            "problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e)
+        )
