@@ -11,6 +11,8 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
+from mo_dots.lists import is_many
+
 from mo_future import is_text, is_binary
 import sys
 
@@ -54,7 +56,10 @@ class Except(Exception, LogItem):
         if context == None:
             raise ValueError("expecting context to not be None")
 
-        self.cause = Except.wrap(cause)
+        if is_many(cause):
+            self.cause = unwraplist([Except.wrap(c) for c in cause])
+        else:
+            self.cause = Except.wrap(cause)
 
         Exception.__init__(self)
         LogItem.__init__(
