@@ -16,7 +16,7 @@ import unittest
 import zlib
 from unittest import skip, skipIf
 
-from mo_dots import listwrap, wrap, Data
+from mo_dots import listwrap, wrap, Data, to_data
 from mo_dots.objects import DataObject
 from mo_future import PY2
 from mo_json import value2json
@@ -333,8 +333,8 @@ class TestExcept(FuzzyTestCase):
         try:
             oh_no()
             self.assertTrue(False, "should not happen")
-        except Exception as e:
-            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
+        except Exception as cause:
+            self.assertIn("recursive", cause, "expecting the recursive loop to be identified")
 
     def test_locals_in_stack_trace(self):
         try:
@@ -342,6 +342,12 @@ class TestExcept(FuzzyTestCase):
         except Exception as e:
             tb = sys.exc_info()[2]
             self.assertEqual(tb.tb_next.tb_frame.f_locals['a'].value, "test_value")
+
+    def test_many_causes(self):
+        try:
+            Log.error("problem", cause=to_data([None]))
+        except Exception as cause:
+            Log.warning("expected", casue=cause)
 
 
 def problem_a():
