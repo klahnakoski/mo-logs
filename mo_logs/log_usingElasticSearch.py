@@ -19,11 +19,10 @@ from mo_dots import coalesce, listwrap, set_default, to_data, is_data, is_sequen
 from mo_future import number_types, text, is_text, is_binary, binary_type
 from mo_json import datetime2unix, json2value, value2json
 from mo_kwargs import override
-from mo_math import randoms
-
 from mo_logs import Log, strings
 from mo_logs.exceptions import Except, suppress_exception
 from mo_logs.log_usingNothing import StructuredLogger
+from mo_math import randoms, bytes2base64
 from mo_threads import Queue, THREAD_STOP, Thread, Till
 from mo_times import Duration, MINUTE
 from mo_times.dates import datetime2unix
@@ -96,7 +95,7 @@ class StructuredLogger_usingElasticSearch(StructuredLogger):
             try:
                 messages = to_data(self.queue.pop_all())
                 if not messages:
-                    Till(seconds=PAUSE_AFTER_GOOD_INSERT).wait()
+                    (Till(seconds=PAUSE_AFTER_GOOD_INSERT) | please_stop).wait()
                     continue
 
                 for g, mm in jx.chunk(messages, size=self.batch_size):
