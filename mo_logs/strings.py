@@ -560,7 +560,7 @@ def split(value, sep=CR):
 
 
 """
-THE REST OF THIS FILE IS TEMPLATE EXPANSION CODE USED BY mo-logs 
+THE REST OF THIS FILE IS TEMPLATE EXPANSION CODE USED BY mo-logs
 """
 
 
@@ -723,6 +723,8 @@ def toString(val):
         return ""
     elif is_data(val) or is_many(val):
         return _json_encoder(val, pretty=True)
+    elif hasattr(val, "__data__"):
+        return _json_encoder(val.__data__(), pretty=True)
     elif hasattr(val, "__json__"):
         return val.__json__()
     elif isinstance(val, _Duration):

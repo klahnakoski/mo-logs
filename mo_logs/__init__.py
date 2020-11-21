@@ -54,7 +54,7 @@ class Log(object):
     """
 
     trace = False
-    main_log = None
+    main_log = StructuredLogger_usingStream(STDOUT)
     logging_multi = None
     profiler = None  # simple pypy-friendly profiler
     error_mode = False  # prevent error loops
@@ -491,6 +491,3 @@ def raise_from_none(e):
 
 if PY3:
     exec("def raise_from_none(e):\n    raise e from None\n", globals(), locals())
-
-if not Log.main_log:
-    Log.main_log = StructuredLogger_usingStream(STDOUT)
