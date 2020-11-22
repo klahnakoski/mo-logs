@@ -28,18 +28,17 @@ class TestExcept(FuzzyTestCase):
         try:
             try:
                 exec(
-                    (
-                        "try:\n"
-                        "    print(1/0)\n"
-                        "except Exception as e:\n"
-                        "    raise Exception(\"test\") from e"
-                    ),
+                    "try:\n"
+                    "    print(1/0)\n"
+                    "except Exception as e:\n"
+                    '    raise Exception("test") from e',
                     globals(),
-                    locals()
+                    locals(),
                 )
             except Exception as f:
                 Log.error("expected", cause=f)
         except Exception as g:
             self.assertIn("division by zero", g)
-            self.assertEqual(g.cause.cause.message, text('ZeroDivisionError: division by zero'))
-
+            self.assertEqual(
+                g.cause.cause.message, text("ZeroDivisionError: division by zero")
+            )

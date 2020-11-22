@@ -18,11 +18,9 @@ from mo_logs.strings import expand_template
 
 
 class TestFormatters(FuzzyTestCase):
-
     def test_upper(self):
         test = expand_template("Hello {{name|upper}}", {"name": "world"})
         self.assertEqual(test, "Hello WORLD")
-
 
     def test_places(self):
         test = expand_template("pi = {{pi|round(places=3)}}", {"pi": pi})
@@ -57,7 +55,7 @@ class TestFormatters(FuzzyTestCase):
             "314200000000000",
             "3142000000000000",
             "31420000000000000",
-            "314200000000000000"
+            "314200000000000000",
         ]
         start = -10
         for order in range(start, 18):

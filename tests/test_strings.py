@@ -25,32 +25,33 @@ class TestStrings(FuzzyTestCase):
         some_list = [10, 11, 14, 80]
         details = {"person": {"name": "Kyle Lahnakoski", "age": 40}}
 
-        result = expand_template("it is currently {{now|datetime}}", {"now": 1420119241000})
-        self.assertEqual(result, 'it is currently 2015-01-01 13:34:01')
+        result = expand_template(
+            "it is currently {{now|datetime}}", {"now": 1420119241000}
+        )
+        self.assertEqual(result, "it is currently 2015-01-01 13:34:01")
 
         result = expand_template("Total: {{total|right_align(20)}}", {"total": total})
-        self.assertEqual(result, 'Total:               123.45')
+        self.assertEqual(result, "Total:               123.45")
 
         result = expand_template("Summary:\n{{list|json|indent}}", {"list": some_list})
-        self.assertEqual(result, 'Summary:\n\t[10, 11, 14, 80]')
+        self.assertEqual(result, "Summary:\n\t[10, 11, 14, 80]")
 
         result = expand_template("Summary:\n{{list|indent}}", {"list": some_list})
-        self.assertEqual(result, 'Summary:\n\t[10, 11, 14, 80]')
+        self.assertEqual(result, "Summary:\n\t[10, 11, 14, 80]")
 
         result = expand_template("{{person.name}} is {{person.age}} years old", details)
         self.assertEqual(result, "Kyle Lahnakoski is 40 years old")
 
-
     def test_percent(self):
 
-        self.assertEqual(strings.percent(.123, digits=1), "10%")
-        self.assertEqual(strings.percent(.123, digits=2), "12%")
-        self.assertEqual(strings.percent(.123, digits=3), "12.3%")
-        self.assertEqual(strings.percent(.120, digits=3), "12.0%")
+        self.assertEqual(strings.percent(0.123, digits=1), "10%")
+        self.assertEqual(strings.percent(0.123, digits=2), "12%")
+        self.assertEqual(strings.percent(0.123, digits=3), "12.3%")
+        self.assertEqual(strings.percent(0.120, digits=3), "12.0%")
 
-        self.assertEqual(strings.percent(.0123, digits=1), "1%")
-        self.assertEqual(strings.percent(.0123, digits=2), "1.2%")
-        self.assertEqual(strings.percent(.0123, digits=3), "1.23%")
-        self.assertEqual(strings.percent(.0120, digits=3), "1.20%")
+        self.assertEqual(strings.percent(0.0123, digits=1), "1%")
+        self.assertEqual(strings.percent(0.0123, digits=2), "1.2%")
+        self.assertEqual(strings.percent(0.0123, digits=3), "1.23%")
+        self.assertEqual(strings.percent(0.0120, digits=3), "1.20%")
 
         self.assertEqual(strings.percent(0.5), "50%")

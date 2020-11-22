@@ -20,6 +20,7 @@ from mo_logs.strings import CR, expand_template
 
 DATE_PATTERN = r"\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d(?:\.\d+)* - "
 
+
 class StructuredLogger_usingQueue(StructuredLogger):
     def __init__(self, name=None):
         queue_name = "log messages to queue"
@@ -42,7 +43,7 @@ class StructuredLogger_usingQueue(StructuredLogger):
             # 2019-01-06 19:13:49.937542 -
             prefix = re.match(DATE_PATTERN, l)
             if prefix:
-                l = l[len(prefix.group(0)):]
+                l = l[len(prefix.group(0)) :]
             if not l.strip():
                 continue
             if l.strip().startswith("File"):

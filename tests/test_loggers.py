@@ -21,10 +21,10 @@ from mo_logs import Log
 
 
 class TestLoggers(FuzzyTestCase):
-
     @skipIf(PY2, "py2 does not have reload")
     def test_logging(self):
         from importlib import reload
+
         logging.shutdown()
         reload(logging)
 
@@ -39,4 +39,4 @@ class TestLoggers(FuzzyTestCase):
         log = log_stream.getvalue()
 
         expected = "testing\n"
-        self.assertEqual(log[-len(expected):], expected)
+        self.assertEqual(log[-len(expected) :], expected)

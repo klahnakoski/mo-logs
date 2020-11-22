@@ -20,22 +20,16 @@ from mo_times import Date
 from mo_logs import Log
 from tests.config import IS_TRAVIS
 
-TEST_CONFIG = Data(
-    host="http://localhost",
-    index="test-es-logging",
-    type="log"
-)
+TEST_CONFIG = Data(host="http://localhost", index="test-es-logging", type="log")
 GET_RECENT_LOG = {
-    "query": {
-        "nested": {
-            "path": "~N~",
-            "query": {"term": {"~N~.template.~s~": "this is a {{type}} test"}}
-        }
-    },
+    "query": {"nested": {
+        "path": "~N~",
+        "query": {"term": {"~N~.template.~s~": "this is a {{type}} test"}},
+    }},
     "from": 0,
     "size": 1,
     "sort": [{"~N~.timestamp.~n~": "desc"}],
-    "stored_fields": ["_source"]
+    "stored_fields": ["_source"],
 }
 
 
@@ -47,8 +41,10 @@ class TestESLogging(FuzzyTestCase):
     @classmethod
     def setUpClass(cls):
         from mo_logs import log_usingElasticSearch
+
         log_usingElasticSearch.PAUSE_AFTER_GOOD_INSERT = 0  # ENSURE WE TEST FAST
         from jx_elasticsearch.elasticsearch import Cluster
+
         cls.cluster = Cluster(TEST_CONFIG)
 
     def setUp(self):
@@ -64,16 +60,16 @@ class TestESLogging(FuzzyTestCase):
         expected = {"~N~": [{
             "context": {"~s~": "NOTE"},
             "template": {"~s~": "this is a {{type}} test"},
-            "params": {"type": {"~s~": "basic"}, "~e~": 1}
+            "params": {"type": {"~s~": "basic"}, "~e~": 1},
         }]}
         self.assertEqual(result, expected)
 
         self.assertIsNotNone(result.machine.name)
         self.assertIsNotNone(result.location)
         self.assertIsNotNone(result.thread)
-        self.assertIsNotNone(result.timestamp['~n~'])
+        self.assertIsNotNone(result.timestamp["~n~"])
 
-        self.assertEqual(result.timestamp['~s~'], NULL)
+        self.assertEqual(result.timestamp["~s~"], NULL)
         self._delete_testindex()
 
     def test_warning(self):
@@ -86,16 +82,16 @@ class TestESLogging(FuzzyTestCase):
         expected = {"~N~": [{
             "context": {"~s~": "WARNING"},
             "template": {"~s~": "this is a {{type}} test"},
-            "params": {"type": {"~s~": "basic"}, "~e~": 1}
+            "params": {"type": {"~s~": "basic"}, "~e~": 1},
         }]}
         self.assertEqual(result, expected)
 
         self.assertIsNotNone(result.machine.name)
         self.assertIsNotNone(result.location)
         self.assertIsNotNone(result.thread)
-        self.assertIsNotNone(result.timestamp['~n~'])
+        self.assertIsNotNone(result.timestamp["~n~"])
 
-        self.assertEqual(result.timestamp['~s~'], NULL)
+        self.assertEqual(result.timestamp["~s~"], NULL)
         self._delete_testindex()
 
     def test_alarm(self):
@@ -108,16 +104,16 @@ class TestESLogging(FuzzyTestCase):
         expected = {"~N~": [{
             "context": {"~s~": "ALARM"},
             "template": {"~s~": "this is a {{type}} test"},
-            "params": {"type": {"~s~": "basic"}, "~e~": 1}
+            "params": {"type": {"~s~": "basic"}, "~e~": 1},
         }]}
         self.assertEqual(result, expected)
 
         self.assertIsNotNone(result.machine.name)
         self.assertIsNotNone(result.location)
         self.assertIsNotNone(result.thread)
-        self.assertIsNotNone(result.timestamp['~n~'])
+        self.assertIsNotNone(result.timestamp["~n~"])
 
-        self.assertEqual(result.timestamp['~s~'], NULL)
+        self.assertEqual(result.timestamp["~s~"], NULL)
         self._delete_testindex()
 
     def _before_test(self):
@@ -126,6 +122,7 @@ class TestESLogging(FuzzyTestCase):
         # CREATE INDEX, AND LOG
         self.temp = Log.main_log
         from mo_logs.log_usingElasticSearch import StructuredLogger_usingElasticSearch
+
         self.es_logger = Log.main_log = self.es_logger = StructuredLogger_usingElasticSearch(TEST_CONFIG)
 
     def _after_test(self):
@@ -139,7 +136,7 @@ class TestESLogging(FuzzyTestCase):
                 result = q.slow_queue.search({
                     "from": 0,
                     "size": 1,
-                    "stored_fields": ["_source"]
+                    "stored_fields": ["_source"],
                 })
                 if result.hits.total:
                     found = True
@@ -168,5 +165,5 @@ class TestESLogging(FuzzyTestCase):
 class NullOp(object):
     pass
 
-NULL = NullOp()
 
+NULL = NullOp()
