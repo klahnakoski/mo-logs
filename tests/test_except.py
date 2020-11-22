@@ -68,7 +68,6 @@ class TestExcept(FuzzyTestCase):
             with self.assertRaises("was expecting a unicode template"):
                 call({})
 
-
     def test_full_trace_on_wrap(self):
         try:
             problem_b()
@@ -95,10 +94,10 @@ class TestExcept(FuzzyTestCase):
         backup_log, Log.main_log = Log.main_log, log_queue
 
         Log.note("{{a}} and {{b}}")
-        self.assertEqual(Log.main_log.pop(), A + ' and ' + B)
+        self.assertEqual(Log.main_log.pop(), A + " and " + B)
 
         Log.warning("{{a}} and {{b}}", a=a, b=b)
-        self.assertEqual(Log.main_log.pop(), A + ' and ' + B)
+        self.assertEqual(Log.main_log.pop(), A + " and " + B)
 
     @skip("not implemented")
     def test_missing_local_variable(self):
@@ -114,19 +113,18 @@ class TestExcept(FuzzyTestCase):
         except Exception as e:
             self.assertTrue("c local is not found" in e)
 
-
     def test_warning_keyword_parameters(self):
         a = {"c": "a", "b": "d"}
         b = {"c": "b"}
         params = {"a": a, "b": b}
 
-        WARNING = 'WARNING: test'
-        CAUSE = '\ncaused by\n\tERROR: Exception: problem'
+        WARNING = "WARNING: test"
+        CAUSE = "\ncaused by\n\tERROR: Exception: problem"
         A = '{\n    "b": "d",\n    "c": "a"\n}'
         B = '{"c": "b"}'
-        AC = 'a'
-        AB = 'd'
-        BC = 'b'
+        AC = "a"
+        AB = "d"
+        BC = "b"
 
         log_queue = StructuredLogger_usingQueue("abba")
         backup_log, Log.main_log = Log.main_log, log_queue
@@ -138,52 +136,54 @@ class TestExcept(FuzzyTestCase):
             self.assertEqual(Log.main_log.pop(), WARNING)
 
             Log.warning("test: {{a}}", a=a)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A)
 
             Log.warning("test: {{a}}: {{b}}", a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + ': ' + B)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + ": " + B)
 
             Log.warning("test", e)
             self.assertEqual(Log.main_log.pop(), WARNING + CAUSE)
 
             Log.warning("test: {{a}}", a=a, cause=e)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + CAUSE)
 
             Log.warning("test: {{a}}: {{b}}", a=a, b=b, cause=e)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + ': ' + B + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + ": " + B + CAUSE)
 
             Log.warning("test: {{a}}", e, a=a)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + CAUSE)
 
             Log.warning("test: {{a}}: {{b}}", e, a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + ': ' + B + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + ": " + B + CAUSE)
 
             Log.warning("test: {{a}}", params, e)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + CAUSE)
 
             Log.warning("test: {{a}}: {{b}}", params, e)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + ': ' + B + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + ": " + B + CAUSE)
 
             Log.warning("test: {{a}}: {{b}}", params, e, a=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + B + ': ' + B + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + B + ": " + B + CAUSE)
 
             Log.warning("test: {{a}}: {{b}}", wrap(params), e, a=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + B + ': ' + B + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + B + ": " + B + CAUSE)
 
             Log.warning("test: {{a.c}}", a=a)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC)
 
             Log.warning("test: {{a.c}}: {{a.b}}", a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC + ': ' + AB)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC + ": " + AB)
 
             Log.warning("test: {{a.c}}: {{b.c}}", a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC + ': ' + BC)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC + ": " + BC)
 
             Log.warning("test: {{a.c}}", a=a, cause=e)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC + CAUSE)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC + CAUSE)
 
             Log.warning("test: {{a.c}}: {{b.c}}", a=a, b=b, cause=e)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC + ': ' + BC + CAUSE)
+            self.assertEqual(
+                Log.main_log.pop(), WARNING + ": " + AC + ": " + BC + CAUSE
+            )
         finally:
             Log.main_log = backup_log
 
@@ -192,12 +192,12 @@ class TestExcept(FuzzyTestCase):
         b = {"c": "b"}
         params = {"a": a, "b": b}
 
-        WARNING = 'test'
+        WARNING = "test"
         A = '{\n    "b": "d",\n    "c": "a"\n}'
         B = '{"c": "b"}'
-        AC = 'a'
-        AB = 'd'
-        BC = 'b'
+        AC = "a"
+        AB = "d"
+        BC = "b"
 
         # DURING TESTING SOME OTHER THREADS MAY STILL BE WRITING TO THE LOG
         Till(seconds=1).wait()
@@ -212,28 +212,28 @@ class TestExcept(FuzzyTestCase):
             self.assertEqual(Log.main_log.pop(), WARNING)
 
             Log.note("test: {{a}}", a=a)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A)
 
             Log.note("test: {{a}}: {{b}}", a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + ': ' + B)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + ": " + B)
 
             Log.note("test: {{a.c}}", a=a)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC)
 
             Log.note("test: {{a}}: {{b}}", params)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + A + ': ' + B)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + A + ": " + B)
 
             Log.note("test: {{a}}: {{b}}", params, a=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + B + ': ' + B)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + B + ": " + B)
 
             Log.note("test: {{a}}: {{b}}", wrap(params), a=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + B + ': ' + B)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + B + ": " + B)
 
             Log.note("test: {{a.c}}: {{a.b}}", a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC + ': ' + AB)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC + ": " + AB)
 
             Log.note("test: {{a.c}}: {{b.c}}", a=a, b=b)
-            self.assertEqual(Log.main_log.pop(), WARNING + ': ' + AC + ': ' + BC)
+            self.assertEqual(Log.main_log.pop(), WARNING + ": " + AC + ": " + BC)
         finally:
             Log.main_log = backup_log
 
@@ -251,18 +251,23 @@ class TestExcept(FuzzyTestCase):
 
         logging.shutdown()
         from importlib import reload
+
         reload(logging)
 
         try:
             problem_x()
         except Exception as e:
+
             class _catcher(logging.Handler):
                 def handle(self, record):
                     o = value2json(DataObject(record))
                     if record:
                         pass
                     if "this is a problem" not in e.args:
-                        Log.error("We expect Python to, at least, report the first order problem")
+                        Log.error(
+                            "We expect Python to, at least, report the first order"
+                            " problem"
+                        )
                     if "this is the root cause" in e.args:
                         Log.error("We do not expect Python to report exception chains")
 
@@ -290,7 +295,7 @@ class TestExcept(FuzzyTestCase):
     def test_contains_from_zip_error(self):
         def bad_unzip():
             decompressor = zlib.decompressobj(16 + zlib.MAX_WBITS)
-            return decompressor.decompress(b'invlaid zip file')
+            return decompressor.decompress(b"invlaid zip file")
 
         try:
             bad_unzip()
@@ -314,7 +319,9 @@ class TestExcept(FuzzyTestCase):
             oh_no()
             self.assertTrue(False, "should not happen")
         except Exception as e:
-            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
+            self.assertIn(
+                "recursive", e, "expecting the recursive loop to be identified"
+            )
 
     @skip("this is too complicated for now")
     def test_deep_recursive_loop(self):
@@ -334,14 +341,16 @@ class TestExcept(FuzzyTestCase):
             oh_no()
             self.assertTrue(False, "should not happen")
         except Exception as cause:
-            self.assertIn("recursive", cause, "expecting the recursive loop to be identified")
+            self.assertIn(
+                "recursive", cause, "expecting the recursive loop to be identified"
+            )
 
     def test_locals_in_stack_trace(self):
         try:
             problem_c("test_value")
         except Exception as e:
             tb = sys.exc_info()[2]
-            self.assertEqual(tb.tb_next.tb_frame.f_locals['a'].value, "test_value")
+            self.assertEqual(tb.tb_next.tb_frame.f_locals["a"].value, "test_value")
 
     def test_many_causes(self):
         try:
@@ -367,14 +376,13 @@ def problem_a2():
 
 def problem_c(value):
     a = Data(value=value)
-    b="something"
-    c = 1/0
+    b = "something"
+    c = 1 / 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         Log.start()
         unittest.main()
     finally:
         Log.stop()
-

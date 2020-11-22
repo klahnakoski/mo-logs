@@ -20,7 +20,6 @@ CONSTANT = True
 
 
 class TestConstants(FuzzyTestCase):
-
     def test_set(self):
         constants.set({"mo_logs": {"constants": {"DEBUG": False}}})
         self.assertEqual(constants.DEBUG, False, "expecting change")
@@ -42,7 +41,7 @@ class TestConstants(FuzzyTestCase):
     @skip("Can not get to pass on command line")
     def test_set_self_true(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": True}}})
-        self.assertEqual(globals()['CONSTANT'], True, "expecting change")
+        self.assertEqual(globals()["CONSTANT"], True, "expecting change")
 
     @skip("Can not get to pass on command line")
     def test_set_self_number(self):
