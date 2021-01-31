@@ -10,7 +10,6 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import os
-import platform
 import sys
 from datetime import datetime
 
@@ -414,7 +413,6 @@ class Log(object):
         :return:
         """
         item.timestamp = timestamp
-        item.machine = machine_metadata
         item.template = strings.limit(item.template, 10000)
 
         item.format = strings.limit(item.format, 10000)
@@ -426,6 +424,7 @@ class Log(object):
             format = CR + format
 
         if cls.trace:
+            item.machine = machine_metadata()
             log_format = item.format = (
                 "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} -"
                 ' {{thread.name}} - "{{location.file}}:{{location.line}}" -'
@@ -477,12 +476,23 @@ def _same_frame(frameA, frameB):
 
 
 # GET THE MACHINE METADATA
-machine_metadata = dict_to_data({
-    "pid": os.getpid(),
-    "python": text(platform.python_implementation()),
-    "os": text(platform.system() + platform.release()).strip(),
-    "name": text(platform.node()),
-})
+_machine_metadata = None
+
+
+def machine_metadata():
+    global _machine_metadata
+    if _machine_metadata:
+        return _machine_metadata
+
+    import platform
+
+    _machine_metadata = dict_to_data({
+        "pid": os.getpid(),
+        "python": text(platform.python_implementation()),
+        "os": text(platform.system() + platform.release()).strip(),
+        "name": text(platform.node()),
+    })
+    return _machine_metadata
 
 
 def raise_from_none(e):
