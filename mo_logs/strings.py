@@ -10,18 +10,15 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-import cgi
 import json as _json
 import math
 import re
 import string
 from datetime import date, datetime as builtin_datetime, timedelta
-from json.encoder import encode_basestring
 
 from mo_dots import (
     Data,
     coalesce,
-    get_module,
     is_data,
     is_list,
     to_data,
@@ -61,8 +58,10 @@ def _late_import():
     global _Duration
 
     try:
+        from mo_dots import get_module
+
         _json_encoder = get_module("mo_json.encoder").json_encoder
-    except Exception:
+    except Exception as cause:
         _json_encoder = lambda value, pretty: _json.dumps(value)
     from mo_logs import Log as _Log
     from mo_logs.exceptions import Except as _Except
@@ -158,6 +157,8 @@ def html(value):
     """
     convert FROM unicode TO HTML OF THE SAME
     """
+    import cgi
+
     return cgi.escape(value)
 
 
@@ -502,10 +503,7 @@ def quote(value):
     """
     if value == None:
         output = ""
-    elif is_text(value):
-        output = encode_basestring(value)
-    else:
-        output = _json.dumps(value)
+    output = _json.dumps(value)
     return output
 
 
