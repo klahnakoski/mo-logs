@@ -4,3 +4,4 @@
 .idea
 *.iml
 vendor
+/mo_logs/__pycache__
