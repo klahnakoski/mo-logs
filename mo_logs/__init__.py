@@ -171,9 +171,7 @@ class Log(object):
 
             return StructuredLogger_usingThread(StructuredLogger_usingStream(settings.stream))
         if log_type == "elasticsearch" or settings.stream:
-            from mo_logs.log_usingElasticSearch import (
-                StructuredLogger_usingElasticSearch,
-            )
+            from jx_elasticsearch.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 
             return StructuredLogger_usingElasticSearch(settings)
         if log_type == "email":
