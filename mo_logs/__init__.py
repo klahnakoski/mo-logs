@@ -23,7 +23,8 @@ from mo_dots import (
     listwrap,
     unwraplist,
     dict_to_data,
-    is_data, to_data,
+    is_data,
+    to_data,
 )
 from mo_future import PY3, is_text, text, STDOUT
 from mo_kwargs import override
@@ -171,7 +172,9 @@ class Log(object):
 
             return StructuredLogger_usingThread(StructuredLogger_usingStream(settings.stream))
         if log_type == "elasticsearch" or settings.stream:
-            from jx_elasticsearch.log_usingElasticSearch import StructuredLogger_usingElasticSearch
+            from jx_elasticsearch.log_usingElasticSearch import (
+                StructuredLogger_usingElasticSearch,
+            )
 
             return StructuredLogger_usingElasticSearch(settings)
         if log_type == "email":
@@ -260,7 +263,7 @@ class Log(object):
         if "values" in more_params.keys():
             Log.error("Can not handle a logging parameter by name `values`")
 
-        params = Data(dict(default_params, **more_params))
+        params = to_data(dict(default_params, **more_params))
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
