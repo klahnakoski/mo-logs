@@ -7,6 +7,7 @@ setup(
     author_email='kyle@lahnakoski.com',
     classifiers=["Development Status :: 5 - Production/Stable","Topic :: Software Development :: Libraries","Topic :: Software Development :: Libraries :: Python Modules","License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)","Programming Language :: Python :: 3.7","Programming Language :: Python :: 3.9"],
     description='More Logs! Structured Logging and Exception Handling',
+    extras_require={"tests":["mo-json","mo-threads","mo-testing","mo-kwargs","jx-python","boto","beautifulsoup4"]},
     include_package_data=True,
     install_requires=["mo-dots==5.22.21182","mo-future==5.17.21182","mo-imports==5.17.21182","mo-kwargs==5.23.21182"],
     license='MPL 2.0',
@@ -15,6 +16,6 @@ setup(
     name='mo-logs',
     packages=["mo_logs"],
     url='https://github.com/klahnakoski/mo-logs',
-    version='5.23.21182',
+    version='5.44.21241',
     zip_safe=False
 )
