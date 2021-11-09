@@ -4,8 +4,8 @@
 
 |Branch      |Status   |
 |------------|---------|
-|master      | [![Build Status](https://travis-ci.org/klahnakoski/mo-logs.svg?branch=master)](https://travis-ci.org/klahnakoski/mo-logs) |
-|dev         | [![Build Status](https://travis-ci.org/klahnakoski/mo-logs.svg?branch=dev)](https://travis-ci.org/klahnakoski/mo-logs)  [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)  |
+|master      | [![Build Status](https://app.travis-ci.com/klahnakoski/mo-logs.svg?branch=master)](https://travis-ci.com/github/klahnakoski/mo-logs) |
+|dev         | [![Build Status](https://app.travis-ci.com/klahnakoski/mo-logs.svg?branch=dev)](https://travis-ci.com/github/klahnakoski/mo-logs)  [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)  |
 
 
 This library provides two main features
