@@ -23,7 +23,6 @@ from mo_dots import (
     is_list,
     to_data,
     is_sequence,
-    NullType,
     is_many,
 )
 from mo_future import (
@@ -46,7 +45,7 @@ from mo_logs.convert import (
     value2json,
 )
 
-Log = delay_import("mo_logs")
+Log = delay_import("mo_logs.Log")
 json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
 Duration = delay_import("mo_times.durations.Duration")
@@ -475,7 +474,7 @@ def quote(value):
     :return:
     """
     if value == None:
-        output = ""
+        return ""
     output = _json.dumps(value)
     return output
 

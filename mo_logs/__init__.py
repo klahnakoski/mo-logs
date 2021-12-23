@@ -225,11 +225,10 @@ class Log(object):
         Log._annotate(
             LogItem(
                 context=exceptions.NOTE,
-                format=template,
                 template=template,
                 params=dict(default_params, **more_params),
+                timestamp=timestamp,
             ),
-            timestamp,
             stack_depth + 1,
         )
 
@@ -271,10 +270,11 @@ class Log(object):
             exceptions.UNEXPECTED,
             template=template,
             params=params,
+            timestamp=timestamp,
             cause=cause,
             trace=trace,
         )
-        Log._annotate(e, timestamp, stack_depth + 1)
+        Log._annotate(e, stack_depth + 1)
 
     @classmethod
     def alarm(
@@ -289,17 +289,16 @@ class Log(object):
         :return:
         """
         timestamp = datetime.utcnow()
-        format = (
+        template = (
             ("*" * 80) + CR + indent(template, prefix="** ").strip() + CR + ("*" * 80)
         )
         Log._annotate(
             LogItem(
                 context=exceptions.ALARM,
-                format=format,
                 template=template,
                 params=dict(default_params, **more_params),
+                timestamp=timestamp,
             ),
-            timestamp,
             stack_depth + 1,
         )
 
@@ -343,10 +342,11 @@ class Log(object):
             exceptions.WARNING,
             template=template,
             params=params,
+            timestamp=timestamp,
             cause=cause,
             trace=trace,
         )
-        Log._annotate(e, timestamp, stack_depth + 1)
+        Log._annotate(e, stack_depth + 1)
 
     @classmethod
     def error(
@@ -407,30 +407,27 @@ class Log(object):
         raise_from_none(e)
 
     @classmethod
-    def _annotate(cls, item, timestamp, stack_depth):
+    def _annotate(cls, item, stack_depth):
         """
         :param item:  A LogItem THE TYPE OF MESSAGE
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
         :return:
         """
-        item.timestamp = timestamp
         item.template = strings.limit(item.template, 10000)
-
-        item.format = strings.limit(item.format, 10000)
-        if item.format == None:
-            format = text(item)
+        if item.template == None:
+            template = text(item)
         else:
-            format = item.format.replace("{{", "{{params.")
-        if not format.startswith(CR) and format.find(CR) > -1:
-            format = CR + format
+            template = item.template.replace("{{", "{{params.")
+        if not template.startswith(CR) and CR in template:
+            template = CR + template
 
         if cls.trace:
             item.machine = machine_metadata()
-            log_format = item.format = (
+            log_format = item.template = (
                 "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} -"
                 ' {{thread.name}} - "{{location.file}}:{{location.line}}" -'
                 " ({{location.method}}) - "
-                + format
+                + template
             )
             f = sys._getframe(stack_depth + 1)
             item.location = {
@@ -441,7 +438,7 @@ class Log(object):
             thread = _Thread.current()
             item.thread = {"name": thread.name, "id": thread.id}
         else:
-            log_format = item.format = "{{timestamp|datetime}} - " + format
+            log_format = item.template = "{{timestamp|datetime}} - " + template
 
         cls.main_log.write(log_format, item.__data__())
 
