@@ -232,6 +232,8 @@ class Log(object):
             stack_depth + 1,
         )
 
+    info = note
+
     @classmethod
     def unexpected(
         cls,
@@ -413,11 +415,14 @@ class Log(object):
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
         :return:
         """
-        item.template = strings.limit(item.template, 10000)
-        if item.template == None:
+        if isinstance(item, Except):
             template = text(item)
         else:
-            template = item.template.replace("{{", "{{params.")
+            template = item.template
+
+        template = strings.limit(template, 10000)
+        template = template.replace("{{", "{{params.")
+
         if not template.startswith(CR) and CR in template:
             template = CR + template
 
@@ -438,7 +443,8 @@ class Log(object):
             thread = _Thread.current()
             item.thread = {"name": thread.name, "id": thread.id}
         else:
-            log_format = item.template = "{{timestamp|datetime}} - " + template
+            log_format = template
+            # log_format = item.template = "{{timestamp|datetime}} - " + template
 
         cls.main_log.write(log_format, item.__data__())
 
