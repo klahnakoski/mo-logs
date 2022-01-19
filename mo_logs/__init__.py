@@ -47,10 +47,6 @@ startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 _Thread = None
 
-import graypy
-
-graypy.GELFUDPHandler('localhost', 12201)
-
 class Log(object):
     """
     FOR STRUCTURED LOGGING AND EXCEPTION CHAINING
