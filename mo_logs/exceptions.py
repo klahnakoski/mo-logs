@@ -255,15 +255,15 @@ class Explanation(object):
 
     def __enter__(self):
         if self.debug:
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.note(self.template, default_params=self.more_params, stack_depth=1)
+            logger.info(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.error(
+            logger.error(
                 template="Failure in " + self.template,
                 default_params=self.more_params,
                 cause=exc_val,
@@ -286,15 +286,15 @@ class WarnOnException(object):
 
     def __enter__(self):
         if self.debug:
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.note(self.template, default_params=self.more_params, stack_depth=1)
+            logger.info(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.warning(
+            logger.warning(
                 template="Ignored failure while " + self.template,
                 default_params=self.more_params,
                 cause=exc_val,
@@ -317,9 +317,9 @@ class AssertNoException(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.error(template="Not expected to fail", cause=exc_val, stack_depth=1)
+            logger.error(template="Not expected to fail", cause=exc_val, stack_depth=1)
 
             return True
 

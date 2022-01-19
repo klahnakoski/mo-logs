@@ -14,7 +14,7 @@ from decimal import Decimal
 from mo_dots import to_data
 from mo_json import datetime2unix, value2json
 from mo_kwargs import override
-from mo_logs import Log
+from mo_logs import logger
 from mo_logs.exceptions import ALARM, ERROR, NOTE, WARNING
 from mo_logs.log_usingElasticSearch import _deep_json_to_string
 from mo_logs.log_usingNothing import StructuredLogger
@@ -35,9 +35,9 @@ class StructuredLogger_usingMozLog(StructuredLogger):
         self.stream = stream
         self.app_name = app_name
         if not app_name:
-            Log.error("mozlog expects an `app_name` in the config")
+            logger.error("mozlog expects an `app_name` in the config")
         if not Log.trace:
-            Log.error(
+            logger.error(
                 "mozlog expects trace=True so it gets the information it requires"
             )
 

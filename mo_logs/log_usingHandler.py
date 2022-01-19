@@ -15,7 +15,7 @@ import logging
 
 from mo_kwargs import override
 from mo_dots import unwrap, Null
-from mo_logs import Log
+from mo_logs import logger
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
@@ -52,7 +52,7 @@ def make_log_from_settings(settings):
         temp = __import__(path, globals(), locals(), [class_name], 0)
         constructor = object.__getattribute__(temp, class_name)
     except Exception as e:
-        Log.error("Can not find class {{class}}", {"class": path}, cause=e)
+        logger.error("Can not find class {{class}}", {"class": path}, cause=e)
 
     # IF WE NEED A FILE, MAKE SURE DIRECTORY EXISTS
     if settings.filename != None:
@@ -71,7 +71,7 @@ def make_log_from_settings(settings):
         log_instance = constructor(**params)
         return log_instance
     except Exception as cause:
-        Log.error("problem with making handler", cause=cause)
+        logger.error("problem with making handler", cause=cause)
 
 
 _THREAD_STOP, _Queue, _Thread = [Null] * 3  # IMPORTS

@@ -2,9 +2,9 @@
 from time import time
 
 start = time()
-from mo_logs import Log
+from mo_logs import logger
 end = time()
 
 print(f"import time = {str(round(end-start, 2))} seconds")
 
-Log.note("this is a simple test")
+logger.info("this is a simple test")

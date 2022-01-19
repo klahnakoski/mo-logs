@@ -47,6 +47,9 @@ startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 _Thread = None
 
+import graypy
+
+graypy.GELFUDPHandler('localhost', 12201)
 
 class Log(object):
     """
@@ -190,7 +193,7 @@ class Log(object):
 
             return StructuredLogger()
 
-        Log.error("Log type of {{config|json}} is not recognized", config=settings)
+        logger.error("Log type of {{config|json}} is not recognized", config=settings)
 
     @classmethod
     def _add_log(cls, log):
@@ -220,7 +223,7 @@ class Log(object):
         """
         timestamp = datetime.utcnow()
         if not is_text(template):
-            Log.error("Log.note was expecting a unicode template")
+            logger.error("logger.info was expecting a unicode template")
 
         Log._annotate(
             LogItem(
@@ -255,14 +258,14 @@ class Log(object):
         """
         timestamp = datetime.utcnow()
         if not is_text(template):
-            Log.error("Log.warning was expecting a unicode template")
+            logger.error("logger.warning was expecting a unicode template")
 
         if isinstance(default_params, BaseException):
             cause = default_params
             default_params = {}
 
         if "values" in more_params.keys():
-            Log.error("Can not handle a logging parameter by name `values`")
+            logger.error("Can not handle a logging parameter by name `values`")
 
         params = to_data(dict(default_params, **more_params))
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
@@ -327,14 +330,14 @@ class Log(object):
         """
         timestamp = datetime.utcnow()
         if not is_text(template):
-            Log.error("Log.warning was expecting a unicode template")
+            logger.error("logger.warning was expecting a unicode template")
 
         if isinstance(default_params, BaseException):
             cause = default_params
             default_params = {}
 
         if "values" in more_params.keys():
-            Log.error("Can not handle a logging parameter by name `values`")
+            logger.error("Can not handle a logging parameter by name `values`")
 
         params = to_data(dict(default_params, **more_params))
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
@@ -349,6 +352,8 @@ class Log(object):
             trace=trace,
         )
         Log._annotate(e, stack_depth + 1)
+
+    warn = warning
 
     @classmethod
     def error(
@@ -371,8 +376,8 @@ class Log(object):
         :return:
         """
         if not is_text(template):
-            # sys.stderr.write(str("Log.error was expecting a unicode template"))
-            Log.error("Log.error was expecting a unicode template")
+            # sys.stderr.write(str("logger.error was expecting a unicode template"))
+            logger.error("logger.error was expecting a unicode template")
 
         if default_params and isinstance(listwrap(default_params)[0], BaseException):
             cause = default_params
@@ -392,7 +397,7 @@ class Log(object):
             causes = Except.wrap(cause, stack_depth=1)
         else:
             causes = None
-            Log.error("can only accept Exception, or list of exceptions")
+            logger.error("can only accept Exception, or list of exceptions")
 
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
@@ -452,8 +457,15 @@ class Log(object):
         raise NotImplementedError
 
 
+logger = Log
+
+
+def getLogger(*args, **kwargs):
+    return logger
+
+
 class LoggingContext:
-    def __init__(self, app_name):
+    def __init__(self, app_name=None):
         self.app_name = app_name
         self.config = None
 
@@ -467,7 +479,7 @@ class LoggingContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
-            Log.warning(
+            logger.warning(
                 "Problem with {{name}}! Shutting down.",
                 name=self.app_name,
                 cause=exc_val,

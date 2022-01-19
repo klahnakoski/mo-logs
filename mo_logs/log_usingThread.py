@@ -23,7 +23,7 @@ PERIOD = 0.3
 class StructuredLogger_usingThread(StructuredLogger):
     def __init__(self, logger, period=PERIOD):
         if not isinstance(logger, StructuredLogger):
-            Log.error("Expecting a StructuredLogger")
+            logger.error("Expecting a StructuredLogger")
 
         self.logger = logger
         self.queue = Queue(

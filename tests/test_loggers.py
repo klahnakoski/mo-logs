@@ -17,7 +17,7 @@ from mo_future import StringIO, PY2
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
-from mo_logs import Log
+from mo_logs import logger as log
 
 
 class TestLoggers(FuzzyTestCase):
@@ -32,11 +32,11 @@ class TestLoggers(FuzzyTestCase):
         logger = logging.getLogger()
         logging.basicConfig(stream=log_stream, level=logging.INFO)
 
-        Log.start(trace=False, settings={"logs": {"log_type": "logger"}})
-        Log.note("testing")
-        while Log.main_log.logger.many[0].count < 1:
+        log.start(trace=False, settings={"logs": {"log_type": "logger"}})
+        log.note("testing")
+        while log.main_log.logger.many[0].count < 1:
             Till(seconds=0.1).wait()
-        log = log_stream.getvalue()
+        logs = log_stream.getvalue()
 
         expected = "testing\n"
-        self.assertEqual(log[-len(expected) :], expected)
+        self.assertEqual(logs[-len(expected) :], expected)
