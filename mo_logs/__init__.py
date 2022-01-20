@@ -136,17 +136,9 @@ class Log(object):
     @override("settings")
     def new_instance(cls, log_type=None, settings=None):
         if settings["class"]:
-            if settings["class"].startswith("logging.handlers."):
-                from mo_logs.log_usingThread import StructuredLogger_usingThread
-                from mo_logs.log_usingHandler import StructuredLogger_usingHandler
+            from mo_logs.log_usingHandler import StructuredLogger_usingHandler
 
-                return StructuredLogger_usingThread(StructuredLogger_usingHandler(settings))
-            else:
-                with suppress_exception:
-                    from mo_logs.log_usingLogger import make_log_from_settings
-
-                    return make_log_from_settings(settings)
-                # OH WELL :(
+            return StructuredLogger_usingHandler(settings)
 
         if log_type == "logger":
             from mo_logs.log_usingLogger import StructuredLogger_usingLogger

@@ -18,6 +18,7 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
 from mo_logs import logger as log
+from tests.utils.udp_listener import UdpListener
 
 
 class TestLoggers(FuzzyTestCase):
@@ -40,3 +41,40 @@ class TestLoggers(FuzzyTestCase):
 
         expected = "testing\n"
         self.assertEqual(logs[-len(expected) :], expected)
+
+    def test_graylogger(self):
+        # import graypy
+        # handler = graypy.GELFUDPHandler(host="localhost", port= 12201)
+        # args = logging._ArgsType()
+
+        # temp = logging.LogRecord(
+
+        udp = UdpListener(12201)
+
+        log.start(
+            trace=True,
+            settings={"logs": {
+                "class": "graypy.GELFUDPHandler",
+                "host": "localhost",
+                "port": 12201,
+            }},
+        )
+        log.note("testing {{value}}", value="test")
+
+        message = udp.queue.pop()
+        udp.stop()
+        self.assertEqual(
+            message,
+            {
+                "_value": "test",
+                "_function": "test_graylogger",
+                "_process_name": "MainProcess",
+                "_stack_info": "Null",
+                "facility": "mo-logs",
+                "file": "C:\\Users\\kyle\\code\\mo-logs\\tests\\test_loggers.py",
+                "host": "kyle-win10",
+                "level": 6,
+                "line": 62,
+                "version": "1.0",
+            },
+        )
