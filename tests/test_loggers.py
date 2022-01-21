@@ -71,10 +71,9 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "_stack_info": "Null",
                 "facility": "mo-logs",
-                "file": "C:\\Users\\kyle\\code\\mo-logs\\tests\\test_loggers.py",
-                "host": "kyle-win10",
                 "level": 6,
                 "line": 62,
                 "version": "1.0",
             },
         )
+        self.assertTrue(message.file.endswith("test_loggers.py"))
