@@ -15,7 +15,7 @@ import time
 
 from mo_future import allocate_lock
 
-from mo_logs import Log
+from mo_logs import logger
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
@@ -37,7 +37,7 @@ class StructuredLogger_usingFile(StructuredLogger):
             with self.file_lock:
                 self.file.append(expand_template(template, params))
         except Exception as e:
-            Log.warning(
+            logger.warning(
                 "Problem writing to file {{file}}, waiting...",
                 file=self.file.name,
                 cause=e,

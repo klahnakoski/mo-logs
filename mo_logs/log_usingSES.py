@@ -15,7 +15,7 @@ from boto.ses import connect_to_region
 
 from mo_dots import Data, listwrap, literal_field, unwrap
 from mo_kwargs import override
-from mo_logs import Log, suppress_exception
+from mo_logs import logger, suppress_exception
 from mo_logs.exceptions import ALARM, NOTE
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -101,7 +101,7 @@ class StructuredLogger_usingSES(StructuredLogger):
 
             self.accumulation = []
         except Exception as e:
-            Log.warning("Could not send", e)
+            logger.warning("Could not send", e)
         finally:
             self.next_send = Date.now() + self.settings.average_interval * (
                 2 * randoms.float()

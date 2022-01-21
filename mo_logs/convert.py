@@ -40,9 +40,9 @@ def unix2datetime(u):
             return MAX_TIME
         return utcfromtimestamp(u)
     except Exception as e:
-        from mo_logs import Log
+        from mo_logs import logger
 
-        Log.error("Can not convert {{value}} to datetime", value=u, cause=e)
+        logger.error("Can not convert {{value}} to datetime", value=u, cause=e)
 
 
 def milli2datetime(u):
@@ -55,9 +55,9 @@ def datetime2string(value, format="%Y-%m-%d %H:%M:%S"):
     try:
         return value.strftime(format)
     except Exception as e:
-        from mo_logs import Log
+        from mo_logs import logger
 
-        Log.error(
+        logger.error(
             "Can not format {{value}} with {{format}}",
             value=value,
             format=format,
@@ -74,18 +74,18 @@ def datetime2unix(d):
         elif isinstance(d, date):
             epoch = date(1970, 1, 1)
         else:
-            from mo_logs import Log
+            from mo_logs import logger
 
-            raise Log.error(
+            raise logger.error(
                 "Can not convert {{value}} of type {{type}}", value=d, type=d.__class__
             )
 
         diff = d - epoch
         return float(diff.total_seconds())
     except Exception as e:
-        from mo_logs import Log
+        from mo_logs import logger
 
-        Log.error("Can not convert {{value}}", value=d, cause=e)
+        logger.error("Can not convert {{value}}", value=d, cause=e)
 
 
 def int2hex(value, size):

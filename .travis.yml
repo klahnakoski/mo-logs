@@ -3,9 +3,15 @@ python:
   - "3.7"
   - "3.9"
 
+services:
+  - docker
+
 env:
   global:
       - PYTHONPATH=.:vendor
+before_install:
+  - "docker pull graylog/graylog"
+  - "
 
 install:
   - "pip install coverage"

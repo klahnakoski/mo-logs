@@ -12,8 +12,9 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import sys
+from datetime import datetime
 
-from mo_dots import Data, Null, is_data, listwrap, unwraplist, to_data
+from mo_dots import Null, is_data, listwrap, unwraplist, to_data, dict_to_data
 from mo_dots.lists import is_many
 from mo_future import is_text, PY2
 from mo_future import text
@@ -24,34 +25,28 @@ ERROR = "ERROR"
 WARNING = "WARNING"
 ALARM = "ALARM"
 UNEXPECTED = "UNEXPECTED"
+INFO = "INFO"
 NOTE = "NOTE"
 
 
 class LogItem(object):
-    def __init__(self, context, format, template, params):
+
+    def __init__(self, context, template, params, timestamp):
         self.context = context
-        self.format = format
         self.template = template
         self.params = params
+        self.timestamp = timestamp
 
     def __data__(self):
-        return to_data(self.__dict__)
+        return dict_to_data(self.__dict__)
 
 
-class Except(Exception, LogItem):
-    @staticmethod
-    def new_instance(desc):
-        return Except(
-            context=desc.context,
-            template=desc.template,
-            params=desc.params,
-            cause=[Except.new_instance(c) for c in listwrap(desc.cause)],
-            trace=desc.trace,
-        )
+class Except(Exception):
 
     def __init__(
         self, context=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_
     ):
+        self.timestamp = datetime.utcnow()
         if context == None:
             raise ValueError("expecting context to not be None")
 
@@ -61,14 +56,10 @@ class Except(Exception, LogItem):
             self.cause = Except.wrap(cause)
 
         Exception.__init__(self)
-        LogItem.__init__(
-            self, context=context, format=None, template=template, params=params
-        )
-
-        if not trace:
-            self.trace = get_stacktrace(2)
-        else:
-            self.trace = trace
+        self.context = context
+        self.template = template
+        self.params = params
+        self.trace = trace or get_stacktrace(2)
 
     @classmethod
     def wrap(cls, e, stack_depth=0):
@@ -264,15 +255,15 @@ class Explanation(object):
 
     def __enter__(self):
         if self.debug:
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.note(self.template, default_params=self.more_params, stack_depth=1)
+            logger.info(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.error(
+            logger.error(
                 template="Failure in " + self.template,
                 default_params=self.more_params,
                 cause=exc_val,
@@ -295,15 +286,15 @@ class WarnOnException(object):
 
     def __enter__(self):
         if self.debug:
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.note(self.template, default_params=self.more_params, stack_depth=1)
+            logger.info(self.template, default_params=self.more_params, stack_depth=1)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.warning(
+            logger.warning(
                 template="Ignored failure while " + self.template,
                 default_params=self.more_params,
                 cause=exc_val,
@@ -326,9 +317,9 @@ class AssertNoException(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if isinstance(exc_val, Exception):
-            from mo_logs import Log
+            from mo_logs import logger
 
-            Log.error(template="Not expected to fail", cause=exc_val, stack_depth=1)
+            logger.error(template="Not expected to fail", cause=exc_val, stack_depth=1)
 
             return True
 

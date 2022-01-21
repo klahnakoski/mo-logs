@@ -23,7 +23,6 @@ from mo_dots import (
     is_list,
     to_data,
     is_sequence,
-    NullType,
     is_many,
 )
 from mo_future import (
@@ -46,7 +45,7 @@ from mo_logs.convert import (
     value2json,
 )
 
-Log = delay_import("mo_logs")
+Log = delay_import("mo_logs.Log")
 json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
 Duration = delay_import("mo_times.durations.Duration")
@@ -244,7 +243,7 @@ def outdent(value):
                 num = min(num, len(l) - len(l.lstrip()))
         return CR.join([l[num:] for l in lines])
     except Exception as e:
-        Log.error("can not outdent value", e)
+        logger.error("can not outdent value", e)
 
 
 @formatter
@@ -475,7 +474,7 @@ def quote(value):
     :return:
     """
     if value == None:
-        output = ""
+        return ""
     output = _json.dumps(value)
     return output
 
@@ -510,7 +509,7 @@ def limit(value, length):
             rhs = length - len(_SNIP) - lhs
             return value[:lhs] + _SNIP + value[-rhs:]
     except Exception as e:
-        Log.error("Not expected", cause=e)
+        logger.error("Not expected", cause=e)
 
 
 @formatter
@@ -626,7 +625,7 @@ def _expand(template, seq):
     elif is_list(template):
         return "".join(_expand(t, seq) for t in template)
     else:
-        Log.error("can not handle")
+        logger.error("can not handle")
 
 
 def _simple_expand(template, seq):
@@ -666,7 +665,7 @@ def _simple_expand(template, seq):
                     val = toString(val)
                     return val
             except Exception as f:
-                Log.warning(
+                logger.warning(
                     "Can not expand "
                     + "|".join(ops)
                     + " in template: {{template_|json}}",
@@ -703,14 +702,14 @@ def toString(val):
         try:
             return val.decode("latin1")
         except Exception as e:
-            Log.error(
+            logger.error(
                 text(type(val)) + " type can not be converted to unicode", cause=e
             )
     else:
         try:
             return text(val)
         except Exception as e:
-            Log.error(
+            logger.error(
                 text(type(val)) + " type can not be converted to unicode", cause=e
             )
 
@@ -787,7 +786,7 @@ def apply_diff(text, diff, reverse=False, verify=True):
     for header, hunk_body in reversed(hunks) if reverse else hunks:
         matches = DIFF_PREFIX.match(header.strip())
         if not matches:
-            Log.error("Can not handle \n---\n{{diff}}\n---\n", diff=diff)
+            logger.error("Can not handle \n---\n{{diff}}\n---\n", diff=diff)
 
         removes = tuple(
             int(i.strip()) for i in matches.group(1).split(",")
@@ -876,7 +875,7 @@ def apply_diff(text, diff, reverse=False, verify=True):
                 if t in ["reports: https://goo.gl/70o6w6\r"]:
                     break  # KNOWN INCONSISTENCIES
                 if t != o:
-                    Log.error("logical verification check failed")
+                    logger.error("logical verification check failed")
                     break
 
     return output

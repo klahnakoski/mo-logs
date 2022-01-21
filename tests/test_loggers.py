@@ -17,7 +17,8 @@ from mo_future import StringIO, PY2
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
-from mo_logs import Log
+from mo_logs import logger as log
+from tests.utils.udp_listener import UdpListener
 
 
 class TestLoggers(FuzzyTestCase):
@@ -32,11 +33,47 @@ class TestLoggers(FuzzyTestCase):
         logger = logging.getLogger()
         logging.basicConfig(stream=log_stream, level=logging.INFO)
 
-        Log.start(trace=False, settings={"logs": {"log_type": "logger"}})
-        Log.note("testing")
-        while Log.main_log.logger.many[0].count < 1:
+        log.start(trace=False, settings={"logs": {"log_type": "logger"}})
+        log.note("testing")
+        while log.main_log.logger.many[0].count < 1:
             Till(seconds=0.1).wait()
-        log = log_stream.getvalue()
+        logs = log_stream.getvalue()
 
         expected = "testing\n"
-        self.assertEqual(log[-len(expected) :], expected)
+        self.assertEqual(logs[-len(expected) :], expected)
+
+    def test_graylogger(self):
+        # import graypy
+        # handler = graypy.GELFUDPHandler(host="localhost", port= 12201)
+        # args = logging._ArgsType()
+
+        # temp = logging.LogRecord(
+
+        udp = UdpListener(12201)
+
+        log.start(
+            trace=True,
+            settings={"logs": {
+                "class": "graypy.GELFUDPHandler",
+                "host": "localhost",
+                "port": 12201,
+            }},
+        )
+        log.note("testing {{value}}", value="test")
+
+        message = udp.queue.pop()
+        udp.stop()
+        self.assertEqual(
+            message,
+            {
+                "_value": "test",
+                "_function": "test_graylogger",
+                "_process_name": "MainProcess",
+                "_stack_info": "Null",
+                "facility": "mo-logs",
+                "level": 6,
+                "line": 62,
+                "version": "1.0",
+            },
+        )
+        self.assertTrue(message.file.endswith("test_loggers.py"))

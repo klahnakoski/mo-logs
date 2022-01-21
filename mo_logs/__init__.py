@@ -47,7 +47,6 @@ startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 _Thread = None
 
-
 class Log(object):
     """
     FOR STRUCTURED LOGGING AND EXCEPTION CHAINING
@@ -137,17 +136,9 @@ class Log(object):
     @override("settings")
     def new_instance(cls, log_type=None, settings=None):
         if settings["class"]:
-            if settings["class"].startswith("logging.handlers."):
-                from mo_logs.log_usingThread import StructuredLogger_usingThread
-                from mo_logs.log_usingHandler import StructuredLogger_usingHandler
+            from mo_logs.log_usingHandler import StructuredLogger_usingHandler
 
-                return StructuredLogger_usingThread(StructuredLogger_usingHandler(settings))
-            else:
-                with suppress_exception:
-                    from mo_logs.log_usingLogger import make_log_from_settings
-
-                    return make_log_from_settings(settings)
-                # OH WELL :(
+            return StructuredLogger_usingHandler(settings)
 
         if log_type == "logger":
             from mo_logs.log_usingLogger import StructuredLogger_usingLogger
@@ -190,7 +181,7 @@ class Log(object):
 
             return StructuredLogger()
 
-        Log.error("Log type of {{config|json}} is not recognized", config=settings)
+        logger.error("Log type of {{config|json}} is not recognized", config=settings)
 
     @classmethod
     def _add_log(cls, log):
@@ -220,18 +211,19 @@ class Log(object):
         """
         timestamp = datetime.utcnow()
         if not is_text(template):
-            Log.error("Log.note was expecting a unicode template")
+            logger.error("logger.info was expecting a unicode template")
 
         Log._annotate(
             LogItem(
                 context=exceptions.NOTE,
-                format=template,
                 template=template,
                 params=dict(default_params, **more_params),
+                timestamp=timestamp,
             ),
-            timestamp,
             stack_depth + 1,
         )
+
+    info = note
 
     @classmethod
     def unexpected(
@@ -254,14 +246,14 @@ class Log(object):
         """
         timestamp = datetime.utcnow()
         if not is_text(template):
-            Log.error("Log.warning was expecting a unicode template")
+            logger.error("logger.warning was expecting a unicode template")
 
         if isinstance(default_params, BaseException):
             cause = default_params
             default_params = {}
 
         if "values" in more_params.keys():
-            Log.error("Can not handle a logging parameter by name `values`")
+            logger.error("Can not handle a logging parameter by name `values`")
 
         params = to_data(dict(default_params, **more_params))
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
@@ -271,10 +263,11 @@ class Log(object):
             exceptions.UNEXPECTED,
             template=template,
             params=params,
+            timestamp=timestamp,
             cause=cause,
             trace=trace,
         )
-        Log._annotate(e, timestamp, stack_depth + 1)
+        Log._annotate(e, stack_depth + 1)
 
     @classmethod
     def alarm(
@@ -289,17 +282,16 @@ class Log(object):
         :return:
         """
         timestamp = datetime.utcnow()
-        format = (
+        template = (
             ("*" * 80) + CR + indent(template, prefix="** ").strip() + CR + ("*" * 80)
         )
         Log._annotate(
             LogItem(
                 context=exceptions.ALARM,
-                format=format,
                 template=template,
                 params=dict(default_params, **more_params),
+                timestamp=timestamp,
             ),
-            timestamp,
             stack_depth + 1,
         )
 
@@ -326,14 +318,14 @@ class Log(object):
         """
         timestamp = datetime.utcnow()
         if not is_text(template):
-            Log.error("Log.warning was expecting a unicode template")
+            logger.error("logger.warning was expecting a unicode template")
 
         if isinstance(default_params, BaseException):
             cause = default_params
             default_params = {}
 
         if "values" in more_params.keys():
-            Log.error("Can not handle a logging parameter by name `values`")
+            logger.error("Can not handle a logging parameter by name `values`")
 
         params = to_data(dict(default_params, **more_params))
         cause = unwraplist([Except.wrap(c) for c in listwrap(cause)])
@@ -343,10 +335,13 @@ class Log(object):
             exceptions.WARNING,
             template=template,
             params=params,
+            timestamp=timestamp,
             cause=cause,
             trace=trace,
         )
-        Log._annotate(e, timestamp, stack_depth + 1)
+        Log._annotate(e, stack_depth + 1)
+
+    warn = warning
 
     @classmethod
     def error(
@@ -369,8 +364,8 @@ class Log(object):
         :return:
         """
         if not is_text(template):
-            # sys.stderr.write(str("Log.error was expecting a unicode template"))
-            Log.error("Log.error was expecting a unicode template")
+            # sys.stderr.write(str("logger.error was expecting a unicode template"))
+            logger.error("logger.error was expecting a unicode template")
 
         if default_params and isinstance(listwrap(default_params)[0], BaseException):
             cause = default_params
@@ -390,7 +385,7 @@ class Log(object):
             causes = Except.wrap(cause, stack_depth=1)
         else:
             causes = None
-            Log.error("can only accept Exception, or list of exceptions")
+            logger.error("can only accept Exception, or list of exceptions")
 
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
@@ -407,30 +402,30 @@ class Log(object):
         raise_from_none(e)
 
     @classmethod
-    def _annotate(cls, item, timestamp, stack_depth):
+    def _annotate(cls, item, stack_depth):
         """
         :param item:  A LogItem THE TYPE OF MESSAGE
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
         :return:
         """
-        item.timestamp = timestamp
-        item.template = strings.limit(item.template, 10000)
-
-        item.format = strings.limit(item.format, 10000)
-        if item.format == None:
-            format = text(item)
+        if isinstance(item, Except):
+            template = text(item)
         else:
-            format = item.format.replace("{{", "{{params.")
-        if not format.startswith(CR) and format.find(CR) > -1:
-            format = CR + format
+            template = item.template
+
+        template = strings.limit(template, 10000)
+        template = template.replace("{{", "{{params.")
+
+        if not template.startswith(CR) and CR in template:
+            template = CR + template
 
         if cls.trace:
             item.machine = machine_metadata()
-            log_format = item.format = (
+            log_format = item.template = (
                 "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} -"
                 ' {{thread.name}} - "{{location.file}}:{{location.line}}" -'
                 " ({{location.method}}) - "
-                + format
+                + template
             )
             f = sys._getframe(stack_depth + 1)
             item.location = {
@@ -441,7 +436,8 @@ class Log(object):
             thread = _Thread.current()
             item.thread = {"name": thread.name, "id": thread.id}
         else:
-            log_format = item.format = "{{timestamp|datetime}} - " + format
+            log_format = template
+            # log_format = item.template = "{{timestamp|datetime}} - " + template
 
         cls.main_log.write(log_format, item.__data__())
 
@@ -449,8 +445,15 @@ class Log(object):
         raise NotImplementedError
 
 
+logger = Log
+
+
+def getLogger(*args, **kwargs):
+    return logger
+
+
 class LoggingContext:
-    def __init__(self, app_name):
+    def __init__(self, app_name=None):
         self.app_name = app_name
         self.config = None
 
@@ -464,7 +467,7 @@ class LoggingContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
-            Log.warning(
+            logger.warning(
                 "Problem with {{name}}! Shutting down.",
                 name=self.app_name,
                 cause=exc_val,

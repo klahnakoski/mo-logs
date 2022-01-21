@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import, division, unicode_literals
 
-from mo_logs import Log
+from mo_logs import logger
 
 from mo_logs.exceptions import suppress_exception, Except
 from mo_logs.log_usingNothing import StructuredLogger
@@ -29,7 +29,7 @@ class StructuredLogger_usingMulti(StructuredLogger):
             except Exception as e:
                 e = Except.wrap(e)
                 bad.append(m)
-                Log.warning(
+                logger.warning(
                     "Logger {{type|quote}} failed! It will be removed.",
                     type=m.__class__.__name__,
                     cause=e,
@@ -42,7 +42,7 @@ class StructuredLogger_usingMulti(StructuredLogger):
 
     def add_log(self, logger):
         if logger == None:
-            Log.warning("Expecting a non-None logger")
+            logger.warning("Expecting a non-None logger")
 
         self.many.append(logger)
         return self

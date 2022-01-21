@@ -31,14 +31,28 @@ if it can be ignored because something can handle it.
 
 ## Basic Usage
 
-### Use `Log.note()` for all logging
+### Use `logger.info()` for all logging
 
 ```python
-    Log.note("Hello, World!")
+from mo_logs import logger
+logger.info("Hello, World!")
 ```
 
 There is no need to create logger objects. The `Log` module will keep track of
 what, where and when of every call.
+
+
+### Importing
+
+If you have existing logger code, you may change your import statement, replace `import logging` with `import mo_logs as logging`
+
+Since `mo-logs` tracks calling context, you may simply import the smae logger everywhere 
+
+
+```python
+from mo_logs import logger
+```
+
 
 ### Using named parameters
 
@@ -48,7 +62,7 @@ combined at call time, rather they are held in a JSON-izable data structure for
 structured logging. The template is only expanded *if* the log is serialized for humans.  
 
 ```python
-    Log.note("Hello, {{name}}!", name="World!")
+logger.info("Hello, {{name}}!", name="World!")
 ```
 
 **Do not use Python's string formatting features:**
@@ -66,7 +80,7 @@ nightmare for log analysis tools.
 All the `Log` functions accept a `default_params` as a second parameter, like so:
 
 ```python
-    Log.note("Hello, {{name}}!", {"name": "World!"})
+logger.info("Hello, {{name}}!", {"name": "World!"})
 ```
 
 this is meant for the situation your code already has a bundled structure you
@@ -82,13 +96,13 @@ pipe (`|`) symbol.
 In this example we cast the `name` to uppercase
 
 ```python
-    Log.note("Hello, {{name|upper}}!", name="World!")
+logger.info("Hello, {{name|upper}}!", name="World!")
 ```
 
 Some formatters accept arguments:
 
 ```python
-    Log.note("pi is {{pi|round(places=3)}}!", pi=3.14159265)
+logger.info("pi is {{pi|round(places=3)}}!", pi=3.14159265)
 ```
 
 You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the formatters available.
@@ -96,10 +110,10 @@ You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/bl
 ### Please, never use locals()
 
 ```python
-    def worker(value):
-        name = "tout le monde!"
-        password = "123"
-        Log.note("Hello, {{name}}", locals())      # DO NOT DO THIS!
+def worker(value):
+    name = "tout le monde!"
+    password = "123"
+    logger.info("Hello, {{name}}", locals())      # DO NOT DO THIS!
 ```
 
 Despite the fact using `locals()` is a wonderful shortcut for logging it is
@@ -115,41 +129,41 @@ serializable so they can be stored/processed by downstream JSON tools.
 
 **Example structured log** 
 ```json
-    {
-        "template": "Hello, {{name}}!",
-        "params": {"name": "World!"},
-        "context": "NOTE",
-        "format": "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} - {{thread.name}} - \"{{location.file}}:{{location.line}}\" - ({{location.method}}) - Hello, {{params.name}}!",
-        "location": {
-            "file": "/home/kyle/code/example.py",
-            "line": 10,
-            "method": "worker"
-        },
-        "machine": {
-            "name": "klahnakoski-39477",
-            "os": "Windows10",
-            "pid": 18060,
-            "python": "CPython"
-        },
-        "thread": {
-            "id": 14352,
-            "name": "Main Thread"
-        },
-        "timestamp": 1578673471
-    }
+{
+    "template": "Hello, {{name}}!",
+    "params": {"name": "World!"},
+    "context": "NOTE",
+    "format": "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} - {{thread.name}} - \"{{location.file}}:{{location.line}}\" - ({{location.method}}) - Hello, {{params.name}}!",
+    "location": {
+        "file": "/home/kyle/code/example.py",
+        "line": 10,
+        "method": "worker"
+    },
+    "machine": {
+        "name": "klahnakoski-39477",
+        "os": "Windows10",
+        "pid": 18060,
+        "python": "CPython"
+    },
+    "thread": {
+        "id": 14352,
+        "name": "Main Thread"
+    },
+    "timestamp": 1578673471
+}
 ```
 
 ## Exception Handling
 
-### Instead of `raise` use `Log.error()`
+### Instead of `raise` use `logger.error()`
 
 ```python
-    Log.error("This will throw an error")
+logger.error("This will throw an error")
 ```
 
 The actual call will always raise an exception, and it manipulates the stack
 trace to ensure the caller is appropriately blamed. Feel free to use the
-`raise` keyword (as in `raise Log.error("")`), if that looks nicer to you. 
+`raise` keyword (as in `raise logger.error("")`), if that looks nicer to you. 
 
 ### Always chain your exceptions
 
@@ -158,10 +172,10 @@ Chaining is generally good practice that helps you find the root cause of
 a failure. 
 
 ```python
-    try:
-        # Do something that might raise exception
-    except Exception as cause:
-        Log.error("Describe what you were trying to do", cause=cause)
+try:
+    # Do something that might raise exception
+except Exception as cause:
+    logger.error("Describe what you were trying to do", cause=cause)
 ```
 
 ### Use `raise from`?
@@ -169,15 +183,15 @@ a failure.
 Python3 attaches the full stacktrace to exceptions and allows chaining with `raise from`.  We can replace 
 
 ```python
-    from mo_logs import Log 
-    Log.error("description", cause=cause)
+from mo_logs import logger
+logger.error("description", cause=cause)
 ```
 
 with 
 
 ```python
-    from mo_logs.exceptions import ERROR, Except 
-    raise Except(ERROR, "description") from cause
+from mo_logs.exceptions import ERROR, Except 
+raise Except(ERROR, "description") from cause
 ```
 
 which is a bit more clunky, especially when passing dynamic parameters. Plus it breaks the `Log.<type>()` calling pattern; switching between an `error` and a `warning` is more than a name change.
@@ -185,15 +199,15 @@ which is a bit more clunky, especially when passing dynamic parameters. Plus it 
 
 ### Use named parameters in your error descriptions too
 
-Error logging accepts keyword parameters just like `Log.note()` does
+Error logging accepts keyword parameters just like `logger.info()` does
 
 ```python
-    def worker(value):
-        try:
-            Log.note("Start working with {{key1}}", key1=value1)
-            # Do something that might raise exception
-        except Exception as cause:
-            Log.error("Failure to work with {{key2}}", key2=value2, cause=cause)
+def worker(value):
+    try:
+        logger.info("Start working with {{key1}}", key1=value1)
+        # Do something that might raise exception
+    except Exception as cause:
+        logger.error("Failure to work with {{key2}}", key2=value2, cause=cause)
 ```
 
 ### No need to formally type your exceptions
@@ -210,25 +224,25 @@ test if a type (or string, or template) can be found in the causal chain by usin
 the `in` keyword:   
 
 ```python
-    def worker(value):
-        try:
-            # Do something that might raise exception
-        except Exception as cause:
-            if "Failure to work with {{key2}}" in cause:
-                # Deal with exception thrown in above code, no matter
-                # how many other exception handlers were in the chain
+def worker(value):
+    try:
+        # Do something that might raise exception
+    except Exception as cause:
+        if "Failure to work with {{key2}}" in cause:
+            # Deal with exception thrown in above code, no matter
+            # how many other exception handlers were in the chain
 ```
 
 For those who may abhor the use of magic strings, feel free to use constants instead:
 
 ```python
-    KEY_ERROR = "Failure to work with {{key}}"
+KEY_ERROR = "Failure to work with {{key}}"
 
-    try:
-        Log.error(KEY_ERROR, key=42)        
-    except Exception as cause:
-        if KEY_ERROR in cause:
-            Log.note("dealt with key error")
+try:
+    logger.error(KEY_ERROR, key=42)        
+except Exception as cause:
+    if KEY_ERROR in cause:
+        logger.info("dealt with key error")
 ```
 
 
@@ -242,22 +256,22 @@ situations a caller can be expected to handle exceptions; and in those cases
 logging an error would be deceptive. 
 
 ```python
-    def worker(value):
-        try:
-            Log.error("Failure to work with {{key3}}", key3=value3)
-        except Exception as cause:
-            # Try something else
+def worker(value):
+    try:
+        logger.error("Failure to work with {{key3}}", key3=value3)
+    except Exception as cause:
+        # Try something else
 ```
 
-### Use `Log.warning()` if your code can deal with an exception, but you still want to log it as an issue
+### Use `logger.warning()` if your code can deal with an exception, but you still want to log it as an issue
 
 ```python
-    def worker(value):
-        try:
-            Log.note("Start working with {{key4}}", key4=value4)
-            # Do something that might raise exception
-        except Exception as cause:
-            Log.warning("Failure to work with {{key4}}", key4=value4, cause=cause)
+def worker(value):
+    try:
+        logger.info("Start working with {{key4}}", key4=value4)
+        # Do something that might raise exception
+    except Exception as cause:
+        logger.warning("Failure to work with {{key4}}", key4=value4, cause=cause)
 ```
 ### Don't loose your stack trace!
 
@@ -270,11 +284,11 @@ object, you simply get back the object you passed.
 
 
 ```python
-    try:
-        # DO SOME WORK        
-    except Exception as cause:
-        cause = Except.wrap(cause)
-        # DO SOME FANCY ERROR RECOVERY
+try:
+    # DO SOME WORK        
+except Exception as cause:
+    cause = Except.wrap(cause)
+    # DO SOME FANCY ERROR RECOVERY
  ```
 
 ### Always catch all `Exceptions`
@@ -327,29 +341,29 @@ output.
 
 
 ```python
-    # simple.py
-    DEBUG_SHOW_DETAIL = True
+# simple.py
+DEBUG_SHOW_DETAIL = True
 
-    def worker():
-        if DEBUG_SHOW_DETAIL:
-            Log.note("Starting")
+def worker():
+    if DEBUG_SHOW_DETAIL:
+        logger.info("Starting")
+
+    # DO WORK HERE
+
+    if DEBUG_SHOW_DETAIL:
+        logger.info("Done")
+
+def main():
+    try:
+        settings = startup.read_settings()
+        logger.start(settings.debug)
 
         # DO WORK HERE
 
-        if DEBUG_SHOW_DETAIL:
-            Log.note("Done")
-
-    def main():
-        try:
-            settings = startup.read_settings()
-            Log.start(settings.debug)
-
-            # DO WORK HERE
-
-        except Exception as cause:
-            Log.error("Complain, or not", cause)
-        finally:
-            Log.stop()
+    except Exception as cause:
+        logger.error("Complain, or not", cause)
+    finally:
+        logger.stop()
 ```
 
 This pattern of using explict debug variables allows the programmer to switch logging on and off on individual subsystems that share that variable: Either multiple debug variables in a single module, or multiple modules sharing a single debug variable.
@@ -357,23 +371,23 @@ This pattern of using explict debug variables allows the programmer to switch lo
 These debug variables can be switched on/off by configuration file:
 
 ```javascript
-    // settings.json
-    {
-        "debug":{
-            "constants":{"simple.DEBUG_SHOW_DETAILS":false}
-        }
+// settings.json
+{
+    "debug":{
+        "constants":{"simple.DEBUG_SHOW_DETAILS":false}
     }
+}
 ```
 
 To keep logging to a single line, you may consider this pattern:
 
-    DEBUG and Log.note("error: {{value}}", value=expensive_function()) 
+    DEBUG and logger.info("error: {{value}}", value=expensive_function()) 
 
 Notice the `expensive_function()` is not run when `DEBUG` is false.
 
-## Log Configuration
+## Log Configuration and Setup
 
-The `mo-logs` library will log to the console by default. ```Log.start(settings)```
+The `mo-logs` library will log to the console by default. ```logger.start(settings)```
 will redirect the logging to other streams, as defined by the settings:
 
  *  **logs** - List of all log-streams and their parameters
@@ -386,18 +400,31 @@ settings of course). For this reason, applications should have the following
 structure:
 
 ```python
-    def main():
-        try:
-            settings = startup.read_settings()
-            Log.start(settings.debug)
+from mo_logs import logger
 
-            # DO WORK HERE
+def main():
+    try:
+        settings = startup.read_settings()
+        logger.start(settings.debug)
 
-        except Exception as cause:
-            Log.error("Complain, or not", cause)
-        finally:
-            Log.stop()
+        # DO WORK HERE
+
+    except Exception as cause:
+        logger.error("Complain, or not", cause)
+    finally:
+        logger.stop()
 ```
+
+or more simply 
+
+```python
+from mo_logs import LoggingContext
+
+def main():
+    with LoggingContext():
+        # DO WORK HERE
+```
+
 
 Example configuration file
 
@@ -411,6 +438,11 @@ Example configuration file
             "maxBytes": 10000000,
             "backupCount": 100,
             "encoding": "utf8"
+        },
+        {
+            "class": "graypy.GELFUDPHandler",
+            "host": "localhost",
+            "port": 12201
         },
         {
             "log_type": "email",
@@ -428,14 +460,14 @@ Example configuration file
 
 ## Capturing logs
 
-You can capture all the logging message and send them to your own logging with 
+You can recieve a copy of all logs and send them to your own logging with 
 
-    Log.set_logger(myLogger)
+    logger.set_logger(myLogger)
     
 where `myLogger` is an instance that can accept a calls to `write(template, parameters)`. If your logging library can only handle strings, then use `message = expand_template(template, params)`.
 
 
-## Problems with Python Logging
+## Problems with Python 2.x Logging
 
 [Python's default `logging` module](https://docs.python.org/2/library/logging.html#logging.debug)
 comes close to doing the right thing, but fails:  
