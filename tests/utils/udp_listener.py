@@ -19,10 +19,14 @@ from mo_threads import Queue, Thread
 class UdpListener(object):
 
     def __init__(self, port):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.bind(("", port))
-        self.queue = Queue("from udp "+str(port))
-        self.thread = Thread.run("listen on "+str(port), self._worker)
+        while True:
+            try:
+                self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                self.sock.bind(("", port))
+                self.queue = Queue("from udp "+str(port))
+                self.thread = Thread.run("listen on "+str(port), self._worker)
+            except Exception as cause:
+                Log.warning("unable to setup listener", cause=cause)
 
     def _worker(self, please_stop):
         acc = {}
