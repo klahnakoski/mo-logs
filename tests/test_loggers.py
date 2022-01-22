@@ -70,7 +70,7 @@ class TestLoggers(FuzzyTestCase):
                 "_stack_info": "Null",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 62,
+                "line": 61,
                 "version": "1.0",
             },
         )
