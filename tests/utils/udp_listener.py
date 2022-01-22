@@ -39,18 +39,24 @@ class UdpListener(object):
                 Till(seconds=randoms.int(10)).wait()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.sock.close()
         self.thread.stop()
+        self.sock.close()
         self.thread.join()
 
     def _worker(self, please_stop):
         acc = {}
         while not please_stop:
-            data, origin = self.sock.recvfrom(1024)
+            try:
+                data, origin = self.sock.recvfrom(1024)
+            except Exception as cause:
+                if please_stop:
+                    break
+                raise Log.error("unexpected problem with receive", cause=cause)
+
             try:
                 json = zlib.decompress(data)
                 value = json2value(json.decode("utf8"))
                 self.queue.add(value)
             except Exception as cause:
-                Log.error("what happens here?")
+                Log.error("what happens here?", cause=cause)
                 acc[origin] = acc.setdefault(origin, b"") + data
