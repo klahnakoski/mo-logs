@@ -83,7 +83,7 @@ def read_settings(defs=None, filename=None, default_filename=None, complain=True
     )
     settings_file = File(args.filename)
     if settings_file.exists:
-        Log.note("Using {{filename}} for configuration", filename=settings_file.abspath)
+        logger.info("Using {{filename}} for configuration", filename=settings_file.abspath)
     else:
         logger.error(
             "Can not read configuration file {{filename}}",
@@ -124,7 +124,7 @@ class SingleInstance:
         self.lockfile = os.path.normpath(tempfile.gettempdir() + "/" + basename)
 
     def __enter__(self):
-        Log.note("SingleInstance.lockfile = " + self.lockfile)
+        logger.info("SingleInstance.lockfile = " + self.lockfile)
         if sys.platform == "win32":
             try:
                 # file already exists, we try to remove (in case previous execution was interrupted)
