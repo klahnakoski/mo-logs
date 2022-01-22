@@ -49,20 +49,18 @@ class TestLoggers(FuzzyTestCase):
 
         # temp = logging.LogRecord(
 
-        udp = UdpListener(12201)
+        with UdpListener(12201) as udp:
+            log.start(
+                trace=True,
+                settings={"logs": {
+                    "class": "graypy.GELFUDPHandler",
+                    "host": "localhost",
+                    "port": 12201,
+                }},
+            )
+            log.note("testing {{value}}", value="test")
+            message = udp.queue.pop()
 
-        log.start(
-            trace=True,
-            settings={"logs": {
-                "class": "graypy.GELFUDPHandler",
-                "host": "localhost",
-                "port": 12201,
-            }},
-        )
-        log.note("testing {{value}}", value="test")
-
-        message = udp.queue.pop()
-        udp.stop()
         self.assertEqual(
             message,
             {
@@ -72,7 +70,7 @@ class TestLoggers(FuzzyTestCase):
                 "_stack_info": "Null",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 62,
+                "line": 61,
                 "version": "1.0",
             },
         )

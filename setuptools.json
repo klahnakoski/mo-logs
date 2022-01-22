@@ -513,6 +513,6 @@
     "name": "mo-logs",
     "packages": ["mo_logs"],
     "url": "https://github.com/klahnakoski/mo-logs",
-    "version": "7.114.22021",
+    "version": "7.121.22022",
     "zip_safe": false
 }
