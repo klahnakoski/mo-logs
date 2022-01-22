@@ -37,6 +37,7 @@ class UdpListener(object):
                 self.sock.close()
                 Log.warning("unable to setup listener", cause=cause)
                 Till(seconds=randoms.int(10)).wait()
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.thread.stop()
