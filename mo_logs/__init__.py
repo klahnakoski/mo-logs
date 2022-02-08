@@ -59,6 +59,7 @@ class Log(object):
     logging_multi = None
     profiler = None  # simple pypy-friendly profiler
     error_mode = False  # prevent error loops
+    extra = {}
 
     @classmethod
     @override("settings")
