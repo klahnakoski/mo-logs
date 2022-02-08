@@ -134,23 +134,25 @@ class Except(Exception):
         if self.trace:
             output += indent(format_trace(self.trace))
 
-        if self.cause:
-            cause_strings = []
-            for c in listwrap(self.cause):
-                try:
-                    cause_strings.append(text(c))
-                except Exception as e:
-                    sys.stderr("Problem serializing cause" + text(c))
-
-            output += "caused by\n\t" + "and caused by\n\t".join(cause_strings)
-
+        output += self.cause_text
         return output
 
-    if PY2:
-        __unicode__ = __str__
+    @property
+    def trace_text(self):
+        return format_trace(self.trace)
 
-        def __str__(self):
-            return self.__unicode__().encode("latin1", "replace")
+    @property
+    def cause_text(self):
+        if not self.cause:
+            return ""
+        cause_strings = []
+        for c in listwrap(self.cause):
+            try:
+                cause_strings.append(text(c))
+            except Exception as e:
+                sys.stderr("Problem serializing cause" + text(c))
+
+        return "caused by\n\t" + "and caused by\n\t".join(cause_strings)
 
     def __data__(self):
         output = to_data({k: getattr(self, k) for k in vars(self)})

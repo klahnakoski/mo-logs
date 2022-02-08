@@ -13,8 +13,6 @@ import os
 import sys
 from datetime import datetime
 
-from mo_imports import delay_import
-
 from mo_dots import (
     Data,
     FlatList,
@@ -24,14 +22,17 @@ from mo_dots import (
     unwraplist,
     dict_to_data,
     is_data,
-    to_data,
-)
+    to_data, )
 from mo_future import PY3, is_text, text, STDOUT
+from mo_imports import delay_import
 from mo_kwargs import override
+
 from mo_logs import constants as _constants, exceptions, strings
-from mo_logs.exceptions import Except, LogItem, suppress_exception
+from mo_logs.exceptions import Except, LogItem, suppress_exception, format_trace
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 from mo_logs.strings import CR, indent
+
+STACKTRACE = "\n{{trace_text|indent}}\n{{cause_text}}"
 
 StructuredLogger_usingFile = delay_import(
     "mo_logs.log_usingFile.StructuredLogger_usingFile"
@@ -45,7 +46,8 @@ StructuredLogger_usingThread = delay_import(
 startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 
-_Thread = None
+_Thread = delay_import("mo_threads.Thread")
+
 
 class Log(object):
     """
@@ -57,6 +59,7 @@ class Log(object):
     logging_multi = None
     profiler = None  # simple pypy-friendly profiler
     error_mode = False  # prevent error loops
+    extra = {}
 
     @classmethod
     @override("settings")
@@ -66,6 +69,7 @@ class Log(object):
         cprofile=False,
         constants=None,
         logs=None,
+        extra=None,
         app_name=None,
         settings=None,
     ):
@@ -82,7 +86,6 @@ class Log(object):
         :param settings: ALL THE ABOVE PARAMTERS
         :return:
         """
-        global _Thread  # REQUIRED FOR trace
         if app_name:
             return LoggingContext(app_name)
 
@@ -90,10 +93,6 @@ class Log(object):
 
         cls.settings = settings
         cls.trace = trace
-        if trace:
-            from mo_threads import Thread as _Thread
-
-            _ = _Thread
 
         # ENABLE CPROFILE
         if cprofile is False:
@@ -121,6 +120,7 @@ class Log(object):
                 StructuredLogger_usingThread(cls.logging_multi),
             )
             old_log.stop()
+        cls.extra = extra or {}
 
     @classmethod
     def stop(cls):
@@ -408,13 +408,18 @@ class Log(object):
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
         :return:
         """
-        if isinstance(item, Except):
-            template = text(item)
-        else:
-            template = item.template
-
+        template = item.template
         template = strings.limit(template, 10000)
         template = template.replace("{{", "{{params.")
+
+        if isinstance(item, Except):
+            template = "{{context}}: " + template + STACKTRACE
+            temp = item.__data__()
+            temp.trace_text = item.trace_text
+            temp.cause_text = item.cause_text
+            item = temp
+        else:
+            item = item.__data__()
 
         if not template.startswith(CR) and CR in template:
             template = CR + template
@@ -439,7 +444,8 @@ class Log(object):
             log_format = template
             # log_format = item.template = "{{timestamp|datetime}} - " + template
 
-        cls.main_log.write(log_format, item.__data__())
+        item.params = {**cls.extra, **item.params}
+        cls.main_log.write(log_format, item)
 
     def write(self):
         raise NotImplementedError

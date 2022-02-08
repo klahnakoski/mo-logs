@@ -14,13 +14,13 @@ from __future__ import absolute_import, division, unicode_literals
 import logging
 
 from mo_dots import unwrap, dict_to_data
+from mo_imports import delay_import
 from mo_kwargs import override
 
-from mo_logs import logger
+from mo_logs import logger, STACKTRACE
 from mo_logs.exceptions import FATAL, ERROR, WARNING, ALARM, UNEXPECTED, INFO, NOTE
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
-from mo_imports import delay_import
 
 Log = delay_import("mo_logs.Log")
 
@@ -40,18 +40,18 @@ class StructuredLogger_usingHandler(StructuredLogger):
             level=_context_to_level[params.context],
             pathname=params.location.file,
             lineno=params.location.line,
-            msg=expand_template(template, params),
+            msg=expand_template(template.replace(STACKTRACE, ""), params),
             args=params.params,
             exc_info=None,
             func=params.location.method,
             sinfo=params.trace,
             thread=params.thread.id,
-            threadName= params.thread.name,
+            threadName=params.thread.name,
             process=params.machine.pid,
         )
-        d=record.__dict__
+        record.exc_text=expand_template(template, params)
         for k, v in params.params.leaves():
-            d[k] = v
+            setattr(record, k, v)
         self.logger.handle(record)
         self.count += 1
 
