@@ -142,7 +142,8 @@ class TestExcept(FuzzyTestCase):
             self.assertEqual(logger.main_log.pop(), WARNING + ": " + A + ": " + B)
 
             logger.warning("test", e)
-            self.assertEqual(logger.main_log.pop(), WARNING + CAUSE)
+            log_value = logger.main_log.pop()
+            self.assertEqual(log_value, WARNING + CAUSE)
 
             logger.warning("test: {{a}}", a=a, cause=e)
             self.assertEqual(logger.main_log.pop(), WARNING + ": " + A + CAUSE)
