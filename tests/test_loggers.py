@@ -11,9 +11,8 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import logging
-from unittest import skipIf
 
-from mo_future import StringIO, PY2
+from mo_future import StringIO
 from mo_math import randoms
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
@@ -23,7 +22,6 @@ from tests.utils.udp_listener import UdpListener
 
 
 class TestLoggers(FuzzyTestCase):
-    @skipIf(PY2, "py2 does not have reload")
     def test_logging(self):
         from importlib import reload
 
@@ -31,7 +29,7 @@ class TestLoggers(FuzzyTestCase):
         reload(logging)
 
         log_stream = StringIO()
-        logger = logging.getLogger()
+        logging.getLogger()
         logging.basicConfig(stream=log_stream, level=logging.INFO)
 
         log.start(trace=False, settings={"logs": {"log_type": "logger"}})
@@ -68,7 +66,7 @@ class TestLoggers(FuzzyTestCase):
                 "_stack_info": "Null",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 56,
+                "line": 54,
                 "version": "1.0",
             },
         )

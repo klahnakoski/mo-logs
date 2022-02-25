@@ -1,7 +1,11 @@
 language: python
 python:
+  - "3.6"
   - "3.7"
+  - "3.8"
   - "3.9"
+  - "3.10"
+  - "3.11"
 
 services:
   - docker
@@ -9,9 +13,6 @@ services:
 env:
   global:
       - PYTHONPATH=.:vendor
-before_install:
-  - "docker pull graylog/graylog"
-  - "
 
 install:
   - "pip install coverage"

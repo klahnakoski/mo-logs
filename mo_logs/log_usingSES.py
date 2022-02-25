@@ -65,7 +65,7 @@ class StructuredLogger_usingSES(StructuredLogger):
 
     def write(self, template, params):
         with self.locker:
-            if params.context not in [NOTE, ALARM]:  # SEND ONLY THE NOT BORING STUFF
+            if params.severity not in [NOTE, ALARM]:  # SEND ONLY THE NOT BORING STUFF
                 self.accumulation.append((template, params))
 
             if Date.now() > self.next_send:

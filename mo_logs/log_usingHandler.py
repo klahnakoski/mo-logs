@@ -37,7 +37,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
     def write(self, template, params):
         record = logging.LogRecord(
             name="mo-logs",
-            level=_context_to_level[params.context],
+            level=_severity_to_level[params.severity],
             pathname=params.location.file,
             lineno=params.location.line,
             msg=expand_template(template.replace(STACKTRACE, ""), params),
@@ -97,7 +97,7 @@ def make_handler_from_settings(settings):
         logger.error("problem with making handler", cause=cause)
 
 
-_context_to_level = {
+_severity_to_level = {
     FATAL: logging.CRITICAL,
     ERROR: logging.ERROR,
     WARNING: logging.WARNING,

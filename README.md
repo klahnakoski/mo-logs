@@ -1,11 +1,10 @@
 
 # More Logs - Structured Logging and Exception Handling
 
-
-|Branch      |Status   |
-|------------|---------|
-|master      | [![Build Status](https://app.travis-ci.com/klahnakoski/mo-logs.svg?branch=master)](https://travis-ci.com/github/klahnakoski/mo-logs) |
-|dev         | [![Build Status](https://app.travis-ci.com/klahnakoski/mo-logs.svg?branch=dev)](https://travis-ci.com/github/klahnakoski/mo-logs)  [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)  |
+[![PyPI Latest Release](https://img.shields.io/pypi/v/mo-logs.svg)](https://pypi.org/project/mo-logs/)
+[![Build Status](https://app.travis-ci.com/klahnakoski/mo-logs.svg?branch=master)](https://travis-ci.com/github/klahnakoski/mo-logs)
+ [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)
+[![Downloads](https://pepy.tech/badge/mo-logs)](https://pepy.tech/project/mo-logs)
 
 
 This library provides two main features
@@ -25,7 +24,7 @@ but this can be at odds with clean logging - which couples raising and catching
 to make appropriate decisions about what to emit to the log.  
 
 This logging module is additionally responsible for raising exceptions,
-collecting the trace and context, and then deducing if it must be logged, or
+collecting the trace and severity, and then deducing if it must be logged, or
 if it can be ignored because something can handle it.
 
 
@@ -132,7 +131,7 @@ serializable so they can be stored/processed by downstream JSON tools.
 {
     "template": "Hello, {{name}}!",
     "params": {"name": "World!"},
-    "context": "NOTE",
+    "severity": "NOTE",
     "format": "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} - {{thread.name}} - \"{{location.file}}:{{location.line}}\" - ({{location.method}}) - Hello, {{params.name}}!",
     "location": {
         "file": "/home/kyle/code/example.py",
