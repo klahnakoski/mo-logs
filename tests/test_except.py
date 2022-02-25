@@ -14,11 +14,10 @@ import logging
 import sys
 import unittest
 import zlib
-from unittest import skip, skipIf
+from unittest import skip
 
 from mo_dots import listwrap, wrap, Data, to_data
 from mo_dots.objects import DataObject
-from mo_future import PY2
 from mo_json import value2json
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
@@ -239,7 +238,6 @@ class TestExcept(FuzzyTestCase):
             logger.main_log = backup_log
 
     # NORMAL RAISING
-    @skipIf(PY2, "does not have reload")
     def test_python_raise_from(self):
         def problem_y():
             raise Exception("this is the root cause")

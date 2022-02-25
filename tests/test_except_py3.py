@@ -10,9 +10,7 @@
 
 from __future__ import unicode_literals
 
-from unittest import skipIf
-
-from mo_future import PY2, text
+from mo_future import text
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
 from mo_logs import logger
@@ -23,7 +21,6 @@ class TestExcept(FuzzyTestCase):
     def setUpClass(cls):
         logger.start({"trace": False})
 
-    @skipIf(PY2, "test python 3 only")
     def test_cause_captured(self):
         try:
             try:
