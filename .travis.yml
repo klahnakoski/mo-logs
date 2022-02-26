@@ -15,8 +15,8 @@ env:
 install:
   - "pip install coverage"
   - "pip install coveralls"
-  - "pip install -r requirements.txt"
   - "pip install -r tests/requirements.txt"
+  - "pip install -r requirements.txt"
 
 script:
   - "python -m unittest discover -v tests"
