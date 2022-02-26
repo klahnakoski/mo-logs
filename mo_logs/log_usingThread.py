@@ -55,7 +55,7 @@ class StructuredLogger_usingThread(StructuredLogger):
             Log.info("problem in threaded logger" + str(e))
 
 
-def worker(logger, queue, period, please_stop):
+def worker(logger: StructuredLogger, queue, period, please_stop):
     please_stop.then(lambda: queue.close)
 
     try:
@@ -75,7 +75,7 @@ def worker(logger, queue, period, please_stop):
             if log is not THREAD_STOP:
                 logger.write(**log)
 
-        # logger.stop()
+        logger.stop()
     except Exception as e:
         import sys
 

@@ -29,12 +29,9 @@ Log = delay_import("mo_logs.Log")
 class StructuredLogger_usingHandler(StructuredLogger):
     @override("settings")
     def __init__(self, settings):
-        dummy = Log.trace  # REMOVE ME
         Log.trace = True  # ENSURE TRACING IS ON SO DETAILS ARE CAPTURED
         self.count = 0
         self.handler = make_handler_from_settings(settings)
-        self.logger = logging.Logger("mo-logs", level=logging.INFO)
-        self.logger.addHandler(self.handler)
 
     def write(self, template, params):
         record = logging.LogRecord(
@@ -54,7 +51,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
         record.exc_text=expand_template(template, params)
         for k, v in params.params.leaves():
             setattr(record, k, v)
-        self.logger.handle(record)
+        self.handler.handle(record)
         self.count += 1
 
     def stop(self):

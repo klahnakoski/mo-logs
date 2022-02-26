@@ -87,6 +87,20 @@ wish to use as a source of parameters. If keyword parameters are used, they
 will override the default values. Be careful when sending whole data
 structures, they will be logged!
 
+### Please, never use locals()
+
+```python
+def worker(value):
+    name = "tout le monde!"
+    password = "123"
+    logger.info("Hello, {{name}}", locals())      # DO NOT DO THIS!
+```
+
+Despite the fact using `locals()` is a wonderful shortcut for logging it is
+dangerous because it also picks up sensitive local variables. Even if
+`{{name}}` is the only value in the template, the whole `locals()` dict will
+be sent to the structured loggers for recording. 
+
 ### Formatting parameters
 
 There are a variety of formatters, and they can be applied by using the 
@@ -105,20 +119,6 @@ logger.info("pi is {{pi|round(places=3)}}!", pi=3.14159265)
 ```
 
 You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the formatters available.
-
-### Please, never use locals()
-
-```python
-def worker(value):
-    name = "tout le monde!"
-    password = "123"
-    logger.info("Hello, {{name}}", locals())      # DO NOT DO THIS!
-```
-
-Despite the fact using `locals()` is a wonderful shortcut for logging it is
-dangerous because it also picks up sensitive local variables. Even if
-`{{name}}` is the only value in the template, the whole `locals()` dict will
-be sent to the structured loggers for recording. 
 
 ### Destination: Database!
 
