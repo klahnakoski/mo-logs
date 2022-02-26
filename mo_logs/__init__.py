@@ -137,6 +137,8 @@ class Log(object):
         """
         old_log, cls.main_log = cls.main_log, StructuredLogger_usingStream(STDOUT)
         old_log.stop()
+        cls.trace = False
+        cls.cprofile = False
 
     @classmethod
     @override("settings")
