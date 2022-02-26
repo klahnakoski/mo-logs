@@ -6,8 +6,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-from __future__ import absolute_import, division, unicode_literals
-
 import sys
 
 from mo_dots import _set_attr as mo_dots_set_attr, split_field, to_data
