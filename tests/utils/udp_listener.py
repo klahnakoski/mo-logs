@@ -48,6 +48,7 @@ class UdpListener(object):
         acc = {}
         while not please_stop:
             try:
+                self.sock.settimeout(10)
                 data, origin = self.sock.recvfrom(1024)
             except Exception as cause:
                 if please_stop:

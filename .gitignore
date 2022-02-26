@@ -2,9 +2,9 @@
 .*pyc
 .svn
 .idea
+.coverage
 *.iml
 vendor
-/mo_logs/__pycache__
 *.egg-info
 build
-
+__pycache__

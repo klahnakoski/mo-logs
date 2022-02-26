@@ -38,7 +38,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
     def write(self, template, params):
         try:
             log_line = expand_template(template, params)
-            level = max(self.min_level, MAP[params.context])
+            level = max(self.min_level, MAP[params.severity])
             self.logger.log(level, log_line)
             self.count += 1
         except Exception as cause:

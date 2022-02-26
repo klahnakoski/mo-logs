@@ -31,8 +31,8 @@ NOTE = "NOTE"
 
 class LogItem(object):
 
-    def __init__(self, context, template, params, timestamp):
-        self.context = context
+    def __init__(self, severity, template, params, timestamp):
+        self.severity = severity
         self.template = template
         self.params = params
         self.timestamp = timestamp
@@ -44,19 +44,16 @@ class LogItem(object):
 class Except(Exception):
 
     def __init__(
-        self, context=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_
+        self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_
     ):
         self.timestamp = datetime.utcnow()
-        if context == None:
-            raise ValueError("expecting context to not be None")
+        if severity == None:
+            raise ValueError("expecting severity to not be None")
 
-        if is_many(cause):
-            self.cause = unwraplist([Except.wrap(c) for c in cause])
-        else:
-            self.cause = Except.wrap(cause)
+        self.cause = unwraplist([Except.wrap(c, stack_depth=2) for c in listwrap(cause)])
 
         Exception.__init__(self)
-        self.context = context
+        self.severity = severity
         self.template = template
         self.params = params
         self.trace = trace or get_stacktrace(2)
@@ -88,14 +85,14 @@ class Except(Exception):
             message = getattr(e, "message", None)
             if message:
                 output = Except(
-                    context=ERROR,
+                    severity=ERROR,
                     template=e.__class__.__name__ + ": " + text(message),
                     trace=trace,
                     cause=cause,
                 )
             else:
                 output = Except(
-                    context=ERROR,
+                    severity=ERROR,
                     template=e.__class__.__name__ + ": " + text(e),
                     trace=trace,
                     cause=cause,
@@ -116,7 +113,7 @@ class Except(Exception):
             if value in self.template or value in self.message:
                 return True
 
-        if self.context == value:
+        if self.severity == value:
             return True
         for c in listwrap(self.cause):
             if value in c:
@@ -124,7 +121,7 @@ class Except(Exception):
         return False
 
     def __str__(self):
-        output = self.context + ": " + self.template + CR
+        output = self.severity + ": " + self.template + CR
         if self.params:
             try:
                 output = expand_template(output, self.params)
@@ -230,13 +227,13 @@ class Suppress(object):
     """
 
     def __init__(self, exception_type):
-        self.context = exception_type
+        self.severity = exception_type
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if not exc_val or isinstance(exc_val, self.context):
+        if not exc_val or isinstance(exc_val, self.severity):
             return True
 
 
