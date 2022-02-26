@@ -22,6 +22,12 @@ from tests.utils.udp_listener import UdpListener
 
 
 class TestLoggers(FuzzyTestCase):
+    def setUp(self):
+        log.start()
+
+    def tearDown(self):
+        log.stop()
+
     def test_logging(self):
         from importlib import reload
 
@@ -66,7 +72,7 @@ class TestLoggers(FuzzyTestCase):
                 "_stack_info": "Null",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 54,
+                "line": 60,
                 "version": "1.0",
             },
         )
