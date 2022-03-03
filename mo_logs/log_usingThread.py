@@ -78,6 +78,7 @@ def worker(logger: StructuredLogger, queue, period, please_stop):
         logger.stop()
     except Exception as e:
         import sys
+        e = Except.wrap(e)
 
         sys.stderr.write(
             "problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e)
