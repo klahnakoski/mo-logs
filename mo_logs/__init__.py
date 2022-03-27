@@ -148,7 +148,7 @@ class Log(object):
 
             return StructuredLogger_usingHandler(settings)
 
-        clazz = known_loggers.get(log_type.lower())
+        clazz = _known_loggers.get(log_type.lower())
         if clazz:
             return clazz(settings)
         logger.error("Log type of {{config|json}} is not recognized", config=settings)
@@ -467,7 +467,7 @@ def _using_stream(config):
     return StructuredLogger_usingThread(StructuredLogger_usingStream(config.stream))
 
 def _using_elasticsearch(config):
-    from jx_elasticsearch.log_usingElasticSearch import StructuredLogger_usingElasticSearch,
+    from jx_elasticsearch.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 
     return StructuredLogger_usingElasticSearch(config)
 
@@ -487,14 +487,19 @@ def _using_nothing(config):
     return StructuredLogger()
 
 
-known_loggers = {
+_known_loggers = {
     "logger": _using_logger,
-
-
-
-if log_type.lower() in ["nothing", "none", "null"]:
-
-
+    "nothing": _using_nothing,
+    "none": _using_nothing,
+    "null": _using_nothing,
+    "file": _using_file,
+    "console": _using_console,
+    "mozlog": _using_mozlog,
+    "stream": _using_stream,
+    "elasticsearch": _using_elasticsearch,
+    "email": _using_email,
+    "ses": _using_ses,
 }
 
-
+def register_logger(name, factory):
+    _known_loggers[name]=factory
