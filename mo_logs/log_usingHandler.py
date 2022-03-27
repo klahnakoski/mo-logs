@@ -29,7 +29,10 @@ Log = delay_import("mo_logs.Log")
 class StructuredLogger_usingHandler(StructuredLogger):
     @override("settings")
     def __init__(self, settings):
-        Log.trace = True  # ENSURE TRACING IS ON SO DETAILS ARE CAPTURED
+        try:
+            Log.trace = True  # ENSURE TRACING IS ON SO DETAILS ARE CAPTURED
+        except Exception as cause:
+            Log.trace = True
         self.count = 0
         self.handler = make_handler_from_settings(settings)
 

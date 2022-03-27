@@ -31,19 +31,19 @@ from mo_logs.strings import CR, indent
 
 STACKTRACE = "\n{{trace_text|indent}}\n{{cause_text}}"
 
-StructuredLogger_usingFile = delay_import(
-    "mo_logs.log_usingFile.StructuredLogger_usingFile"
-)
+
 StructuredLogger_usingMulti = delay_import(
     "mo_logs.log_usingMulti.StructuredLogger_usingMulti"
 )
 StructuredLogger_usingThread = delay_import(
     "mo_logs.log_usingThread.StructuredLogger_usingThread"
 )
-startup_read_settings = delay_import("mo_logs.startup.read_settings")
+
+
 
 
 _Thread = delay_import("mo_threads.Thread")
+startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 
 class Log(object):
@@ -148,47 +148,9 @@ class Log(object):
 
             return StructuredLogger_usingHandler(settings)
 
-        if log_type == "logger":
-            from mo_logs.log_usingLogger import StructuredLogger_usingLogger
-
-            return StructuredLogger_usingLogger(settings)
-        if log_type == "file" or settings.file:
-            return StructuredLogger_usingFile(settings.file)
-        if log_type == "file" or settings.filename:
-            return StructuredLogger_usingFile(settings.filename)
-        if log_type == "console":
-            from mo_logs.log_usingThread import StructuredLogger_usingThread
-
-            return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
-        if log_type == "mozlog":
-            from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
-
-            return StructuredLogger_usingMozLog(
-                STDOUT, coalesce(settings.app_name, settings.appname)
-            )
-        if log_type == "stream" or settings.stream:
-            from mo_logs.log_usingThread import StructuredLogger_usingThread
-
-            return StructuredLogger_usingThread(StructuredLogger_usingStream(settings.stream))
-        if log_type == "elasticsearch" or settings.stream:
-            from jx_elasticsearch.log_usingElasticSearch import (
-                StructuredLogger_usingElasticSearch,
-            )
-
-            return StructuredLogger_usingElasticSearch(settings)
-        if log_type == "email":
-            from mo_logs.log_usingEmail import StructuredLogger_usingEmail
-
-            return StructuredLogger_usingEmail(settings)
-        if log_type == "ses":
-            from mo_logs.log_usingSES import StructuredLogger_usingSES
-
-            return StructuredLogger_usingSES(settings)
-        if log_type.lower() in ["nothing", "none", "null"]:
-            from mo_logs.log_usingNothing import StructuredLogger
-
-            return StructuredLogger()
-
+        clazz = _known_loggers.get(log_type.lower())
+        if clazz:
+            return clazz(settings)
         logger.error("Log type of {{config|json}} is not recognized", config=settings)
 
     @classmethod
@@ -474,3 +436,70 @@ def machine_metadata():
 
 def raise_from_none(e):
     raise e from None
+
+
+def _using_logger(config):
+    from mo_logs.log_usingLogger import StructuredLogger_usingLogger
+
+    return StructuredLogger_usingLogger(config)
+
+def _using_file(config):
+    from mo_logs.log_usingFile import StructuredLogger_usingFile
+    if config.file:
+        return StructuredLogger_usingFile(config.file)
+    if config.filename:
+        return StructuredLogger_usingFile(config.filename)
+
+def _using_console(config):
+    from mo_logs.log_usingThread import StructuredLogger_usingThread
+
+    return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
+
+def _using_mozlog(config):
+    from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
+
+    return StructuredLogger_usingMozLog(
+        STDOUT, coalesce(config.app_name, config.appname)
+    )
+def _using_stream(config):
+    from mo_logs.log_usingThread import StructuredLogger_usingThread
+
+    return StructuredLogger_usingThread(StructuredLogger_usingStream(config.stream))
+
+def _using_elasticsearch(config):
+    from jx_elasticsearch.log_usingElasticSearch import StructuredLogger_usingElasticSearch
+
+    return StructuredLogger_usingElasticSearch(config)
+
+def _using_email(config):
+    from mo_logs.log_usingEmail import StructuredLogger_usingEmail
+
+    return StructuredLogger_usingEmail(config)
+
+def _using_ses(config):
+    from mo_logs.log_usingSES import StructuredLogger_usingSES
+
+    return StructuredLogger_usingSES(config)
+
+def _using_nothing(config):
+    from mo_logs.log_usingNothing import StructuredLogger
+
+    return StructuredLogger()
+
+
+_known_loggers = {
+    "logger": _using_logger,
+    "nothing": _using_nothing,
+    "none": _using_nothing,
+    "null": _using_nothing,
+    "file": _using_file,
+    "console": _using_console,
+    "mozlog": _using_mozlog,
+    "stream": _using_stream,
+    "elasticsearch": _using_elasticsearch,
+    "email": _using_email,
+    "ses": _using_ses,
+}
+
+def register_logger(name, factory):
+    _known_loggers[name]=factory
