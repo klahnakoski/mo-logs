@@ -101,15 +101,6 @@ class Log(object):
 
             profiles.enable_profilers(settings.cprofile.filename)
 
-        # DETECT COVERAGE
-        try:
-            from coverage.collector import Collector
-            if Collector._collectors:
-                from mo_threads import threads
-                threads.COVERAGE = True
-        except Exception:
-            pass
-
         if constants:
             _constants.set(constants)
 
