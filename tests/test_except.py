@@ -355,7 +355,8 @@ class TestExcept(FuzzyTestCase):
         try:
             logger.error("problem", cause=to_data([None]))
         except Exception as cause:
-            logger.warning("expected", casue=cause)
+            self.assertEqual(cause.message, "problem")
+            self.assertIsNone(cause.cause)
 
 
 def problem_a():

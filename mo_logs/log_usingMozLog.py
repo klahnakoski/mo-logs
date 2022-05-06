@@ -13,10 +13,9 @@ import base64
 from decimal import Decimal
 
 from mo_dots import to_data
-from mo_future import number_types, is_text, is_binary
+from mo_future import number_types, is_text
 from mo_json import datetime2unix, value2json
 from mo_kwargs import override
-from mo_math import bytes2base64
 
 from mo_logs import logger, strings
 from mo_logs.exceptions import ALARM, ERROR, NOTE, WARNING

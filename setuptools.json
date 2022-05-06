@@ -16,8 +16,8 @@
     ]},
     "include_package_data": true,
     "install_requires": [
-           "mo-dots==9.163.22119",    "mo-future==6.2.21303", "mo-imports==7.163.22119",
-         "mo-kwargs==7.163.22119"
+           "mo-dots==9.173.22126",    "mo-future==6.2.21303", "mo-imports==7.169.22121",
+         "mo-kwargs==7.173.22126"
     ],
     "license": "MPL 2.0",
     "long_description": {
@@ -512,6 +512,6 @@
     "name": "mo-logs",
     "packages": ["mo_logs"],
     "url": "https://github.com/klahnakoski/mo-logs",
-    "version": "7.163.22119",
+    "version": "7.173.22126",
     "zip_safe": false
 }
