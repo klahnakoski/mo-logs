@@ -46,6 +46,7 @@ from mo_logs.convert import (
 )
 
 Log = delay_import("mo_logs.Log")
+json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
 Duration = delay_import("mo_times.durations.Duration")
 
@@ -185,7 +186,7 @@ def json(value, pretty=True):
     :param pretty:
     :return:
     """
-    return _json_encoder(value, pretty=pretty)
+    return json_encoder(value, pretty=pretty)
 
 
 @formatter
@@ -680,9 +681,9 @@ def toString(val):
     if val == None:
         return ""
     elif is_data(val) or is_many(val):
-        return json(val, pretty=True)
+        return json_encoder(val, pretty=True)
     elif hasattr(val, "__data__"):
-        return json(val.__data__(), pretty=True)
+        return json_encoder(val.__data__(), pretty=True)
     elif hasattr(val, "__json__"):
         return val.__json__()
     elif isinstance(val, Duration):
@@ -895,22 +896,3 @@ def pairwise(values):
     for b in i:
         yield (a, b)
         a = b
-
-
-def _json_encoder(value, pretty):
-    global _json_encoder
-
-    try:
-        from mo_json.encoder import json_encoder as encoder
-    except:
-        from json import dumps
-
-        def encoder(value, pretty):
-            if pretty:
-                return dumps(value, indent=4)
-
-    _json_encoder = encoder
-    return encoder(value, pretty)
-
-
-

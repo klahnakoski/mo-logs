@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from boto.ses import connect_to_region
 
-from mo_dots import Data, listwrap, literal_field, unwrap
+from mo_dots import Data, listwrap, literal_field, from_data
 from mo_kwargs import override
 from mo_logs import logger, suppress_exception
 from mo_logs.exceptions import ALARM, NOTE
@@ -112,8 +112,8 @@ class Emailer(object):
     def __init__(self, settings):
         self.resource = connect_to_region(
             settings.region,
-            aws_access_key_id=unwrap(settings.aws_access_key_id),
-            aws_secret_access_key=unwrap(settings.aws_secret_access_key),
+            aws_access_key_id=from_data(settings.aws_access_key_id),
+            aws_secret_access_key=from_data(settings.aws_secret_access_key),
         )
 
     def __enter__(self):
