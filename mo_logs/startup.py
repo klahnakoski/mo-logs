@@ -15,7 +15,7 @@ import os
 import sys
 import tempfile
 
-from mo_dots import coalesce, listwrap, unwrap, to_data
+from mo_dots import coalesce, listwrap, from_data, to_data
 
 from mo_logs import logger
 
@@ -45,7 +45,7 @@ def argparse(defs, complain=True):
         args = d.copy()
         name = args.name
         args.name = None
-        parser.add_argument(*unwrap(listwrap(name)), **args)
+        parser.add_argument(*from_data(listwrap(name)), **args)
     namespace, unknown = parser.parse_known_args()
     if unknown and complain:
         logger.warning("Ignoring arguments: {{unknown|json}}", unknown=unknown)

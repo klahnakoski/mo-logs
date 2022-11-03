@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
-from mo_dots import unwrap, dict_to_data
+from mo_dots import from_data, dict_to_data
 from mo_imports import delay_import
 from mo_kwargs import override
 
@@ -91,7 +91,7 @@ def make_handler_from_settings(settings):
     settings["cls"] = None
     settings["log_type"] = None
     settings["settings"] = None
-    params = unwrap(settings)
+    params = from_data(settings)
     try:
         log_instance = constructor(**params)
         return log_instance
