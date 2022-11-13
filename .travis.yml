@@ -1,26 +1,19 @@
 language: python
 python:
-  - 3.6
-  - 3.7.8
-  - 3.8
-  - 3.9
-
+- 3.7.8
+- 3.9
 services:
-  - docker
-
+- docker
 env:
   global:
-      - PYTHONPATH=.:vendor
-
+  - PYTHONPATH=.:vendor
 install:
-  - "pip install coverage"
-  - "pip install coveralls"
-  - "pip install -r tests/requirements.txt"
-  - "pip install -r requirements.txt"
-
+- pip install coverage
+- pip install coveralls
+- pip install -r tests/requirements.txt
+- pip install -r requirements.txt
 script:
-  - "python -m unittest discover -v tests"
-
+- python -m unittest discover -v tests
 after_success:
-  - "coverage run -m unittest discover tests"
-  - coveralls
+- coverage run -m unittest discover tests
+- coveralls
