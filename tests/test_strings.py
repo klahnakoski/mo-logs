@@ -13,7 +13,7 @@ from __future__ import absolute_import, division, unicode_literals
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
 from mo_logs import strings
-from mo_logs.strings import expand_template
+from mo_logs.strings import expand_template, wordify
 
 
 class TestStrings(FuzzyTestCase):
@@ -55,3 +55,10 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(strings.percent(0.0120, digits=3), "1.20%")
 
         self.assertEqual(strings.percent(0.5), "50%")
+
+    def test_wordify(self):
+        self.assertEqual(wordify("thisIsATest"), ["this", "is", "a", "test"])
+        self.assertEqual(wordify("another.test"), ["another", "test"])
+        self.assertEqual(wordify("also-a_test999"), ["also", "a", "test999"])
+        self.assertEqual(wordify("BIG_WORDS"), ["big", "words"])
+        self.assertEqual(wordify('ALSO_A_TEST999'), ["also", "a", "test999"])

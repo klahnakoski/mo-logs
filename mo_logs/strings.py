@@ -881,8 +881,11 @@ def apply_diff(text, diff, reverse=False, verify=True):
     return output
 
 
+WORDS = re.compile(r"[A-Z][0-9a-z]+|[A-Z][0-9A-Z]+(?=$|[^a-z])|[a-z][0-9a-z]+|[0-9A-Za-z]")
+
+
 def wordify(value):
-    return [w for w in re.split(r"[\W_]", value) if strip(w)]
+    return [w.lower() for w in WORDS.findall(value) if strip(w)]
 
 
 def pairwise(values):
