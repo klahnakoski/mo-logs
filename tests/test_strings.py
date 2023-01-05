@@ -62,3 +62,7 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(wordify("also-a_test999"), ["also", "a", "test999"])
         self.assertEqual(wordify("BIG_WORDS"), ["big", "words"])
         self.assertEqual(wordify('ALSO_A_TEST999'), ["also", "a", "test999"])
+        self.assertEqual(wordify('c:123:a'), ["c", "123", "a"])
+        self.assertEqual(wordify('__int__'), ["__int__"])
+        self.assertEqual(wordify(':'), [":"])
+
