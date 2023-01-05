@@ -37,6 +37,7 @@ from mo_future import (
     binary_type,
 )
 from mo_imports import delay_import
+
 from mo_logs.convert import (
     datetime2string,
     datetime2unix,
@@ -881,11 +882,14 @@ def apply_diff(text, diff, reverse=False, verify=True):
     return output
 
 
-WORDS = re.compile(r"[A-Z][0-9a-z]+|[A-Z][0-9A-Z]+(?=$|[^a-z])|[a-z][0-9a-z]+|[0-9A-Za-z]")
+WORDS = re.compile(r"[A-Z][0-9a-z]+|[A-Z][0-9A-Z]+(?=$|[^a-z])|[a-z][0-9a-z]+|[0-9][0-9]+|[0-9A-Za-z]")
 
 
 def wordify(value):
-    return [w.lower() for w in WORDS.findall(value) if strip(w)]
+    result = [w.lower() for w in WORDS.findall(value) if strip(w)]
+    if len(result) <= 1:
+        return [value]
+    return result
 
 
 def pairwise(values):
