@@ -888,7 +888,7 @@ WORDS = re.compile(r"[A-Z][0-9a-z]+|[A-Z][0-9A-Z]+(?=$|[^a-z])|[a-z][0-9a-z]+|[0
 def wordify(value):
     result = [w.lower() for w in WORDS.findall(value) if strip(w)]
     if len(result) <= 1:
-        return [value]
+        return [value.lower()]
     return result
 
 

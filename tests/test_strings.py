@@ -65,4 +65,5 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(wordify('c:123:a'), ["c", "123", "a"])
         self.assertEqual(wordify('__int__'), ["__int__"])
         self.assertEqual(wordify(':'), [":"])
+        self.assertEqual(wordify('__ENV__'), ["__env__"])
 
