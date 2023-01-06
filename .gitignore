@@ -8,4 +8,5 @@ vendor
 *.egg-info
 build
 __pycache__
-setup.py
+./setup.py
+
