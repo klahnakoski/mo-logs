@@ -7,7 +7,7 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
+import json
 import socket
 import zlib
 
@@ -56,8 +56,8 @@ class UdpListener(object):
                 raise Log.error("unexpected problem with receive", cause=cause)
 
             try:
-                json = zlib.decompress(data)
-                value = json2value(json.decode("utf8"))
+                jsons = zlib.decompress(data)
+                value = json.loads(jsons.decode("utf8"))
                 self.queue.add(value)
             except Exception as cause:
                 Log.error("what happens here?", cause=cause)

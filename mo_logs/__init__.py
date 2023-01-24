@@ -215,6 +215,9 @@ class Log(object):
         exc_info=None,  # used by python logging as the cause
         **more_params  # any more parameters (which will overwrite default_params)
     ):
+        if exc_info is True:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_info = Except.wrap(exc_value)
         if not is_text(template):
             logger.error("logger.warning was expecting a string template")
         if "values" in more_params.keys():
@@ -265,6 +268,8 @@ class Log(object):
             logger.error("logger.error was expecting a string template")
         if "values" in more_params.keys():
             logger.error("Can not handle a logging parameter by name `values`")
+        if exc_info is True:
+            exc_info = Except.wrap(sys.exc_info())
 
         if isinstance(default_params, BaseException):
             cause = default_params
