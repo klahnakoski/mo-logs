@@ -73,6 +73,8 @@ def datetime(value):
     """
     if isinstance(value, (date, builtin_datetime)):
         pass
+    elif value.__class__.__name__ == "Date":
+        value = unix2datetime(value.unix)
     elif value < 10000000000:
         value = unix2datetime(value)
     else:
@@ -248,7 +250,7 @@ def outdent(value):
 
 
 @formatter
-def round(value, decimal=None, digits=None, places=None):
+def round(value, decimal=0, digits=None, places=None):
     """
     :param value:  THE VALUE TO ROUND
     :param decimal: NUMBER OF DECIMAL PLACES TO ROUND (NEGATIVE IS LEFT-OF-DECIMAL)
@@ -476,7 +478,7 @@ def quote(value):
     """
     if value == None:
         return ""
-    output = _json.dumps(value)
+    output = _json.dumps(str(value))
     return output
 
 
@@ -575,14 +577,7 @@ def is_hex(value):
     return all(c in string.hexdigits for c in value)
 
 
-if PY3:
-    delchars = "".join(c for c in map(chr, range(256)) if not c.isalnum())
-else:
-    delchars = "".join(
-        c.decode("latin1")
-        for c in map(chr, range(256))
-        if not c.decode("latin1").isalnum()
-    )
+delchars = "".join(c for c in map(chr, range(256)) if not c.isalnum())
 
 
 def deformat(value):
