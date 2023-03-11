@@ -12,24 +12,17 @@ from __future__ import absolute_import, division, unicode_literals
 
 import json as _json
 from datetime import date, datetime
+from datetime import timezone
 
 from mo_future import PY3
 
-if PY3:
-    from datetime import timezone
+MAX_TIME = datetime(2286, 11, 20, 17, 46, 39, 0, timezone.utc)
 
-    def utcfromtimestamp(u):
-        d = datetime.utcfromtimestamp(u)
-        d = d.replace(tzinfo=timezone.utc)
-        return d
 
-    MAX_TIME = datetime(2286, 11, 20, 17, 46, 39, 0, timezone.utc)
-else:
-
-    def utcfromtimestamp(u):
-        return datetime.utcfromtimestamp(u)
-
-    MAX_TIME = datetime(2286, 11, 20, 17, 46, 39)
+def utcfromtimestamp(u):
+    d = datetime.utcfromtimestamp(u)
+    d = d.replace(tzinfo=timezone.utc)
+    return d
 
 
 def unix2datetime(u):
@@ -92,31 +85,26 @@ def int2hex(value, size):
     return (("0" * size) + hex(value)[2:])[-size:]
 
 
-if PY3:
-    _map2url = {chr(i).encode("latin1"): chr(i) for i in range(32, 256)}
-    for c in [
-        b" ",
-        b"{",
-        b"}",
-        b"<",
-        b">",
-        b";",
-        b"/",
-        b"?",
-        b":",
-        b"@",
-        b"&",
-        b"=",
-        b"+",
-        b"$",
-        b",",
-        b"%",
-    ]:
-        _map2url[c] = "%" + int2hex(ord(c.decode("latin1")), 2)
-else:
-    _map2url = {chr(i): chr(i).decode("latin1") for i in range(32, 256)}
-    for c in b" {}<>;/?:@&=+$,%":
-        _map2url[c] = "%" + int2hex(ord(c), 2)
+_map2url = {chr(i).encode("latin1"): chr(i) for i in range(32, 256)}
+for c in [
+    b" ",
+    b"{",
+    b"}",
+    b"<",
+    b">",
+    b";",
+    b"/",
+    b"?",
+    b":",
+    b"@",
+    b"&",
+    b"=",
+    b"+",
+    b"$",
+    b",",
+    b"%",
+]:
+    _map2url[c] = "%" + int2hex(ord(c.decode("latin1")), 2)
 
 
 def value2json(value):

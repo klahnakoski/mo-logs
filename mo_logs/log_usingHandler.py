@@ -18,7 +18,7 @@ from mo_imports import delay_import
 from mo_kwargs import override
 
 from mo_logs import logger, STACKTRACE
-from mo_logs.exceptions import FATAL, ERROR, WARNING, ALARM, UNEXPECTED, INFO, NOTE
+from mo_logs.exceptions import FATAL, ERROR, WARNING, ALARM, UNEXPECTED, INFO, NOTE, format_trace
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
@@ -46,7 +46,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
             args=params.params,
             exc_info=None,
             func=params.location.method,
-            sinfo=params.trace,
+            sinfo=format_trace(params.trace) or None,
             thread=params.thread.id,
             threadName=params.thread.name,
             process=params.machine.pid,

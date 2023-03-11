@@ -11,9 +11,10 @@
 from __future__ import absolute_import, division, unicode_literals
 
 from mo_testing.fuzzytestcase import FuzzyTestCase
+from mo_times import Date
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify
+from mo_logs.strings import expand_template, wordify, round, datetime
 
 
 class TestStrings(FuzzyTestCase):
@@ -66,4 +67,18 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(wordify('__int__'), ["__int__"])
         self.assertEqual(wordify(':'), [":"])
         self.assertEqual(wordify('__ENV__'), ["__env__"])
+
+    def test_round(self):
+        self.assertEqual(round(3.14), "3")
+
+    def test_datatime(self):
+        time = Date("2022-03-12")
+        self.assertEqual(datetime(time), "2022-03-12 00:00:00")
+
+    def test_quote(self):
+        def f():
+            return 1
+
+        self.assertTrue(strings.quote(f).startswith("\"<function TestStrings.test_quote.<locals>.f at"))
+
 

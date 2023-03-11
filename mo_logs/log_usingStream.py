@@ -19,7 +19,7 @@ class StructuredLogger_usingStream(StructuredLogger):
         try:
             self.locker = allocate_lock()
             self.flush = stream.flush
-            if stream in (STDOUT, STDERR) and PY3:
+            if stream in (STDOUT, STDERR):
                 try:
                     stream = stream.buffer
                 except Exception:
