@@ -82,3 +82,6 @@ class TestStrings(FuzzyTestCase):
         self.assertTrue(strings.quote(f).startswith("\"<function TestStrings.test_quote.<locals>.f at"))
 
 
+    def test_capitalize(self):
+        result = expand_template("{{name|capitalize}}", {"name":"lahnakoski"})
+        self.assertEqual(result, "Lahnakoski")

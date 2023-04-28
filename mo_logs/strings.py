@@ -153,6 +153,16 @@ def upper(value):
 
 
 @formatter
+def capitalize(value : str):
+    """
+    convert first character of word to uppercase
+    :param value:
+    :return:
+    """
+    return value.capitalize()
+
+
+@formatter
 def lower(value):
     """
     convert to lowercase

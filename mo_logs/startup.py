@@ -53,7 +53,7 @@ def argparse(defs, complain=True):
     return to_data(output)
 
 
-def read_settings(defs=None, filename=None, default_filename=None, complain=True):
+def read_settings(*, defs=None, filename=None, default_filename=None, complain=True):
     """
     :param filename: Force load a file
     :param defs: more arguments you want to accept (see https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument)
