@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 import argparse as _argparse
 import os
 import sys

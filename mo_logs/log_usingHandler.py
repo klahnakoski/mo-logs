@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 import logging
 
 from mo_dots import from_data, dict_to_data

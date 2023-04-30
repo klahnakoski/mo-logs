@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 import base64
 from decimal import Decimal
 

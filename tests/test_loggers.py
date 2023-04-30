@@ -7,8 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 import logging
 
 from mo_future import StringIO

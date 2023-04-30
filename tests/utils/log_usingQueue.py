@@ -7,8 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 import re
 
 from mo_threads import Queue

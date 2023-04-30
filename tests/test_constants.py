@@ -7,8 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from unittest import skip
 
 from mo_testing.fuzzytestcase import FuzzyTestCase

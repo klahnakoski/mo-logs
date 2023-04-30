@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from mo_threads import Queue, THREAD_STOP, Thread, Till
 
 from mo_logs import Except, Log

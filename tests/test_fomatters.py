@@ -7,8 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from math import pi
 
 from mo_testing.fuzzytestcase import FuzzyTestCase

@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from mo_dots import Data, listwrap, literal_field
 from mo_kwargs import override
 from mo_logs import logger

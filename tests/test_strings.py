@@ -7,8 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 

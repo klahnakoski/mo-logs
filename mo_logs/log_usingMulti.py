@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from mo_logs import logger
 
 from mo_logs.exceptions import suppress_exception, Except

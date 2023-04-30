@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 import json as _json
 from datetime import date, datetime
 from datetime import timezone

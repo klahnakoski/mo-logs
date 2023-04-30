@@ -7,8 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
 from mo_future import text
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
