@@ -9,9 +9,6 @@
 #
 
 
-from __future__ import absolute_import, division, unicode_literals
-
-
 class StructuredLogger(object):
     """
     ABSTRACT BASE CLASS FOR JSON LOGGING

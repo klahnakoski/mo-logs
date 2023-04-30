@@ -9,8 +9,6 @@
 #
 
 
-from __future__ import absolute_import, division, unicode_literals
-
 import logging
 
 from mo_dots import from_data, dict_to_data
@@ -51,7 +49,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
             threadName=params.thread.name,
             process=params.machine.pid,
         )
-        record.exc_text=expand_template(template, params)
+        record.exc_text = expand_template(template, params)
         for k, v in params.params.leaves():
             setattr(record, k, v)
         self.handler.handle(record)

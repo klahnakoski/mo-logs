@@ -3,6 +3,7 @@ from time import time
 
 start = time()
 from mo_logs import logger
+
 end = time()
 
 print(f"import time = {str(round(end-start, 2))} seconds")

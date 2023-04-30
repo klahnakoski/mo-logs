@@ -8,7 +8,6 @@
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 
-from __future__ import absolute_import, division, unicode_literals
 
 import logging
 
@@ -54,11 +53,7 @@ class TestLoggers(FuzzyTestCase):
         offset = randoms.int(1000)
         with UdpListener(12200 + offset) as udp:
             log.start(
-                settings={"logs": {
-                    "class": "graypy.GELFUDPHandler",
-                    "host": "localhost",
-                    "port": 12200 + offset,
-                }},
+                settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": 12200 + offset,}},
             )
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
@@ -85,11 +80,7 @@ class TestLoggers(FuzzyTestCase):
         with UdpListener(12200 + offset) as udp:
             log.start(
                 settings={
-                    "logs": {
-                        "class": "graypy.GELFUDPHandler",
-                        "host": "localhost",
-                        "port": 12200 + offset,
-                    },
+                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": 12200 + offset,},
                     "extra": {"some_name": {"v": "some_value"}},
                 },
             )
@@ -105,11 +96,7 @@ class TestLoggers(FuzzyTestCase):
         offset = randoms.int(1000)
         with UdpListener(12200 + offset) as udp:
             log.start(
-                settings={"logs": {
-                    "class": "graypy.GELFUDPHandler",
-                    "host": "localhost",
-                    "port": 12200 + offset,
-                }},
+                settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": 12200 + offset,}},
             )
             log.warning("testing {{value}}", value="test")
             message = udp.queue.pop()

@@ -8,7 +8,6 @@
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 
-from __future__ import absolute_import, division, unicode_literals
 
 import json as _json
 import math
@@ -153,7 +152,7 @@ def upper(value):
 
 
 @formatter
-def capitalize(value : str):
+def capitalize(value: str):
     """
     convert first character of word to uppercase
     :param value:
@@ -235,9 +234,7 @@ def indent(value, prefix="\t", indent=None):
         lines = content.splitlines()
         return prefix + (CR + prefix).join(lines) + suffix
     except Exception as e:
-        raise Exception(
-            "Problem with indent of value (" + e.message + ")\n" + text(toString(value))
-        )
+        raise Exception("Problem with indent of value (" + e.message + ")\n" + text(toString(value)))
 
 
 @formatter
@@ -399,9 +396,7 @@ def between(value, prefix=None, suffix=None, start=0):
         if e == -1:
             return None
 
-    s = value.rfind(
-        prefix, start, e
-    ) + len(prefix)  # WE KNOW THIS EXISTS, BUT THERE MAY BE A RIGHT-MORE ONE
+    s = value.rfind(prefix, start, e) + len(prefix)  # WE KNOW THIS EXISTS, BUT THERE MAY BE A RIGHT-MORE ONE
 
     return value[s:e]
 
@@ -672,9 +667,7 @@ def _simple_expand(template, seq):
                     return val
             except Exception as f:
                 Log.warning(
-                    "Can not expand "
-                    + "|".join(ops)
-                    + " in template: {{template_|json}}",
+                    "Can not expand " + "|".join(ops) + " in template: {{template_|json}}",
                     template_=template,
                     cause=cause,
                 )
@@ -708,16 +701,12 @@ def toString(val):
         try:
             return val.decode("latin1")
         except Exception as e:
-            Log.error(
-                text(type(val)) + " type can not be converted to unicode", cause=e
-            )
+            Log.error(text(type(val)) + " type can not be converted to unicode", cause=e)
     else:
         try:
             return text(val)
         except Exception as e:
-            Log.error(
-                text(type(val)) + " type can not be converted to unicode", cause=e
-            )
+            Log.error(text(type(val)) + " type can not be converted to unicode", cause=e)
 
 
 def edit_distance(s1, s2):
@@ -778,31 +767,18 @@ def apply_diff(text, diff, reverse=False, verify=True):
     hunks = [
         (new_diff[start_hunk], new_diff[start_hunk + 1 : end_hunk])
         for new_diff in [
-            [
-                d.lstrip()
-                for d in diff
-                if d.lstrip() and d != "\\ No newline at end of file"
-            ]
-            + ["@@"]
+            [d.lstrip() for d in diff if d.lstrip() and d != "\\ No newline at end of file"] + ["@@"]
         ]  # ANOTHER REPAIR
-        for start_hunk, end_hunk in pairwise(
-            i for i, l in enumerate(new_diff) if l.startswith("@@")
-        )
+        for start_hunk, end_hunk in pairwise(i for i, l in enumerate(new_diff) if l.startswith("@@"))
     ]
     for header, hunk_body in reversed(hunks) if reverse else hunks:
         matches = DIFF_PREFIX.match(header.strip())
         if not matches:
             Log.error("Can not handle \n---\n{{diff}}\n---\n", diff=diff)
 
-        removes = tuple(
-            int(i.strip()) for i in matches.group(1).split(",")
-        )  # EXPECTING start_line, length TO REMOVE
-        remove = Data(
-            start=removes[0], length=1 if len(removes) == 1 else removes[1]
-        )  # ASSUME FIRST LINE
-        adds = tuple(
-            int(i.strip()) for i in matches.group(2).split(",")
-        )  # EXPECTING start_line, length TO ADD
+        removes = tuple(int(i.strip()) for i in matches.group(1).split(","))  # EXPECTING start_line, length TO REMOVE
+        remove = Data(start=removes[0], length=1 if len(removes) == 1 else removes[1])  # ASSUME FIRST LINE
+        adds = tuple(int(i.strip()) for i in matches.group(2).split(","))  # EXPECTING start_line, length TO ADD
         add = Data(start=adds[0], length=1 if len(adds) == 1 else adds[1])
 
         if add.length == 0 and add.start == 0:
@@ -814,19 +790,13 @@ def apply_diff(text, diff, reverse=False, verify=True):
             # EXAMPLE: -kward has the details.+kward has the details.
             # DETECT THIS PROBLEM FOR THIS HUNK AND FIX THE DIFF
             if reverse:
-                last_lines = [
-                    o
-                    for b, o in zip(reversed(hunk_body), reversed(output))
-                    if b != "+" + o
-                ]
+                last_lines = [o for b, o in zip(reversed(hunk_body), reversed(output)) if b != "+" + o]
                 if not last_lines:
                     return hunk_body
 
                 last_line = last_lines[0]
                 for problem_index, problem_line in enumerate(hunk_body):
-                    if problem_line.startswith("-") and problem_line.endswith(
-                        "+" + last_line
-                    ):
+                    if problem_line.startswith("-") and problem_line.endswith("+" + last_line):
                         split_point = len(problem_line) - (len(last_line) + 1)
                         break
                     elif problem_line.startswith("+" + last_line + "-"):
@@ -839,9 +809,7 @@ def apply_diff(text, diff, reverse=False, verify=True):
                     return hunk_body
                 last_line = output[-1]
                 for problem_index, problem_line in enumerate(hunk_body):
-                    if problem_line.startswith("+") and problem_line.endswith(
-                        "-" + last_line
-                    ):
+                    if problem_line.startswith("+") and problem_line.endswith("-" + last_line):
                         split_point = len(problem_line) - (len(last_line) + 1)
                         break
                     elif problem_line.startswith("-" + last_line + "+"):

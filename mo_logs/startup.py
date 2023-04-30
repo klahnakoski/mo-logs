@@ -8,7 +8,6 @@
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 
-from __future__ import absolute_import, division, unicode_literals
 
 import argparse as _argparse
 import os
@@ -76,18 +75,14 @@ def read_settings(*, defs=None, filename=None, default_filename=None, complain=T
     args = argparse(defs, complain)
 
     args.filename = coalesce(
-        filename,
-        args.filename if args.filename.endswith(".json") else None,
-        default_filename,
-        "./config.json",
+        filename, args.filename if args.filename.endswith(".json") else None, default_filename, "./config.json",
     )
     settings_file = File(args.filename)
     if settings_file.exists:
         logger.info("Using {{filename}} for configuration", filename=settings_file.abs_path)
     else:
         logger.error(
-            "Can not read configuration file {{filename}}",
-            filename=settings_file.abs_path,
+            "Can not read configuration file {{filename}}", filename=settings_file.abs_path,
         )
 
     settings = mo_json_config.get_file(settings_file)
@@ -118,9 +113,9 @@ class SingleInstance:
     def __init__(self, flavor_id=""):
         self.initialized = False
         appname = os.path.splitext(os.path.abs_path(sys.argv[0]))[0]
-        basename = ((appname + "-%s") % flavor_id).replace("/", "-").replace(
-            ":", ""
-        ).replace("\\", "-").replace("-.-", "-") + ".lock"
+        basename = ((appname + "-%s") % flavor_id).replace("/", "-").replace(":", "").replace("\\", "-").replace(
+            "-.-", "-"
+        ) + ".lock"
         self.lockfile = os.path.normpath(tempfile.gettempdir() + "/" + basename)
 
     def __enter__(self):

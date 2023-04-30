@@ -9,8 +9,6 @@
 #
 
 
-from __future__ import absolute_import, division, unicode_literals
-
 import time
 
 from mo_future import allocate_lock
@@ -38,8 +36,6 @@ class StructuredLogger_usingFile(StructuredLogger):
                 self.file.append(expand_template(template, params))
         except Exception as e:
             logger.warning(
-                "Problem writing to file {{file}}, waiting...",
-                file=self.file.name,
-                cause=e,
+                "Problem writing to file {{file}}, waiting...", file=self.file.name, cause=e,
             )
             time.sleep(5)
