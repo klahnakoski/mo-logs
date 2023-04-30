@@ -7,6 +7,7 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
+import json
 import logging
 
 from mo_dots import from_data, dict_to_data
@@ -19,6 +20,7 @@ from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
 Log = delay_import("mo_logs.Log")
+NO_ARGS = tuple()
 
 
 # WRAP PYTHON CLASSIC logger OBJECTS
@@ -39,7 +41,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
             pathname=params.location.file,
             lineno=params.location.line,
             msg=expand_template(template.replace(STACKTRACE, ""), params),
-            args=params.params,
+            args=NO_ARGS,
             exc_info=None,
             func=params.location.method,
             sinfo=format_trace(params.trace) or None,
