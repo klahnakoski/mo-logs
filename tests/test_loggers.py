@@ -9,6 +9,7 @@
 #
 import logging
 
+from mo_dots import Data
 from mo_future import StringIO
 from mo_kwargs import override
 
@@ -19,6 +20,8 @@ from mo_threads import Till
 
 from mo_logs import logger as log, register_logger
 from tests.utils.udp_listener import UdpListener
+
+UDP_PORT_RANGE = Data(FROM=12200, LENGTH=4000)
 
 
 class TestLoggers(FuzzyTestCase):
@@ -48,11 +51,9 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual(logs[-len(expected) :], expected)
 
     def test_graylogger(self):
-        offset = randoms.int(1000)
-        with UdpListener(12200 + offset) as udp:
-            log.start(
-                settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": 12200 + offset,}},
-            )
+        port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
+        with UdpListener(port) as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port}},)
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -67,35 +68,32 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 58,
+                "line": 57,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
             },
         )
         self.assertIsNone(message["_stack_info"])
 
     def test_extras(self):
-        offset = randoms.int(1000)
-        with UdpListener(12200 + offset) as udp:
+        port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
+        with UdpListener(port) as udp:
             log.start(
                 settings={
-                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": 12200 + offset,},
+                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,},
                     "extra": {"some_name": {"v": "some_value"}},
                 },
             )
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
-        self.assertEqual(
-            message, {"_some_name.v": "some_value"},
-        )
+        self.assertIsInstance(message, dict)
+        self.assertEqual(message, {"_some_name.v": "some_value"})
         self.assertTrue(message["file"].endswith("test_loggers.py"))
 
     def test_graylogger_exception(self):
-        offset = randoms.int(1000)
-        with UdpListener(12200 + offset) as udp:
-            log.start(
-                settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": 12200 + offset,}},
-            )
+        port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
+        with UdpListener(port) as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
             log.warning("testing {{value}}", value="test")
             message = udp.queue.pop()
 
