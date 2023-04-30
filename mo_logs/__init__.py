@@ -142,7 +142,7 @@ class Log(object):
             old_log.stop()
 
     @classmethod
-    def note(cls, template, default_params={}, stack_depth=0, **more_params):
+    def note(cls, template, default_params={}, *, stack_depth=0, **more_params):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -167,7 +167,7 @@ class Log(object):
     info = note
 
     @classmethod
-    def alarm(cls, template, default_params={}, stack_depth=0, **more_params):
+    def alarm(cls, template, default_params={}, *, stack_depth=0, **more_params):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -194,6 +194,7 @@ class Log(object):
         cls,
         template: str,  # human readable string with placeholders for parameters
         default_params={},  # parameters to fill in template
+        *,
         cause=None,  # for chaining
         stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
         log_severity=WARNING,  # set the logging severity
@@ -226,6 +227,7 @@ class Log(object):
         cls,
         template,  # human readable template
         default_params={},  # parameters for template
+        *,
         cause=None,  # pausible cause
         stack_depth=0,
         exc_info=None,  # used by python logging as the cause
