@@ -11,7 +11,6 @@ import json
 import socket
 import zlib
 
-from mo_json import json2value
 from mo_math import randoms
 
 from mo_logs import Log
@@ -46,19 +45,22 @@ class UdpListener(object):
 
     def _worker(self, please_stop):
         acc = {}
-        while not please_stop:
-            try:
-                self.sock.settimeout(10)
-                data, origin = self.sock.recvfrom(1024)
-            except Exception as cause:
-                if please_stop:
-                    break
-                raise Log.error("unexpected problem with receive", cause=cause)
+        try:
+            while not please_stop:
+                try:
+                    self.sock.settimeout(10)
+                    data, origin = self.sock.recvfrom(1024)
+                except Exception as cause:
+                    if please_stop:
+                        break
+                    raise Log.error("unexpected problem with receive", cause=cause)
 
-            try:
-                jsons = zlib.decompress(data)
-                value = json.loads(jsons.decode("utf8"))
-                self.queue.add(value)
-            except Exception as cause:
-                Log.error("what happens here?", cause=cause)
-                acc[origin] = acc.setdefault(origin, b"") + data
+                try:
+                    jsons = zlib.decompress(data)
+                    value = json.loads(jsons.decode("utf8"))
+                    self.queue.add(value)
+                except Exception as cause:
+                    Log.error("what happens here?", cause=cause)
+                    acc[origin] = acc.setdefault(origin, b"") + data
+        finally:
+            self.queue.close()

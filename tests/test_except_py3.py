@@ -7,9 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-from __future__ import unicode_literals
-
 from mo_future import text
 from mo_testing.fuzzytestcase import FuzzyTestCase
 
@@ -25,10 +22,7 @@ class TestExcept(FuzzyTestCase):
         try:
             try:
                 exec(
-                    "try:\n"
-                    "    print(1/0)\n"
-                    "except Exception as e:\n"
-                    '    raise Exception("test") from e',
+                    'try:\n    print(1/0)\nexcept Exception as e:\n    raise Exception("test") from e',
                     globals(),
                     locals(),
                 )
@@ -36,6 +30,4 @@ class TestExcept(FuzzyTestCase):
                 logger.error("expected", cause=f)
         except Exception as g:
             self.assertIn("division by zero", g)
-            self.assertEqual(
-                g.cause.cause.message, text("ZeroDivisionError: division by zero")
-            )
+            self.assertEqual(g.cause.cause.message, text("ZeroDivisionError: division by zero"))

@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-from __future__ import absolute_import, division, unicode_literals
-
 import base64
 from decimal import Decimal
 
@@ -41,26 +39,18 @@ class StructuredLogger_usingMozLog(StructuredLogger):
         if not app_name:
             logger.error("mozlog expects an `app_name` in the config")
         if not logger.trace:
-            logger.error(
-                "mozlog expects trace=True so it gets the information it requires"
-            )
+            logger.error("mozlog expects trace=True so it gets the information it requires")
 
     def write(self, template, params):
         output = {
-            "Timestamp": (
-                Decimal(datetime2unix(params.timestamp)) * Decimal(1e9)
-            ).to_integral_exact(),  # NANOSECONDS
+            "Timestamp": (Decimal(datetime2unix(params.timestamp)) * Decimal(1e9)).to_integral_exact(),  # NANOSECONDS
             "Type": params.template,
             "Logger": params.machine.name,
             "Hostname": self.app_name,
             "EnvVersion": "2.0",
-            "Severity": severity_map.get(
-                params.severity, 3
-            ),  # https://en.wikipedia.org/wiki/Syslog#Severity_levels
+            "Severity": severity_map.get(params.severity, 3),  # https://en.wikipedia.org/wiki/Syslog#Severity_levels
             "Pid": params.machine.pid,
-            "Fields": {
-                k: strings.limit(_json_to_string(v), LOG_STRING_LENGTH) for k, v in to_data(params).leaves()
-            },
+            "Fields": {k: strings.limit(_json_to_string(v), LOG_STRING_LENGTH) for k, v in to_data(params).leaves()},
         }
         self.stream.write(value2json(output).encode("utf8"))
         self.stream.write(b"\n")

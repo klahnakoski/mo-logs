@@ -29,9 +29,7 @@ def set(constants):
         if len(k_path) < 2:
             from mo_logs import logger
 
-            logger.error(
-                "expecting <module>.<constant> format, not {{path|quote}}", path=k_path
-            )
+            logger.error("expecting <module>.<constant> format, not {{path|quote}}", path=k_path)
         name = k_path[-1]
         try:
             mo_dots_set_attr(sys.modules, k_path, new_value)
@@ -57,8 +55,7 @@ def set(constants):
                 from mo_logs import logger
 
                 logger.info(
-                    "Changed {{module}}[{{attribute}}] from {{old_value}} to"
-                    " {{new_value}}",
+                    "Changed {{module}}[{{attribute}}] from {{old_value}} to {{new_value}}",
                     module=caller_module,
                     attribute=name,
                     old_value=old_value,

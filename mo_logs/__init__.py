@@ -7,8 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-from __future__ import absolute_import, division, unicode_literals
-
 import os
 import sys
 from datetime import datetime
@@ -31,12 +29,8 @@ from mo_logs.strings import CR, indent
 
 STACKTRACE = "\n{{trace_text|indent}}\n{{cause_text}}"
 
-StructuredLogger_usingMulti = delay_import(
-    "mo_logs.log_usingMulti.StructuredLogger_usingMulti"
-)
-StructuredLogger_usingThread = delay_import(
-    "mo_logs.log_usingThread.StructuredLogger_usingThread"
-)
+StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
+StructuredLogger_usingThread = delay_import("mo_logs.log_usingThread.StructuredLogger_usingThread")
 
 _Thread = delay_import("mo_threads.Thread")
 startup_read_settings = delay_import("mo_logs.startup.read_settings")
@@ -57,14 +51,7 @@ class Log(object):
     @classmethod
     @override("settings")
     def start(
-        cls,
-        trace=False,
-        cprofile=False,
-        constants=None,
-        logs=None,
-        extra=None,
-        app_name=None,
-        settings=None,
+        cls, trace=False, cprofile=False, constants=None, logs=None, extra=None, app_name=None, settings=None,
     ):
         """
         RUN ME FIRST TO SETUP THE THREADED LOGGING
@@ -189,9 +176,7 @@ class Log(object):
         :return:
         """
         timestamp = datetime.utcnow()
-        template = (
-            ("*" * 80) + CR + indent(template, prefix="** ").strip() + CR + ("*" * 80)
-        )
+        template = ("*" * 80) + CR + indent(template, prefix="** ").strip() + CR + ("*" * 80)
         Log._annotate(
             LogItem(
                 severity=exceptions.ALARM,
@@ -231,13 +216,7 @@ class Log(object):
         cause = unwraplist([Except.wrap(c, stack_depth=2) for c in listwrap(cause or exc_info)])
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
-        e = Except(
-            severity=log_severity,
-            template=template,
-            params=params,
-            cause=cause,
-            trace=trace,
-        )
+        e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace,)
         Log._annotate(e, stack_depth + 1)
 
     warn = warning
@@ -279,13 +258,7 @@ class Log(object):
         cause = unwraplist([Except.wrap(c, stack_depth=2) for c in listwrap(cause or exc_info)])
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
-        e = Except(
-            severity=exceptions.ERROR,
-            template=template,
-            params=params,
-            cause=cause,
-            trace=trace,
-        )
+        e = Except(severity=exceptions.ERROR, template=template, params=params, cause=cause, trace=trace,)
         raise_from_none(e)
 
     @classmethod
@@ -361,9 +334,7 @@ class LoggingContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
             logger.warning(
-                "Problem with {{name}}! Shutting down.",
-                name=self.app_name,
-                cause=exc_val,
+                "Problem with {{name}}! Shutting down.", name=self.app_name, cause=exc_val,
             )
         Log.stop()
 
@@ -420,9 +391,7 @@ def _using_console(config):
 def _using_mozlog(config):
     from mo_logs.log_usingMozLog import StructuredLogger_usingMozLog
 
-    return StructuredLogger_usingMozLog(
-        STDOUT, coalesce(config.app_name, config.appname)
-    )
+    return StructuredLogger_usingMozLog(STDOUT, coalesce(config.app_name, config.appname))
 
 
 def _using_stream(config):
@@ -432,9 +401,7 @@ def _using_stream(config):
 
 
 def _using_elasticsearch(config):
-    from jx_elasticsearch.log_usingElasticSearch import (
-        StructuredLogger_usingElasticSearch,
-    )
+    from jx_elasticsearch.log_usingElasticSearch import StructuredLogger_usingElasticSearch
 
     return StructuredLogger_usingElasticSearch(config)
 

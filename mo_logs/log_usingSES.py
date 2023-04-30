@@ -7,10 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
-from __future__ import absolute_import, division, unicode_literals
-
 from boto.ses import connect_to_region
 
 from mo_dots import Data, listwrap, literal_field, from_data
@@ -103,9 +99,7 @@ class StructuredLogger_usingSES(StructuredLogger):
         except Exception as e:
             logger.warning("Could not send", e)
         finally:
-            self.next_send = Date.now() + self.settings.average_interval * (
-                2 * randoms.float()
-            )
+            self.next_send = Date.now() + self.settings.average_interval * (2 * randoms.float())
 
 
 class Emailer(object):

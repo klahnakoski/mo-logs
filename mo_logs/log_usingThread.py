@@ -7,10 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
-from __future__ import absolute_import, division, unicode_literals
-
 from mo_threads import Queue, THREAD_STOP, Thread, Till
 
 from mo_logs import Except, Log
@@ -26,15 +22,8 @@ class StructuredLogger_usingThread(StructuredLogger):
             logger.error("Expecting a StructuredLogger")
 
         self.logger = logger
-        self.queue = Queue(
-            "Queue for " + self.__class__.__name__,
-            max=10000,
-            silent=True,
-            allow_add_after_close=True,
-        )
-        self.thread = Thread(
-            "Thread for " + self.__class__.__name__, worker, logger, self.queue, period
-        )
+        self.queue = Queue("Queue for " + self.__class__.__name__, max=10000, silent=True, allow_add_after_close=True,)
+        self.thread = Thread("Thread for " + self.__class__.__name__, worker, logger, self.queue, period)
         # worker WILL BE RESPONSIBLE FOR THREAD stop()
         self.thread.parent.remove_child(self.thread)
         self.thread.start()
@@ -78,8 +67,7 @@ def worker(logger: StructuredLogger, queue, period, please_stop):
         logger.stop()
     except Exception as e:
         import sys
+
         e = Except.wrap(e)
 
-        sys.stderr.write(
-            "problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e)
-        )
+        sys.stderr.write("problem in " + StructuredLogger_usingThread.__name__ + ": " + str(e))

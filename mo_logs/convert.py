@@ -7,14 +7,9 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-from __future__ import absolute_import, division, unicode_literals
-
 import json as _json
 from datetime import date, datetime
 from datetime import timezone
-
-from mo_future import PY3
 
 MAX_TIME = datetime(2286, 11, 20, 17, 46, 39, 0, timezone.utc)
 
@@ -51,10 +46,7 @@ def datetime2string(value, format="%Y-%m-%d %H:%M:%S"):
         from mo_logs import logger
 
         logger.error(
-            "Can not format {{value}} with {{format}}",
-            value=value,
-            format=format,
-            cause=e,
+            "Can not format {{value}} with {{format}}", value=value, format=format, cause=e,
         )
 
 
@@ -69,9 +61,7 @@ def datetime2unix(d):
         else:
             from mo_logs import logger
 
-            raise logger.error(
-                "Can not convert {{value}} of type {{type}}", value=d, type=d.__class__
-            )
+            raise logger.error("Can not convert {{value}} of type {{type}}", value=d, type=d.__class__)
 
         diff = d - epoch
         return float(diff.total_seconds())

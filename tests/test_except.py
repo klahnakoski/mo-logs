@@ -7,9 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-from __future__ import unicode_literals
-
 import logging
 import sys
 import unittest
@@ -181,9 +178,7 @@ class TestExcept(FuzzyTestCase):
             self.assertEqual(logger.main_log.pop(), WARNING + ": " + AC + CAUSE)
 
             logger.warning("test: {{a.c}}: {{b.c}}", a=a, b=b, cause=e)
-            self.assertEqual(
-                logger.main_log.pop(), WARNING + ": " + AC + ": " + BC + CAUSE
-            )
+            self.assertEqual(logger.main_log.pop(), WARNING + ": " + AC + ": " + BC + CAUSE)
         finally:
             logger.main_log = backup_log
 
@@ -263,10 +258,7 @@ class TestExcept(FuzzyTestCase):
                     if record:
                         pass
                     if "this is a problem" not in e.args:
-                        logger.error(
-                            "We expect Python to, at least, report the first order"
-                            " problem"
-                        )
+                        logger.error("We expect Python to, at least, report the first order problem")
                     if "this is the root cause" in e.args:
                         logger.error("We do not expect Python to report exception chains")
 
@@ -318,9 +310,7 @@ class TestExcept(FuzzyTestCase):
             oh_no()
             self.assertTrue(False, "should not happen")
         except Exception as e:
-            self.assertIn(
-                "recursive", e, "expecting the recursive loop to be identified"
-            )
+            self.assertIn("recursive", e, "expecting the recursive loop to be identified")
 
     @skip("this is too complicated for now")
     def test_deep_recursive_loop(self):
@@ -340,9 +330,7 @@ class TestExcept(FuzzyTestCase):
             oh_no()
             self.assertTrue(False, "should not happen")
         except Exception as cause:
-            self.assertIn(
-                "recursive", cause, "expecting the recursive loop to be identified"
-            )
+            self.assertIn("recursive", cause, "expecting the recursive loop to be identified")
 
     def test_locals_in_stack_trace(self):
         try:

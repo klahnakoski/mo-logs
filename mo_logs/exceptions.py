@@ -7,10 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
-from __future__ import absolute_import, division, unicode_literals
-
 import sys
 from datetime import datetime
 
@@ -30,7 +26,6 @@ NOTE = "NOTE"
 
 
 class LogItem(object):
-
     def __init__(self, severity, template, params, timestamp):
         self.severity = severity
         self.template = template
@@ -42,10 +37,7 @@ class LogItem(object):
 
 
 class Except(Exception):
-
-    def __init__(
-        self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_
-    ):
+    def __init__(self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
         self.timestamp = datetime.utcnow()
         if severity == None:
             raise ValueError("expecting severity to not be None")
@@ -85,22 +77,14 @@ class Except(Exception):
             message = getattr(e, "message", None)
             if message:
                 output = Except(
-                    severity=ERROR,
-                    template=e.__class__.__name__ + ": " + text(message),
-                    trace=trace,
-                    cause=cause,
+                    severity=ERROR, template=e.__class__.__name__ + ": " + text(message), trace=trace, cause=cause,
                 )
             else:
                 output = Except(
-                    severity=ERROR,
-                    template=e.__class__.__name__ + ": " + text(e),
-                    trace=trace,
-                    cause=cause,
+                    severity=ERROR, template=e.__class__.__name__ + ": " + text(e), trace=trace, cause=cause,
                 )
 
-            trace = get_stacktrace(
-                stack_depth + 2
-            )  # +2 = to remove the caller, and it's call to this' Except.wrap()
+            trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
             output.trace.extend(trace)
             return output
 
@@ -215,10 +199,7 @@ def _parse_traceback(tb):
 
 
 def format_trace(tbs, start=0):
-    return "".join(
-        expand_template('File "{{file}}", line {{line}}, in {{method}}\n', d)
-        for d in tbs[start::]
-    )
+    return "".join(expand_template('File "{{file}}", line {{line}}, in {{method}}\n', d) for d in tbs[start::])
 
 
 class Suppress(object):
@@ -263,10 +244,7 @@ class Explanation(object):
             from mo_logs import logger
 
             logger.error(
-                template="Failure in " + self.template,
-                default_params=self.more_params,
-                cause=exc_val,
-                stack_depth=1,
+                template="Failure in " + self.template, default_params=self.more_params, cause=exc_val, stack_depth=1,
             )
 
             return True

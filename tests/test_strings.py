@@ -7,9 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-from __future__ import absolute_import, division, unicode_literals
-
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 
@@ -26,9 +23,7 @@ class TestStrings(FuzzyTestCase):
         some_list = [10, 11, 14, 80]
         details = {"person": {"name": "Kyle Lahnakoski", "age": 40}}
 
-        result = expand_template(
-            "it is currently {{now|datetime}}", {"now": 1420119241000}
-        )
+        result = expand_template("it is currently {{now|datetime}}", {"now": 1420119241000})
         self.assertEqual(result, "it is currently 2015-01-01 13:34:01")
 
         result = expand_template("Total: {{total|right_align(20)}}", {"total": total})
@@ -62,11 +57,11 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(wordify("another.test"), ["another", "test"])
         self.assertEqual(wordify("also-a_test999"), ["also", "a", "test999"])
         self.assertEqual(wordify("BIG_WORDS"), ["big", "words"])
-        self.assertEqual(wordify('ALSO_A_TEST999'), ["also", "a", "test999"])
-        self.assertEqual(wordify('c:123:a'), ["c", "123", "a"])
-        self.assertEqual(wordify('__int__'), ["__int__"])
-        self.assertEqual(wordify(':'), [":"])
-        self.assertEqual(wordify('__ENV__'), ["__env__"])
+        self.assertEqual(wordify("ALSO_A_TEST999"), ["also", "a", "test999"])
+        self.assertEqual(wordify("c:123:a"), ["c", "123", "a"])
+        self.assertEqual(wordify("__int__"), ["__int__"])
+        self.assertEqual(wordify(":"), [":"])
+        self.assertEqual(wordify("__ENV__"), ["__env__"])
 
     def test_round(self):
         self.assertEqual(round(3.14), "3")
@@ -79,9 +74,8 @@ class TestStrings(FuzzyTestCase):
         def f():
             return 1
 
-        self.assertTrue(strings.quote(f).startswith("\"<function TestStrings.test_quote.<locals>.f at"))
-
+        self.assertTrue(strings.quote(f).startswith('"<function TestStrings.test_quote.<locals>.f at'))
 
     def test_capitalize(self):
-        result = expand_template("{{name|capitalize}}", {"name":"lahnakoski"})
+        result = expand_template("{{name|capitalize}}", {"name": "lahnakoski"})
         self.assertEqual(result, "Lahnakoski")

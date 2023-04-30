@@ -7,9 +7,6 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-from __future__ import unicode_literals
-
 from math import pi
 
 from mo_testing.fuzzytestcase import FuzzyTestCase

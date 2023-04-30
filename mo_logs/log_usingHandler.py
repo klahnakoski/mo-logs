@@ -7,10 +7,7 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-
-
-from __future__ import absolute_import, division, unicode_literals
-
+import json
 import logging
 
 from mo_dots import from_data, dict_to_data
@@ -23,6 +20,7 @@ from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 
 Log = delay_import("mo_logs.Log")
+NO_ARGS = tuple()
 
 
 # WRAP PYTHON CLASSIC logger OBJECTS
@@ -43,7 +41,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
             pathname=params.location.file,
             lineno=params.location.line,
             msg=expand_template(template.replace(STACKTRACE, ""), params),
-            args=params.params,
+            args=NO_ARGS,
             exc_info=None,
             func=params.location.method,
             sinfo=format_trace(params.trace) or None,
@@ -51,7 +49,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
             threadName=params.thread.name,
             process=params.machine.pid,
         )
-        record.exc_text=expand_template(template, params)
+        record.exc_text = expand_template(template, params)
         for k, v in params.params.leaves():
             setattr(record, k, v)
         self.handler.handle(record)
@@ -76,8 +74,8 @@ def make_handler_from_settings(settings):
     try:
         temp = __import__(path, globals(), locals(), [class_name], 0)
         constructor = object.__getattribute__(temp, class_name)
-    except Exception as e:
-        logger.error("Can not find class {{class}}", {"class": path}, cause=e)
+    except Exception as cause:
+        logger.error("Can not find class {{class}}", {"class": path}, cause=cause)
 
     # IF WE NEED A FILE, MAKE SURE DIRECTORY EXISTS
     if settings.filename != None:
