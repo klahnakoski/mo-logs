@@ -69,7 +69,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 63,
+                "line": 58,
                 "version": "1.0",
             },
         )
