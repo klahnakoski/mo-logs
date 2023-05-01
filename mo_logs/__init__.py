@@ -194,8 +194,8 @@ class Log(object):
         cls,
         template: str,  # human readable string with placeholders for parameters
         default_params={},  # parameters to fill in template
-        *,
         cause=None,  # for chaining
+        *,
         stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
         log_severity=WARNING,  # set the logging severity
         exc_info=None,  # used by python logging as the cause
