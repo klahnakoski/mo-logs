@@ -45,7 +45,7 @@ what, where and when of every call.
 
 If you have existing logger code, you may change your import statement, replace `import logging` with `import mo_logs as logging`
 
-Since `mo-logs` tracks calling context, you may simply import the smae logger everywhere 
+Since `mo-logs` tracks calling context, you may simply import the same logger everywhere 
 
 
 ```python
