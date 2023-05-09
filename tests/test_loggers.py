@@ -61,6 +61,8 @@ class TestLoggers(FuzzyTestCase):
         self.assertTrue(message["short_message"].endswith("testing test"))
         self.assertTrue(message["full_message"].endswith("testing test"))
         self.assertTrue(message["file"].endswith("test_loggers.py"))
+
+        print(message)
         self.assertEqual(
             message,
             {
@@ -71,6 +73,33 @@ class TestLoggers(FuzzyTestCase):
                 "level": 6,
                 "line": 58,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
+                "_thread_name": "Main Thread",
+            },
+        )
+        self.assertIsNone(message["_stack_info"])
+
+    def test_graylogger_for_debugging(self):
+        port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
+        with UdpListener(port) as udp:
+            log.main_log = log.new_instance({"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port})
+            log.note("testing {{value}}", value="test")
+            message = udp.queue.pop()
+
+        self.assertTrue(message["short_message"].endswith("testing test"))
+        self.assertTrue(message["full_message"].endswith("testing test"))
+        self.assertTrue(message["file"].endswith("test_loggers.py"))
+
+        print(message)
+        self.assertEqual(
+            message,
+            {
+                "_value": "test",
+                "_function": "test_graylogger_for_debugging",
+                "_process_name": "MainProcess",
+                "facility": "mo-logs",
+                "level": 6,
+                "version": "1.0",
+                "_thread_name": "Main Thread",
             },
         )
         self.assertIsNone(message["_stack_info"])
