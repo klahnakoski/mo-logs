@@ -45,10 +45,11 @@ class StructuredLogger_usingHandler(StructuredLogger):
             exc_info=None,
             func=params.location.method,
             sinfo=format_trace(params.trace) or None,
-            thread=params.thread.id,
-            threadName=params.thread.name,
-            process=params.machine.pid,
         )
+        record.thread = params.thread.id
+        record.threadName = params.thread.name
+        record.process = params.machine.pid
+
         record.exc_text = expand_template(template, params)
         for k, v in params.params.leaves():
             setattr(record, k, v)

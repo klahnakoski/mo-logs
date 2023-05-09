@@ -18,7 +18,8 @@ from mo_threads import Queue, Thread, Till
 
 
 class UdpListener(object):
-    def __init__(self, port):
+    def \
+            __init__(self, port):
         self.port = port
         self.sock = None
         self.queue = None
