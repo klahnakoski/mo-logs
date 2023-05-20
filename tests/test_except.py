@@ -16,6 +16,7 @@ from unittest import skip
 from mo_dots import listwrap, wrap, Data, to_data
 from mo_dots.objects import DataObject
 from mo_json import value2json
+from mo_logs.exceptions import ERROR, TOO_DEEP
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
@@ -345,6 +346,17 @@ class TestExcept(FuzzyTestCase):
         except Exception as cause:
             self.assertEqual(cause.message, "problem")
             self.assertIsNone(cause.cause)
+
+    def test_cause_depth_too_deep(self):
+        cause = Except(ERROR, "not shown")
+        for i in range(TOO_DEEP):
+            cause = Except(ERROR, "error", cause=cause)
+        text = str(cause)
+        self.assertIn("not shown", text)
+
+        cause = Except(ERROR, "error", cause=cause)
+        text = str(cause)
+        self.assertNotIn("not shown", text)
 
 
 def problem_a():

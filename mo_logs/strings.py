@@ -911,6 +911,7 @@ def parse_template(template):
         result.append(text)
         code, template = parse_code(code)
         if code.startswith("{{") and code.endswith("}}"):
+            # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
             result.append(code[2:-2])
         else:
             result.append(code[1:-1])
