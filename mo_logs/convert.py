@@ -30,7 +30,7 @@ def unix2datetime(u):
     except Exception as e:
         from mo_logs import logger
 
-        logger.error("Can not convert {{value}} to datetime", value=u, cause=e)
+        logger.error("Can not convert {value} to datetime", value=u, cause=e)
 
 
 def milli2datetime(u):

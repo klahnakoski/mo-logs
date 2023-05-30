@@ -82,32 +82,32 @@ class TestStrings(FuzzyTestCase):
 
     def test_parse1(self):
         result = parse_template("{{name|capitalize}}")
-        expected = ["", "name|capitalize"]
+        expected = [("", "name|capitalize")]
         self.assertEqual(result, expected)
 
     def test_parse2(self):
         result = parse_template("{{name|capitalize}} {{age}}")
-        expected = ["", "name|capitalize", " ", "age"]
+        expected = [("", "name|capitalize"), (" ", "age")]
         self.assertEqual(result, expected)
 
     def test_parse3(self):
         result = parse_template("this is a test of {name}")
-        expected = ["this is a test of ", "name"]
+        expected = [("this is a test of ", "name")]
         self.assertEqual(result, expected)
 
     def test_parse4(self):
         result = parse_template("this is a test of {name|capitalize(\"some value\", lambda x: {'x': x})}")
-        expected = ["this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})']
+        expected = [("this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})')]
         self.assertEqual(result, expected)
 
     def test_parse5(self):
         result = parse_template("this is a test of {{name|capitalize(\"some value\", lambda x: {'x': x})}}")
-        expected = ["this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})']
+        expected = [("this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})')]
         self.assertEqual(result, expected)
 
     def test_parse6(self):
         result = parse_template("this is a test of {name|capitalize(\"some () value\")}")
-        expected = ["this is a test of ", 'name|capitalize("some () value")']
+        expected = [("this is a test of ", 'name|capitalize("some () value")')]
         self.assertEqual(result, expected)
 
     def test_parse_extra_curly(self):
@@ -116,6 +116,6 @@ class TestStrings(FuzzyTestCase):
 
     def test_double_braces(self):
         result = parse_template("this is a {{{test}}} of {name|capitalize('some () value')}")
-        expected = ["this is a ", "{test}", " of ", 'name|capitalize(\'some () value\')']
+        expected = [("this is a ", "{test}"), (" of ", 'name|capitalize(\'some () value\')')]
         self.assertEqual(result, expected)
 

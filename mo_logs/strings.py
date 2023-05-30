@@ -631,7 +631,7 @@ def _simple_expand(template, seq: Tuple[Data]):
     parsed = parse_template(template)
 
     result = []
-    for text, code in chunk(parsed, 2):
+    for text, code in parsed:
         result.append(text)
         if not code:
             continue
@@ -901,23 +901,21 @@ any_opener = re.compile(r'[\[{("\']')
 def parse_template(template):
     """
     WITH template = "a {b} c {d} e"
-    RETURN ["a ", b, " c ", d, " e"]
+    RETURN LIST OF (str, code) PAIRS [("a ", b), (" c ", d), (" e", "")]
     """
 
     result = []
     while "{" in template:
         start = template.index("{")
         text, code = template[:start], template[start:]
-        result.append(text)
         code, template = parse_code(code)
         if code.startswith("{{") and code.endswith("}}"):
             # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
-            result.append(code[2:-2])
+            result.append((text, code[2:-2]))
         else:
-            result.append(code[1:-1])
+            result.append((text, code[1:-1]))
     if template:
-        result.append(template)
-        result.append("")
+        result.append((template, ""))
     return result
 
 

@@ -33,7 +33,7 @@ from mo_logs import logger
 # dest - The name of the attribute to be added to the object returned by parse_args().
 class _ArgParser(_argparse.ArgumentParser):
     def error(self, message):
-        logger.error("argparse error: {{error}}", error=message)
+        logger.error("argparse error: {error}", error=message)
 
 
 def argparse(defs, complain=True):

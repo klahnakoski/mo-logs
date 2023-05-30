@@ -7,7 +7,8 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-from mo_future import PY3, allocate_lock, STDERR, STDOUT
+from mo_future import allocate_lock, STDERR, STDOUT
+
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import CR, expand_template
 
