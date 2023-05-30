@@ -12,7 +12,7 @@ import sys
 from datetime import datetime
 
 from mo_dots import Data, coalesce, listwrap, unwraplist, dict_to_data, is_data, to_data
-from mo_future import is_text, text, STDOUT
+from mo_future import is_text, STDOUT
 from mo_imports import delay_import
 from mo_kwargs import override
 
@@ -27,7 +27,7 @@ from mo_logs.exceptions import (
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 from mo_logs.strings import CR, indent
 
-STACKTRACE = "\n{{trace_text|indent}}\n{{cause_text}}"
+STACKTRACE = "\n{trace_text|indent}\n{cause_text}"
 
 StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
 StructuredLogger_usingThread = delay_import("mo_logs.log_usingThread.StructuredLogger_usingThread")
@@ -125,7 +125,7 @@ class Log(object):
         clazz = _known_loggers.get(log_type.lower())
         if clazz:
             return clazz(settings)
-        logger.error("Log type of {{config|json}} is not recognized", config=settings)
+        logger.error("Log type of {config|json} is not recognized", config=settings)
 
     @classmethod
     def _add_log(cls, log):
@@ -272,10 +272,10 @@ class Log(object):
         """
         template = item.template
         template = strings.limit(template, 10000)
-        template = template.replace("{{", "{{params.")
+        template = "".join(f"{text}{{params.{code}}}" for text, code in strings.parse_template(template))
 
         if isinstance(item, Except):
-            template = "{{severity}}: " + template + STACKTRACE
+            template = "{severity}: " + template + STACKTRACE
             temp = item.__data__()
             temp.trace_text = item.trace_text
             temp.cause_text = item.cause_text
@@ -289,22 +289,22 @@ class Log(object):
         if cls.trace:
             item.machine = machine_metadata()
             log_format = item.template = (
-                "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} -"
-                ' {{thread.name}} - "{{location.file}}:{{location.line}}" -'
-                " ({{location.method}}) - "
+                "{machine.name} (pid {machine.pid}) - {timestamp|datetime} -"
+                ' {thread.name} - "{location.file}:{location.line}" -'
+                " ({location.method}) - "
                 + template
             )
             f = sys._getframe(stack_depth + 1)
             item.location = {
                 "line": f.f_lineno,
-                "file": text(f.f_code.co_filename),
-                "method": text(f.f_code.co_name),
+                "file": f.f_code.co_filename,
+                "method": f.f_code.co_name,
             }
             thread = _Thread.current()
             item.thread = {"name": thread.name, "id": thread.id}
         else:
             log_format = template
-            # log_format = item.template = "{{timestamp|datetime}} - " + template
+            # log_format = item.template = "{timestamp|datetime} - " + template
 
         item.params = {**cls.extra, **item.params}
         cls.main_log.write(log_format, item)
@@ -336,7 +336,7 @@ class LoggingContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val:
             logger.warning(
-                "Problem with {{name}}! Shutting down.", name=self.app_name, cause=exc_val,
+                "Problem with {name}! Shutting down.", name=self.app_name, cause=exc_val,
             )
         Log.stop()
 
@@ -358,9 +358,9 @@ def machine_metadata():
 
     _machine_metadata = dict_to_data({
         "pid": os.getpid(),
-        "python": text(platform.python_implementation()),
-        "os": text(platform.system() + platform.release()).strip(),
-        "name": text(platform.node()),
+        "python": platform.python_implementation(),
+        "os": (platform.system() + platform.release()).strip(),
+        "name": platform.node(),
     })
     return _machine_metadata
 

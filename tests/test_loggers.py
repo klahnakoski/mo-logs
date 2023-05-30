@@ -8,18 +8,17 @@
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import logging
-import threading
 
 from mo_dots import Data
 from mo_future import StringIO
 from mo_kwargs import override
-
-from mo_logs.log_usingNothing import StructuredLogger
 from mo_math import randoms
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
 from mo_logs import logger as log, register_logger
+from mo_logs.log_usingNothing import StructuredLogger
+from mo_logs.strings import expand_template
 from tests.utils.udp_listener import UdpListener
 
 UDP_PORT_RANGE = Data(FROM=12200, LENGTH=4000)
@@ -71,7 +70,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 58,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 57,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "Main Thread",
             },
@@ -155,6 +154,17 @@ class TestLoggers(FuzzyTestCase):
         self.assertIn("kyle", detail.cause.template)
         self.assertIn("test_loggers.py", detail.cause.trace[0].file)
 
+    def test_single_braces(self):
+        log.trace = True
+        logger = log.main_log = LogUsingLines()
+        log.note("this is a {test}", test="test")
+        # EG: 'kyle-win10 (pid 14900) - 2023-05-29 12:36:09.304071 - Main Thread - "C:\\Users\\kyle\\code\\mo-logs\\tests\\test_loggers.py:162" - (test_simple_logging) - this is a test'
+        self.assertIn("(pid ", logger.lines[0])
+        self.assertIn(" - Main Thread - ", logger.lines[0])
+        self.assertIn(" - (test_single_braces) - ", logger.lines[0])
+        self.assertIn(" - this is a test", logger.lines[0])
+        self.assertIn("test_loggers.py:", logger.lines[0])
+
 
 class LogUsingArray(StructuredLogger):
     @override
@@ -163,6 +173,16 @@ class LogUsingArray(StructuredLogger):
 
     def write(self, template, params):
         self.lines.append((template, params))
+
+
+class LogUsingLines(StructuredLogger):
+    @override
+    def __init__(self, kwargs=None):
+        self.lines = []
+
+    def write(self, template, params):
+        value = expand_template(template, params)
+        self.lines.append(value)
 
 
 register_logger("array", LogUsingArray)

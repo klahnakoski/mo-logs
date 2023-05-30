@@ -11,7 +11,7 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify, round, datetime
+from mo_logs.strings import expand_template, wordify, round, datetime, parse_template
 
 
 class TestStrings(FuzzyTestCase):
@@ -79,3 +79,43 @@ class TestStrings(FuzzyTestCase):
     def test_capitalize(self):
         result = expand_template("{{name|capitalize}}", {"name": "lahnakoski"})
         self.assertEqual(result, "Lahnakoski")
+
+    def test_parse1(self):
+        result = parse_template("{{name|capitalize}}")
+        expected = [("", "name|capitalize")]
+        self.assertEqual(result, expected)
+
+    def test_parse2(self):
+        result = parse_template("{{name|capitalize}} {{age}}")
+        expected = [("", "name|capitalize"), (" ", "age")]
+        self.assertEqual(result, expected)
+
+    def test_parse3(self):
+        result = parse_template("this is a test of {name}")
+        expected = [("this is a test of ", "name")]
+        self.assertEqual(result, expected)
+
+    def test_parse4(self):
+        result = parse_template("this is a test of {name|capitalize(\"some value\", lambda x: {'x': x})}")
+        expected = [("this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})')]
+        self.assertEqual(result, expected)
+
+    def test_parse5(self):
+        result = parse_template("this is a test of {{name|capitalize(\"some value\", lambda x: {'x': x})}}")
+        expected = [("this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})')]
+        self.assertEqual(result, expected)
+
+    def test_parse6(self):
+        result = parse_template("this is a test of {name|capitalize(\"some () value\")}")
+        expected = [("this is a test of ", 'name|capitalize("some () value")')]
+        self.assertEqual(result, expected)
+
+    def test_parse_extra_curly(self):
+        with self.assertRaises(Exception):
+            parse_template("this is a test of {name|capitalize{(\"some () value\"}")
+
+    def test_double_braces(self):
+        result = parse_template("this is a {{{test}}} of {name|capitalize('some () value')}")
+        expected = [("this is a ", "{test}"), (" of ", 'name|capitalize(\'some () value\')')]
+        self.assertEqual(result, expected)
+
