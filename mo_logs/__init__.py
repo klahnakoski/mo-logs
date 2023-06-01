@@ -62,8 +62,9 @@ class Log(object):
                          USE THE LONG FORM TO SET THE FILENAME {"enabled": True, "filename": "cprofile.tab"}
         :param constants: UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
         :param logs: LIST OF PARAMETERS FOR LOGGER(S)
+        :param extra: ADDITIONAL DATA TO BE INCLUDED IN EVERY LOG LINE
         :param app_name: GIVE THIS APP A NAME, AND RETURN A CONTEXT MANAGER
-        :param settings: ALL THE ABOVE PARAMTERS
+        :param settings: ALL THE ABOVE PARAMETERS
         :return:
         """
         if app_name:
@@ -101,6 +102,8 @@ class Log(object):
             )
             old_log.stop()
         cls.extra = extra or {}
+        root = logging.getLogger()
+        root.addHandler(Handler())
 
     @classmethod
     def stop(cls):
@@ -264,7 +267,7 @@ class Log(object):
         raise_from_none(e)
 
     @classmethod
-    def _annotate(cls, item, stack_depth):
+    def _annotate(cls, item:LogItem, stack_depth):
         """
         :param item:  A LogItem THE TYPE OF MESSAGE
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
@@ -311,6 +314,8 @@ class Log(object):
 
     def write(self):
         raise NotImplementedError
+
+
 
 
 logger = Log
