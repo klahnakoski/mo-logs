@@ -62,8 +62,9 @@ class Log(object):
                          USE THE LONG FORM TO SET THE FILENAME {"enabled": True, "filename": "cprofile.tab"}
         :param constants: UPDATE MODULE CONSTANTS AT STARTUP (PRIMARILY INTENDED TO CHANGE DEBUG STATE)
         :param logs: LIST OF PARAMETERS FOR LOGGER(S)
+        :param extra: ADDITIONAL DATA TO BE INCLUDED IN EVERY LOG LINE
         :param app_name: GIVE THIS APP A NAME, AND RETURN A CONTEXT MANAGER
-        :param settings: ALL THE ABOVE PARAMTERS
+        :param settings: ALL THE ABOVE PARAMETERS
         :return:
         """
         if app_name:
