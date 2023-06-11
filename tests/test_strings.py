@@ -119,3 +119,7 @@ class TestStrings(FuzzyTestCase):
         expected = [("this is a ", "{test}"), (" of ", 'name|capitalize(\'some () value\')')]
         self.assertEqual(result, expected)
 
+    def test_code(self):
+        result = parse_template('a = "{"\nb="}"\n')
+        expected=[('a = "{"\nb="}"\n', '')]
+        self.assertEqual(result, expected)
