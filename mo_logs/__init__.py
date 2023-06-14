@@ -23,6 +23,7 @@ from mo_logs.exceptions import (
     suppress_exception,
     format_trace,
     WARNING,
+    get_stacktrace,
 )
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 from mo_logs.strings import CR, indent
@@ -34,6 +35,8 @@ StructuredLogger_usingThread = delay_import("mo_logs.log_usingThread.StructuredL
 
 _Thread = delay_import("mo_threads.Thread")
 startup_read_settings = delay_import("mo_logs.startup.read_settings")
+
+all_log_callers = {}
 
 
 class Log(object):
@@ -200,7 +203,7 @@ class Log(object):
         stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
         log_severity=WARNING,  # set the logging severity
         exc_info=None,  # used by python logging as the cause
-        **more_params  # any more parameters (which will overwrite default_params)
+        **more_params,  # any more parameters (which will overwrite default_params)
     ):
         if exc_info is True:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -232,7 +235,7 @@ class Log(object):
         cause=None,  # pausible cause
         stack_depth=0,
         exc_info=None,  # used by python logging as the cause
-        **more_params
+        **more_params,
     ):
         """
         raise an exception with a trace for the cause too
@@ -271,12 +274,12 @@ class Log(object):
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
         :return:
         """
-        template = item.template
-        template = strings.limit(template, 10000)
-        template = "".join(f"{text}{{params.{code}}}" for text, code in strings.parse_template(template))
+        given_template = item.template
+        given_template = strings.limit(given_template, 10000)
+        param_template = "".join(f"{text}{{params.{code}}}" for text, code in strings.parse_template(given_template))
 
         if isinstance(item, Except):
-            template = "{severity}: " + template + STACKTRACE
+            param_template = "{severity}: " + param_template + STACKTRACE
             temp = item.__data__()
             temp.trace_text = item.trace_text
             temp.cause_text = item.cause_text
@@ -284,16 +287,16 @@ class Log(object):
         else:
             item = item.__data__()
 
-        if not template.startswith(CR) and CR in template:
-            template = CR + template
+        if not param_template.startswith(CR) and CR in param_template:
+            param_template = CR + param_template
 
         if cls.trace:
             item.machine = machine_metadata()
             log_format = item.template = (
                 "{machine.name} (pid {machine.pid}) - {timestamp|datetime} -"
-                ' {thread.name} - "{location.file}:{location.line}" -'
+                ' {thread.name} - ""{location.file}:{location.line}"" -'
                 " ({location.method}) - "
-                + template
+                + param_template
             )
             f = sys._getframe(stack_depth + 1)
             item.location = {
@@ -301,10 +304,20 @@ class Log(object):
                 "file": f.f_code.co_filename,
                 "method": f.f_code.co_name,
             }
+            last_caller_loc = (f.f_code.co_filename, f.f_lineno)
+            prev_template = all_log_callers.get(last_caller_loc)
+            if prev_template != given_template:
+                if prev_template:
+                    raise Except(
+                        template="Expecting logger call to be static: was {a|quote} now {b|quote}",
+                        params={"a": prev_template, "b": given_template},
+                        trace=get_stacktrace(stack_depth + 1),
+                    )
+                all_log_callers[last_caller_loc] = given_template
             thread = _Thread.current()
             item.thread = {"name": thread.name, "id": thread.id}
         else:
-            log_format = template
+            log_format = param_template
             # log_format = item.template = "{timestamp|datetime} - " + template
 
         item.params = {**cls.extra, **item.params}

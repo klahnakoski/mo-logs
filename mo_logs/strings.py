@@ -664,7 +664,7 @@ def _simple_expand(template, seq: Tuple[Data]):
                     result.append(val)
             except Exception as f:
                 logger.warning(
-                    f"Can not expand {op}|{rest} in template: {{template_|json}}",
+                    f"Can not expand {op}|{rest} in template: {template_|json}",
                     template_=template,
                     cause=cause,
                 )
@@ -880,11 +880,11 @@ def pairwise(values):
         a = b
 
 
-body_pattern = re.compile(r"[^][)(}{\"']*")
+code_pattern = re.compile(r"[^][)(}{\"']*")
 bodies = {
-    "(": body_pattern,
-    "[": body_pattern,
-    "{": body_pattern,
+    "(": code_pattern,
+    "[": code_pattern,
+    "{": code_pattern,
     '"': re.compile(r'(\\"|[^"])*'),
     "'": re.compile(r"(\\'|[^'])*"),
 }
@@ -896,6 +896,7 @@ closers = {
     "'": "'",
 }
 any_opener = re.compile(r'[\[{("\']')
+code_opener = re.compile(r'[{"\']')
 
 
 def parse_template(template):
@@ -905,18 +906,37 @@ def parse_template(template):
     """
 
     result = []
-    while "{" in template:
-        start = template.index("{")
-        text, code = template[:start], template[start:]
-        code, template = parse_code(code)
-        if code.startswith("{{") and code.endswith("}}"):
+
+    def append(prefix, code):
+        if result:
+            if not code or not prefix:
+                prev_prefix, prev_code = result[-1]
+                if not prev_code:
+                    result[-1] = (prev_prefix + prefix, code)
+                    return
+        result.append((prefix, code))
+
+    while True:
+        opener = code_opener.search(template)
+        if not opener:
+            if template:
+                append(template, "")
+            return result
+        i = opener.start()
+        prefix, residue = template[:i], template[i:]
+        code, template = parse_code(residue)
+        if code == '""':
+            append(prefix+'"', "")
+        elif code == "''":
+            append(prefix + "'", "")
+        elif code.startswith("{{") and code.endswith("}}"):
+        # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
+            append(prefix, code[2:-2])
+        elif code.startswith("{") and code.endswith("}"):
             # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
-            result.append((text, code[2:-2]))
+            append(prefix, code[1:-1])
         else:
-            result.append((text, code[1:-1]))
-    if template:
-        result.append((template, ""))
-    return result
+            append(prefix + code, "")
 
 
 def parse_code(code):
