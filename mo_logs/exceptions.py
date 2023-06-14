@@ -211,7 +211,7 @@ def _parse_traceback(tb):
 
 
 def format_trace(tbs, start=0):
-    return "".join(expand_template('File "{{file}}", line {{line}}, in {{method}}\n', d) for d in tbs[start::])
+    return "".join(expand_template('File ""{file}"", line {line}, in {method}\n', d) for d in tbs[start::])
 
 
 class Suppress(object):

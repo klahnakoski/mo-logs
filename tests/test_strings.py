@@ -21,7 +21,6 @@ class TestStrings(FuzzyTestCase):
     def test_right_align(self):
         total = 123.45
         some_list = [10, 11, 14, 80]
-        details = {"person": {"name": "Kyle Lahnakoski", "age": 40}}
 
         result = expand_template("it is currently {{now|datetime}}", {"now": 1420119241000})
         self.assertEqual(result, "it is currently 2015-01-01 13:34:01")
@@ -35,11 +34,12 @@ class TestStrings(FuzzyTestCase):
         result = expand_template("Summary:\n{{list|indent}}", {"list": some_list})
         self.assertEqual(result, "Summary:\n\t[10, 11, 14, 80]")
 
+    def test_no_align(self):
+        details = {"person": {"name": "Kyle Lahnakoski", "age": 40}}
         result = expand_template("{{person.name}} is {{person.age}} years old", details)
         self.assertEqual(result, "Kyle Lahnakoski is 40 years old")
 
     def test_percent(self):
-
         self.assertEqual(strings.percent(0.123, digits=1), "10%")
         self.assertEqual(strings.percent(0.123, digits=2), "12%")
         self.assertEqual(strings.percent(0.123, digits=3), "12.3%")
@@ -122,4 +122,9 @@ class TestStrings(FuzzyTestCase):
     def test_code(self):
         result = parse_template('a = "{"\nb="}"\n')
         expected=[('a = "{"\nb="}"\n', '')]
+        self.assertEqual(result, expected)
+
+    def test_double_quote(self):
+        result = parse_template(' - ""{location.file}:{location.line}"" -')
+        expected = [(' - "', 'location.file'), (':', 'location.line'), ('" -', '')]
         self.assertEqual(result, expected)

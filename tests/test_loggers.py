@@ -165,6 +165,12 @@ class TestLoggers(FuzzyTestCase):
         self.assertIn(" - this is a test", logger.lines[0])
         self.assertIn("test_loggers.py:", logger.lines[0])
 
+    def test_bad_log_call(self):
+        log.start(trace=True)
+        with self.assertRaises("Expecting logger call to be static"):
+            for v in ["1", "2"]:
+                log.note(v)
+
 
 class LogUsingArray(StructuredLogger):
     @override
