@@ -146,11 +146,12 @@ class Log(object):
             old_log.stop()
 
     @classmethod
-    def note(cls, template, default_params={}, *, stack_depth=0, **more_params):
+    def note(cls, template, default_params={}, *, stack_depth=0, static_template=True, **more_params):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
         :param stack_depth:  *int* how many calls you want popped off the stack to report the *true* caller
+        :param static_template: *bool* if True, then the template is static, and optimization can be done
         :param more_params: *any more parameters (which will overwrite default_params)
         :return:
         """
@@ -166,12 +167,13 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
+            static_template=static_template
         )
 
     info = note
 
     @classmethod
-    def alarm(cls, template, default_params={}, *, stack_depth=0, **more_params):
+    def alarm(cls, template, default_params={}, *, stack_depth=0, static_template=True, **more_params):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -189,6 +191,7 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
+            static_template=static_template
         )
 
     alert = alarm
@@ -203,6 +206,7 @@ class Log(object):
         stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
         log_severity=WARNING,  # set the logging severity
         exc_info=None,  # used by python logging as the cause
+        static_template=True,
         **more_params,  # any more parameters (which will overwrite default_params)
     ):
         if exc_info is True:
@@ -222,7 +226,7 @@ class Log(object):
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
         e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace,)
-        Log._annotate(e, stack_depth + 1)
+        Log._annotate(e, stack_depth + 1, static_template=static_template)
 
     warn = warning
 
@@ -268,7 +272,7 @@ class Log(object):
         raise_from_none(e)
 
     @classmethod
-    def _annotate(cls, item, stack_depth):
+    def _annotate(cls, item, stack_depth, static_template=False):
         """
         :param item:  A LogItem THE TYPE OF MESSAGE
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM
@@ -304,16 +308,17 @@ class Log(object):
                 "file": f.f_code.co_filename,
                 "method": f.f_code.co_name,
             }
-            last_caller_loc = (f.f_code.co_filename, f.f_lineno)
-            prev_template = all_log_callers.get(last_caller_loc)
-            if prev_template != given_template:
-                if prev_template:
-                    raise Except(
-                        template="Expecting logger call to be static: was {a|quote} now {b|quote}",
-                        params={"a": prev_template, "b": given_template},
-                        trace=get_stacktrace(stack_depth + 1),
-                    )
-                all_log_callers[last_caller_loc] = given_template
+            if static_template:
+                last_caller_loc = (f.f_code.co_filename, f.f_lineno)
+                prev_template = all_log_callers.get(last_caller_loc)
+                if prev_template != given_template:
+                    if prev_template:
+                        raise Except(
+                            template="Expecting logger call to be static: was {a|quote} now {b|quote}",
+                            params={"a": prev_template, "b": given_template},
+                            trace=get_stacktrace(stack_depth + 1),
+                        )
+                    all_log_callers[last_caller_loc] = given_template
             thread = _Thread.current()
             item.thread = {"name": thread.name, "id": thread.id}
         else:
