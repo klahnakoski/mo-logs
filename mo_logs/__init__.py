@@ -280,7 +280,7 @@ class Log(object):
         """
         given_template = item.template
         given_template = strings.limit(given_template, 10000)
-        param_template = "".join(f"{text}{{params.{code}}}" for text, code in strings.parse_template(given_template))
+        param_template = "".join(f"{text}{{params.{code}}}" if code else text for text, code in strings.parse_template(given_template))
 
         if isinstance(item, Except):
             param_template = "{severity}: " + param_template + STACKTRACE
