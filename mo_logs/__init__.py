@@ -167,7 +167,7 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
-            static_template=static_template
+            static_template
         )
 
     info = note
@@ -191,7 +191,7 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
-            static_template=static_template
+            static_template
         )
 
     alert = alarm
@@ -226,7 +226,7 @@ class Log(object):
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
         e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace,)
-        Log._annotate(e, stack_depth + 1, static_template=static_template)
+        Log._annotate(e, stack_depth + 1, static_template)
 
     warn = warning
 
@@ -272,7 +272,7 @@ class Log(object):
         raise_from_none(e)
 
     @classmethod
-    def _annotate(cls, item, stack_depth, static_template=False):
+    def _annotate(cls, item, stack_depth, static_template):
         """
         :param item:  A LogItem THE TYPE OF MESSAGE
         :param stack_depth: FOR TRACKING WHAT LINE THIS CAME FROM

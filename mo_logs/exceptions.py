@@ -143,7 +143,7 @@ class Except(Exception):
                 else:
                     cause_strings.append(str(c))
             except Exception as cause:
-                sys.stderr(f"Problem serializing cause {cause}")
+                sys.stderr.write(f"Problem serializing cause {cause}")
 
         return "caused by\n\t" + "and caused by\n\t".join(cause_strings)
 
