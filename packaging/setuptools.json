@@ -9,7 +9,8 @@
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10"
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11"
     ],
     "description": "More Logs! Structured Logging and Exception Handling",
     "extras_require": {"tests": [
@@ -18,8 +19,8 @@
     ]},
     "include_package_data": true,
     "install_requires": [
-           "mo-dots==9.417.23168",  "mo-future==7.416.23168", "mo-imports==7.416.23168",
-         "mo-kwargs==7.417.23168"
+           "mo-dots==9.430.23234",  "mo-future==7.428.23214", "mo-imports==7.430.23234",
+         "mo-kwargs==7.434.23241"
     ],
     "license": "MPL 2.0",
     "long_description": {
@@ -504,6 +505,6 @@
     "name": "mo-logs",
     "packages": ["mo_logs"],
     "url": "https://github.com/klahnakoski/mo-logs",
-    "version": "8.425.23207",
+    "version": "8.434.23241",
     "zip_safe": false
 }
