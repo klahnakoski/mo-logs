@@ -37,7 +37,7 @@ from mo_logs import logger
 logger.info("Hello, World!")
 ```
 
-There is no need to create logger objects. The `Log` module will keep track of
+There is no need to create logger objects. The `mo_logs` module will keep track of
 what, where and when of every call.
 
 
@@ -76,7 +76,7 @@ nightmare for log analysis tools.
 
 ### Parametric parameters
 
-All the `Log` functions accept a `default_params` as a second parameter, like so:
+All the `logger` functions accept a `default_params` as a second parameter, like so:
 
 ```python
 logger.info("Hello, {{name}}!", {"name": "World!"})
@@ -193,7 +193,7 @@ from mo_logs.exceptions import ERROR, Except
 raise Except(ERROR, "description") from cause
 ```
 
-which is a bit more clunky, especially when passing dynamic parameters. Plus it breaks the `Log.<type>()` calling pattern; switching between an `error` and a `warning` is more than a name change.
+which is a bit more clunky, especially when passing dynamic parameters. Plus it breaks the `logger.<type>()` calling pattern; switching between an `error` and a `warning` is more than a name change.
 
 
 ### Use named parameters in your error descriptions too
@@ -277,7 +277,7 @@ def worker(value):
 Be aware your `except` clause can also throw exceptions: In the event you
 catch a vanilla Python Exception, you run the risk of loosing its stack trace.
 To prevent this, wrap your exception in an `Except` object, which will capture
-your trace for later use. Exceptions thrown from this `Log` library need not
+your trace for later use. Exceptions thrown from `mo-logs` library need not
 be wrapped because they already captured their trace. If you wrap an `Except`
 object, you simply get back the object you passed.
 
