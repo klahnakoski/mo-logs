@@ -947,8 +947,12 @@ def parse_code(code):
     result = [first]
     while True:
         body = bodies[first].match(residue)
+        remainder = residue[body.end():]
+        if not remainder:
+            result.append(first)
+            return "".join(result), residue
+        residue = remainder
         result.append(body.group(0))
-        residue = residue[body.end():]
         next_char = residue[0]
         if closers.get(next_char) == first:
             result.append(next_char)

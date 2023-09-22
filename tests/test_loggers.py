@@ -171,6 +171,12 @@ class TestLoggers(FuzzyTestCase):
             for v in ["1", "2"]:
                 log.note(v)
 
+    def test_simple_tet(self):
+        log.start(trace=False)
+        logger = log.main_log = LogUsingLines()
+        log.note("Timer start: get modules' status")
+        self.assertEqual("Timer start: get modules' status", logger.lines[0])
+
 
 class LogUsingArray(StructuredLogger):
     @override
