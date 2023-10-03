@@ -23,6 +23,7 @@ INFO = "INFO"
 NOTE = "NOTE"
 TOO_DEEP = 50  # MAXIMUM DEPTH OF CAUSAL CHAIN
 
+
 class LogItem(object):
     def __init__(self, severity, template, params, timestamp):
         self.severity = severity
