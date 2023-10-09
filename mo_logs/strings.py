@@ -953,7 +953,10 @@ def parse_code(code):
             return "".join(result), residue
         residue = remainder
         result.append(body.group(0))
-        next_char = residue[0]
+        try:
+            next_char = residue[0]
+        except Exception as cause:
+            print(cause)
         if closers.get(next_char) == first:
             result.append(next_char)
             return "".join(result), residue[1:]
