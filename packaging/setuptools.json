@@ -14,8 +14,9 @@
     ],
     "description": "More Logs! Structured Logging and Exception Handling",
     "extras_require": {"tests": [
-               "mo-json",     "mo-threads",     "mo-testing",      "mo-kwargs",
-             "jx-python",           "boto", "beautifulsoup4",         "graypy"
+                        "mo-json", "mo-threads==5.368.23092",              "mo-testing",
+                      "mo-kwargs",               "jx-python",                    "boto",
+                 "beautifulsoup4",                  "graypy"
     ]},
     "include_package_data": true,
     "install_requires": [

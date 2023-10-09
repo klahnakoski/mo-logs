@@ -6,7 +6,7 @@ setup(
     author_email='kyle@lahnakoski.com',
     classifiers=["Development Status :: 5 - Production/Stable","Topic :: Software Development :: Libraries","Topic :: Software Development :: Libraries :: Python Modules","License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)","Programming Language :: Python :: 3.7","Programming Language :: Python :: 3.8","Programming Language :: Python :: 3.9","Programming Language :: Python :: 3.10","Programming Language :: Python :: 3.11"],
     description='More Logs! Structured Logging and Exception Handling',
-    extras_require={"tests":["mo-json","mo-threads","mo-testing","mo-kwargs","jx-python","boto","beautifulsoup4","graypy"]},
+    extras_require={"tests":["mo-json","mo-threads==5.368.23092","mo-testing","mo-kwargs","jx-python","boto","beautifulsoup4","graypy"]},
     include_package_data=True,
     install_requires=["mo-dots==9.440.23265","mo-future==7.428.23214","mo-imports==7.440.23265","mo-kwargs==7.440.23265"],
     license='MPL 2.0',
