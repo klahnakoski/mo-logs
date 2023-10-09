@@ -13,12 +13,13 @@ from mo_dots import Data
 from mo_future import StringIO
 from mo_kwargs import override
 from mo_math import randoms
-from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
+from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
 from mo_logs import logger as log, register_logger
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
+from tests.utils import add_error_reporting
 from tests.utils.udp_listener import UdpListener
 
 UDP_PORT_RANGE = Data(FROM=12200, LENGTH=4000)
@@ -49,12 +50,12 @@ class TestLoggers(FuzzyTestCase):
         logs = log_stream.getvalue()
 
         expected = "testing\n"
-        self.assertEqual(logs[-len(expected) :], expected)
+        self.assertEqual(logs[-len(expected):], expected)
 
     def test_graylogger(self):
         port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
         with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port}},)
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port}}, )
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -109,7 +110,7 @@ class TestLoggers(FuzzyTestCase):
         with UdpListener(port) as udp:
             log.start(
                 settings={
-                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,},
+                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port, },
                     "extra": {"some_name": {"v": "some_value"}},
                 },
             )
@@ -123,7 +124,7 @@ class TestLoggers(FuzzyTestCase):
     def test_graylogger_exception(self):
         port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
         with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port, }}, )
             log.warning("testing {{value}}", value="test")
             message = udp.queue.pop()
 
