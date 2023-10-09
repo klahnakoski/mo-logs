@@ -146,7 +146,7 @@ serializable so they can be stored/processed by downstream JSON tools.
     },
     "thread": {
         "id": 14352,
-        "name": "Main Thread"
+        "name": "MainThread"
     },
     "timestamp": 1578673471
 }

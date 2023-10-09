@@ -1,5 +1,5 @@
 mo-json
-mo-threads
+mo-threads==5.368.23092
 mo-testing
 mo-kwargs
 jx-python
