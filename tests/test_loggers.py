@@ -50,12 +50,12 @@ class TestLoggers(FuzzyTestCase):
         logs = log_stream.getvalue()
 
         expected = "testing\n"
-        self.assertEqual(logs[-len(expected):], expected)
+        self.assertEqual(logs[-len(expected) :], expected)
 
     def test_graylogger(self):
         port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
         with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port}}, )
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port}},)
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -72,9 +72,9 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 58,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 59,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
-                "_thread_name": "Main Thread",
+                "_thread_name": "MainThread",
             },
         )
         self.assertIsNone(message["_stack_info"])
@@ -100,7 +100,7 @@ class TestLoggers(FuzzyTestCase):
                 "facility": "mo-logs",
                 "level": 6,
                 "version": "1.0",
-                "_thread_name": "Main Thread",
+                "_thread_name": "MainThread",
             },
         )
         self.assertIsNone(message["_stack_info"])
@@ -110,7 +110,7 @@ class TestLoggers(FuzzyTestCase):
         with UdpListener(port) as udp:
             log.start(
                 settings={
-                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port, },
+                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,},
                     "extra": {"some_name": {"v": "some_value"}},
                 },
             )
@@ -124,7 +124,7 @@ class TestLoggers(FuzzyTestCase):
     def test_graylogger_exception(self):
         port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
         with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port, }}, )
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
             log.warning("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -160,9 +160,9 @@ class TestLoggers(FuzzyTestCase):
         log.trace = True
         logger = log.main_log = LogUsingLines()
         log.note("this is a {test}", test="test")
-        # EG: 'kyle-win10 (pid 14900) - 2023-05-29 12:36:09.304071 - Main Thread - "C:\\Users\\kyle\\code\\mo-logs\\tests\\test_loggers.py:162" - (test_simple_logging) - this is a test'
+        # EG: 'kyle-win10 (pid 14900) - 2023-05-29 12:36:09.304071 - MainThread - "C:\\Users\\kyle\\code\\mo-logs\\tests\\test_loggers.py:162" - (test_simple_logging) - this is a test'
         self.assertIn("(pid ", logger.lines[0])
-        self.assertIn(" - Main Thread - ", logger.lines[0])
+        self.assertIn(" - MainThread - ", logger.lines[0])
         self.assertIn(" - (test_single_braces) - ", logger.lines[0])
         self.assertIn(" - this is a test", logger.lines[0])
         self.assertIn("test_loggers.py:", logger.lines[0])
