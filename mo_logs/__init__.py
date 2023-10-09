@@ -10,6 +10,7 @@
 import os
 import sys
 from datetime import datetime
+from threading import current_thread
 
 from mo_dots import Data, coalesce, listwrap, unwraplist, dict_to_data, is_data, to_data
 from mo_future import is_text, STDOUT
@@ -33,7 +34,6 @@ STACKTRACE = "\n{trace_text|indent}\n{cause_text}"
 StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
 StructuredLogger_usingThread = delay_import("mo_logs.log_usingThread.StructuredLogger_usingThread")
 
-_Thread = delay_import("mo_threads.Thread")
 startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 all_log_callers = {}
@@ -319,8 +319,8 @@ class Log(object):
                             trace=get_stacktrace(stack_depth + 1),
                         )
                     all_log_callers[last_caller_loc] = given_template
-            thread = _Thread.current()
-            item.thread = {"name": thread.name, "id": thread.id}
+            thread = current_thread()
+            item.thread = {"name": thread.name, "id": thread.ident}
         else:
             log_format = param_template
             # log_format = item.template = "{timestamp|datetime} - " + template

@@ -13,7 +13,7 @@ from mo_dots import Data
 from mo_future import StringIO
 from mo_kwargs import override
 from mo_math import randoms
-from mo_testing.fuzzytestcase import FuzzyTestCase
+from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 from mo_threads import Till
 
 from mo_logs import logger as log, register_logger
@@ -24,6 +24,7 @@ from tests.utils.udp_listener import UdpListener
 UDP_PORT_RANGE = Data(FROM=12200, LENGTH=4000)
 
 
+@add_error_reporting
 class TestLoggers(FuzzyTestCase):
     def setUp(self):
         log.start()
@@ -70,7 +71,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 57,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 58,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "Main Thread",
             },
