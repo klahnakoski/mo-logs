@@ -82,7 +82,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 59,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 69,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "MainThread",
             },
