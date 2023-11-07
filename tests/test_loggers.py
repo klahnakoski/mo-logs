@@ -8,13 +8,14 @@
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import logging
+from unittest import skip
 
 from mo_dots import Data
 from mo_future import StringIO
 from mo_kwargs import override
 from mo_math import randoms
 from mo_testing.fuzzytestcase import FuzzyTestCase
-from mo_threads import Till
+from mo_threads import Till, stop_main_thread, start_main_thread
 
 from mo_logs import logger as log, register_logger
 from mo_logs.log_usingNothing import StructuredLogger
@@ -32,6 +33,15 @@ class TestLoggers(FuzzyTestCase):
 
     def tearDown(self):
         log.stop()
+
+    @classmethod
+    def setUpClass(cls):
+        stop_main_thread()
+        start_main_thread()
+
+    @classmethod
+    def tearDownClass(cls):
+        stop_main_thread()
 
     def test_logging(self):
         from importlib import reload
@@ -178,6 +188,42 @@ class TestLoggers(FuzzyTestCase):
         logger = log.main_log = LogUsingLines()
         log.note("Timer start: get modules' status")
         self.assertEqual("Timer start: get modules' status", logger.lines[0])
+
+    @skip("not handled yet")
+    def test_log_bad_template(self):
+        log.start(trace=False)
+        logger = log.main_log = LogUsingLines()
+        log.info("Timer start: get modules status {{")
+        self.assertEqual("Timer start: get modules status {{", logger.lines[0])
+
+    @skip("not handled yet")
+    def test_log_bad_template2(self):
+        log.start(trace=False)
+        logger = log.main_log = LogUsingLines()
+        log.info("Timer start: get modules status {{}}")
+        self.assertEqual("Timer start: get modules status ", logger.lines[0])
+
+    @skip("not handled yet")
+    def test_log_bad_template3(self):
+        log.start(trace=False)
+        logger = log.main_log = LogUsingLines()
+        log.info("Timer start: get modules status {{'}}")
+        self.assertEqual("Timer start: get modules status {{'}}", logger.lines[0])
+
+    @skip("not handled yet")
+    def test_log_bad_template4(self):
+        log.start(trace=False)
+        logger = log.main_log = LogUsingLines()
+        log.info("Timer start: get modules status {'}")
+        self.assertEqual("Timer start: get modules' status {{", logger.lines[0])
+
+    def test_static_mode_off(self):
+        log.start(static_template=False)
+        logger = log.main_log = LogUsingLines()
+        for i in range(2):
+            log.info(f"line {i}")
+        self.assertEqual("line 0", logger.lines[0])
+        self.assertEqual("line 1", logger.lines[1])
 
 
 class LogUsingArray(StructuredLogger):
