@@ -50,11 +50,20 @@ class Log(object):
     profiler = None  # simple pypy-friendly profiler
     error_mode = False  # prevent error loops
     extra = {}
+    static_template = True
 
     @classmethod
     @override("settings")
     def start(
-        cls, trace=False, cprofile=False, constants=None, logs=None, extra=None, app_name=None, settings=None,
+        cls,
+        trace=False,
+        cprofile=False,
+        constants=None,
+        logs=None,
+        extra=None,
+        app_name=None,
+        settings=None,
+        static_template=True,
     ):
         """
         RUN ME FIRST TO SETUP THE THREADED LOGGING
@@ -77,6 +86,7 @@ class Log(object):
 
         cls.settings = settings
         cls.trace = trace
+        cls.static_template = static_template
 
         # ENABLE CPROFILE
         if cprofile is False:
@@ -146,7 +156,7 @@ class Log(object):
             old_log.stop()
 
     @classmethod
-    def note(cls, template, default_params={}, *, stack_depth=0, static_template=True, **more_params):
+    def note(cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -167,13 +177,13 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
-            static_template
+            cls.static_template if static_template is None else static_template,
         )
 
     info = note
 
     @classmethod
-    def alarm(cls, template, default_params={}, *, stack_depth=0, static_template=True, **more_params):
+    def alarm(cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -191,7 +201,7 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
-            static_template
+            cls.static_template if static_template is None else static_template,
         )
 
     alert = alarm
@@ -206,7 +216,7 @@ class Log(object):
         stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
         log_severity=WARNING,  # set the logging severity
         exc_info=None,  # used by python logging as the cause
-        static_template=True,
+        static_template=None,
         **more_params,  # any more parameters (which will overwrite default_params)
     ):
         if exc_info is True:
@@ -226,7 +236,7 @@ class Log(object):
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
         e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace,)
-        Log._annotate(e, stack_depth + 1, static_template)
+        Log._annotate(e, stack_depth + 1, cls.static_template if static_template is None else static_template)
 
     warn = warning
 
@@ -280,7 +290,9 @@ class Log(object):
         """
         given_template = item.template
         given_template = strings.limit(given_template, 10000)
-        param_template = "".join(f"{text}{{params.{code}}}" if code else text for text, code in strings.parse_template(given_template))
+        param_template = "".join(
+            f"{text}{{params.{code}}}" if code else text for text, code in strings.parse_template(given_template)
+        )
 
         if isinstance(item, Except):
             param_template = "{severity}: " + param_template + STACKTRACE
