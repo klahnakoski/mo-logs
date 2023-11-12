@@ -50,11 +50,20 @@ class Log(object):
     profiler = None  # simple pypy-friendly profiler
     error_mode = False  # prevent error loops
     extra = {}
+    static_template = True
 
     @classmethod
     @override("settings")
     def start(
-        cls, trace=False, cprofile=False, constants=None, logs=None, extra=None, app_name=None, settings=None, static_template=True
+        cls,
+        trace=False,
+        cprofile=False,
+        constants=None,
+        logs=None,
+        extra=None,
+        app_name=None,
+        settings=None,
+        static_template=True,
     ):
         """
         RUN ME FIRST TO SETUP THE THREADED LOGGING
@@ -168,7 +177,7 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
-            cls.static_template if static_template is None else static_template
+            cls.static_template if static_template is None else static_template,
         )
 
     info = note
@@ -192,7 +201,7 @@ class Log(object):
                 timestamp=timestamp,
             ),
             stack_depth + 1,
-            cls.static_template if static_template is None else static_template
+            cls.static_template if static_template is None else static_template,
         )
 
     alert = alarm
@@ -281,7 +290,9 @@ class Log(object):
         """
         given_template = item.template
         given_template = strings.limit(given_template, 10000)
-        param_template = "".join(f"{text}{{params.{code}}}" if code else text for text, code in strings.parse_template(given_template))
+        param_template = "".join(
+            f"{text}{{params.{code}}}" if code else text for text, code in strings.parse_template(given_template)
+        )
 
         if isinstance(item, Except):
             param_template = "{severity}: " + param_template + STACKTRACE
