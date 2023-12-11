@@ -42,6 +42,8 @@ from mo_logs.convert import (
     value2json,
 )
 
+builtin_hex = hex
+
 logger = delay_import("mo_logs.logger")
 json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
@@ -491,7 +493,11 @@ def hex(value):
     :param value:
     :return:
     """
-    return hex(value)
+    if isinstance(value, int):
+        return builtin_hex(value)
+    elif isinstance(value, bytes):
+        return value.hex()
+    return str(value).encode('utf8').hex()
 
 
 _SNIP = "...<snip>..."

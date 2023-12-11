@@ -225,6 +225,11 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual("line 0", logger.lines[0])
         self.assertEqual("line 1", logger.lines[1])
 
+    def test_hex(self):
+        result = expand_template("{value|hex}", {"value":"test"})
+        expected = '74657374'
+        self.assertEqual(result, expected)
+
 
 class LogUsingArray(StructuredLogger):
     @override

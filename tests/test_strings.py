@@ -128,3 +128,4 @@ class TestStrings(FuzzyTestCase):
         result = parse_template(' - ""{location.file}:{location.line}"" -')
         expected = [(' - "', 'location.file'), (':', 'location.line'), ('" -', '')]
         self.assertEqual(result, expected)
+
