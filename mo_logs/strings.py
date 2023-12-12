@@ -689,11 +689,13 @@ def toString(val):
         return ""
     elif is_data(val) or is_many(val):
         return json_encoder(val, pretty=True)
+    elif val.__class__.__name__ == "Date":
+        return str(val)
     elif hasattr(val, "__data__"):
         return json_encoder(val.__data__(), pretty=True)
     elif hasattr(val, "__json__"):
         return val.__json__()
-    elif isinstance(val, Duration):
+    elif val.__class__.__name__ == "Duration":
         return f"{round(val.seconds, places=4)} seconds"
     elif isinstance(val, timedelta):
         duration = val.total_seconds()

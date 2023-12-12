@@ -16,6 +16,7 @@ from mo_kwargs import override
 from mo_math import randoms
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till, stop_main_thread, start_main_thread
+from mo_times import Date
 
 from mo_logs import logger as log, register_logger
 from mo_logs.log_usingNothing import StructuredLogger
@@ -82,7 +83,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 69,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 70,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "MainThread",
             },
@@ -229,6 +230,29 @@ class TestLoggers(FuzzyTestCase):
         result = expand_template("{value|hex}", {"value":"test"})
         expected = '74657374'
         self.assertEqual(result, expected)
+
+    def test_date(self):
+        date = Date("2023-12-10")
+        port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
+        with UdpListener(port) as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+            log.info("date {date2}", date2=date)
+            message = udp.queue.pop()
+
+        self.assertEqual('2023-12-10T00:00:00Z', message["_date2"])
+        self.assertIn("date 2023-12-10 00:00:00", message["full_message"])
+
+    def test_data(self):
+        data = Data(x=1)
+        port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
+        with UdpListener(port) as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+            log.info("data {data}", data=data)
+            message = udp.queue.pop()
+
+        self.assertEqual(1, message["_data.x"])
+        self.assertIn('data {"x": 1}', message["full_message"])
+
 
 
 class LogUsingArray(StructuredLogger):
