@@ -11,13 +11,9 @@ import json as _json
 from datetime import date, datetime
 from datetime import timezone
 
+from mo_future import utcfromtimestamp
+
 MAX_TIME = datetime(2286, 11, 20, 17, 46, 39, 0, timezone.utc)
-
-
-def utcfromtimestamp(u):
-    d = datetime.utcfromtimestamp(u)
-    d = d.replace(tzinfo=timezone.utc)
-    return d
 
 
 def unix2datetime(u):

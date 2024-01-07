@@ -8,11 +8,12 @@
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import sys
-from datetime import datetime
 
 from mo_dots import Null, is_data, listwrap, unwraplist, to_data, dict_to_data
-from mo_future import is_text
-from mo_logs.strings import CR, expand_template, indent
+from mo_future import is_text, utcnow
+import traceback
+
+from mo_logs.strings import CR, expand_template, indent, between
 
 FATAL = "FATAL"
 ERROR = "ERROR"
@@ -22,6 +23,8 @@ UNEXPECTED = "UNEXPECTED"
 INFO = "INFO"
 NOTE = "NOTE"
 TOO_DEEP = 50  # MAXIMUM DEPTH OF CAUSAL CHAIN
+
+SHORT_STACKS = sys.version_info >= (3, 12)
 
 
 class LogItem(object):
@@ -37,7 +40,7 @@ class LogItem(object):
 
 class Except(Exception):
     def __init__(self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
-        self.timestamp = datetime.utcnow()
+        self.timestamp = utcnow()
         if severity == None:
             raise ValueError("expecting severity to not be None")
 
@@ -69,8 +72,11 @@ class Except(Exception):
             tb = getattr(e, "__traceback__", None)
             if tb is not None:
                 trace = _parse_traceback(tb)
+                if SHORT_STACKS:
+                    # 3.12 only traces back to first try block
+                    trace = trace + get_stacktrace(stack_depth + 1)
             else:
-                trace = get_traceback(0)
+                trace = get_stacktrace(stack_depth + 1)
 
             cause = Except.wrap(getattr(e, "__cause__", None))
             message = getattr(e, "message", None)
@@ -79,9 +85,7 @@ class Except(Exception):
                     severity=ERROR, template=f"{e.__class__.__name__}: {message}", trace=trace, cause=cause,
                 )
             else:
-                output = Except(
-                    severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=trace, cause=cause,
-                )
+                output = Except(severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=trace, cause=cause)
 
             trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
             output.trace.extend(trace)
@@ -140,7 +144,7 @@ class Except(Exception):
         for c in listwrap(self.cause):
             try:
                 if isinstance(c, Except):
-                    cause_strings.append(c._desc_text(depth+1))
+                    cause_strings.append(c._desc_text(depth + 1))
                 else:
                     cause_strings.append(str(c))
             except Exception as cause:
@@ -155,46 +159,10 @@ class Except(Exception):
 
 
 def get_stacktrace(start=0):
-    """
-    SNAGGED FROM traceback.py
-    Altered to return Data
-
-    Extract the raw traceback from the current stack frame.
-
-    Each item in the returned list is a quadruple (filename,
-    line number, function name, text), and the entries are in order
-    from newest to oldest
-    """
-    try:
-        raise ZeroDivisionError
-    except ZeroDivisionError:
-        trace = sys.exc_info()[2]
-        f = trace.tb_frame.f_back
-
-    for i in range(start):
-        f = f.f_back
-
-    stack = []
-    while f is not None:
-        stack.append({
-            "file": f.f_code.co_filename,
-            "line": f.f_lineno,
-            "method": f.f_code.co_name,
-        })
-        f = f.f_back
+    stack = traceback.extract_stack()[: -start - 1]
+    stack.reverse()
+    stack = [{"file": f.filename, "line": f.lineno, "method": f.name} for f in stack]
     return stack
-
-
-def get_traceback(start):
-    """
-    SNAGGED FROM traceback.py
-
-    RETURN list OF dicts DESCRIBING THE STACK TRACE
-    """
-    tb = sys.exc_info()[2]
-    for i in range(start):
-        tb = tb.tb_next
-    return _parse_traceback(tb)
 
 
 def _parse_traceback(tb):

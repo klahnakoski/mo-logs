@@ -9,11 +9,10 @@
 #
 import os
 import sys
-from datetime import datetime
 from threading import current_thread
 
 from mo_dots import Data, coalesce, listwrap, unwraplist, dict_to_data, is_data, to_data
-from mo_future import is_text, STDOUT
+from mo_future import is_text, STDOUT, utcnow
 from mo_imports import delay_import
 from mo_kwargs import override
 
@@ -165,7 +164,7 @@ class Log(object):
         :param more_params: *any more parameters (which will overwrite default_params)
         :return:
         """
-        timestamp = datetime.utcnow()
+        timestamp = utcnow()
         if not is_text(template):
             logger.error("logger.info was expecting a string template")
 
@@ -191,7 +190,7 @@ class Log(object):
         :param more_params: more parameters (which will overwrite default_params)
         :return:
         """
-        timestamp = datetime.utcnow()
+        timestamp = utcnow()
         template = ("*" * 80) + CR + indent(template, prefix="** ").strip() + CR + ("*" * 80)
         Log._annotate(
             LogItem(
@@ -268,7 +267,7 @@ class Log(object):
         if "values" in more_params.keys():
             logger.error("Can not handle a logging parameter by name `values`")
         if exc_info is True:
-            exc_info = Except.wrap(sys.exc_info())
+            exc_info = Except.wrap(sys.exc_info()[1])
 
         if isinstance(default_params, BaseException):
             cause = default_params

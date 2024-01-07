@@ -7,7 +7,6 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-import json
 import logging
 
 from mo_dots import from_data, dict_to_data
@@ -52,6 +51,13 @@ class StructuredLogger_usingHandler(StructuredLogger):
 
         record.exc_text = expand_template(template, params)
         for k, v in params.params.leaves():
+            if v.__class__.__name__ == "Date":
+                ms = round(float("0."+v.format("%f")), 3)
+                if not ms:
+                    ms = ""
+                else:
+                    ms = ms[1:]
+                v = v.format(f"%Y-%m-%dT%H:%M:%S{ms}Z")
             setattr(record, k, v)
         self.handler.handle(record)
         self.count += 1
