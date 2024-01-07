@@ -67,25 +67,25 @@ class Except(Exception):
             e.cause = unwraplist([Except.wrap(c) for c in listwrap(e.cause)])
             return Except(**e)
         else:
+            this_trace = get_stacktrace(stack_depth + 1)
             tb = getattr(e, "__traceback__", None)
             if tb is not None:
-                trace = _parse_traceback(tb)
+                short_trace = _parse_traceback(tb)  # 3.12 only traces back to first try block
+                full_trace = short_trace + this_trace
             else:
-                trace = get_traceback(0)
+                full_trace = this_trace
 
             cause = Except.wrap(getattr(e, "__cause__", None))
             message = getattr(e, "message", None)
             if message:
                 output = Except(
-                    severity=ERROR, template=f"{e.__class__.__name__}: {message}", trace=trace, cause=cause,
+                    severity=ERROR, template=f"{e.__class__.__name__}: {message}", trace=full_trace, cause=cause,
                 )
             else:
-                output = Except(
-                    severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=trace, cause=cause,
-                )
+                output = Except(severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=full_trace, cause=cause,)
 
-            trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
-            output.trace.extend(trace)
+            full_trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
+            output.trace.extend(full_trace)
             return output
 
     @property
@@ -141,7 +141,7 @@ class Except(Exception):
         for c in listwrap(self.cause):
             try:
                 if isinstance(c, Except):
-                    cause_strings.append(c._desc_text(depth+1))
+                    cause_strings.append(c._desc_text(depth + 1))
                 else:
                     cause_strings.append(str(c))
             except Exception as cause:
@@ -156,46 +156,10 @@ class Except(Exception):
 
 
 def get_stacktrace(start=0):
-    """
-    SNAGGED FROM traceback.py
-    Altered to return Data
-
-    Extract the raw traceback from the current stack frame.
-
-    Each item in the returned list is a quadruple (filename,
-    line number, function name, text), and the entries are in order
-    from newest to oldest
-    """
-    try:
-        raise ZeroDivisionError
-    except ZeroDivisionError:
-        trace = sys.exc_info()[2]
-        f = trace.tb_frame.f_back
-
-    for i in range(start):
-        f = f.f_back
-
-    stack = []
-    while f is not None:
-        stack.append({
-            "file": f.f_code.co_filename,
-            "line": f.f_lineno,
-            "method": f.f_code.co_name,
-        })
-        f = f.f_back
+    stack = traceback.extract_stack()[:-start-1]
+    stack.reverse()
+    stack = [{"file": f.filename, "line": f.lineno, "method": f.name} for f in stack]
     return stack
-
-
-def get_traceback(start):
-    """
-    SNAGGED FROM traceback.py
-
-    RETURN list OF dicts DESCRIBING THE STACK TRACE
-    """
-    tb = sys.exc_info()[2]
-    for i in range(start):
-        tb = tb.tb_next
-    return _parse_traceback(tb)
 
 
 def _parse_traceback(tb):

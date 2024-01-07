@@ -267,7 +267,7 @@ class Log(object):
         if "values" in more_params.keys():
             logger.error("Can not handle a logging parameter by name `values`")
         if exc_info is True:
-            cause = Except.wrap(sys.exc_info()[1])
+            exc_info = Except.wrap(sys.exc_info()[1])
 
         if isinstance(default_params, BaseException):
             cause = default_params
