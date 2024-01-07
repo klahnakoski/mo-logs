@@ -13,7 +13,7 @@ import zlib
 
 from mo_math import randoms
 
-from mo_logs import Log
+from mo_logs import Log, Except
 from mo_threads import Queue, Thread, Till
 
 
@@ -34,6 +34,10 @@ class UdpListener(object):
                 self.thread = Thread.run("listen on " + str(self.port), self._worker)
                 break
             except Exception as cause:
+                cause = Except.wrap(cause)
+                if "[Errno 13] Permission denied" in cause:
+                    # happens on travis occasionally, and then an infinite loop
+                    raise cause
                 self.sock.close()
                 Log.warning("unable to setup listener", cause=cause)
                 Till(seconds=randoms.int(10)).wait()
