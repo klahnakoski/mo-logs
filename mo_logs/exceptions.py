@@ -8,11 +8,12 @@
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import sys
-from datetime import datetime
 
 from mo_dots import Null, is_data, listwrap, unwraplist, to_data, dict_to_data
-from mo_future import is_text
-from mo_logs.strings import CR, expand_template, indent
+from mo_future import is_text, utcnow
+import traceback
+
+from mo_logs.strings import CR, expand_template, indent, between
 
 FATAL = "FATAL"
 ERROR = "ERROR"
@@ -37,7 +38,7 @@ class LogItem(object):
 
 class Except(Exception):
     def __init__(self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
-        self.timestamp = datetime.utcnow()
+        self.timestamp = utcnow()
         if severity == None:
             raise ValueError("expecting severity to not be None")
 
