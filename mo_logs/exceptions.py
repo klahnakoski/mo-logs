@@ -24,6 +24,8 @@ INFO = "INFO"
 NOTE = "NOTE"
 TOO_DEEP = 50  # MAXIMUM DEPTH OF CAUSAL CHAIN
 
+SHORT_STACKS = sys.version_info >= (3, 12)
+
 
 class LogItem(object):
     def __init__(self, severity, template, params, timestamp):
@@ -67,25 +69,26 @@ class Except(Exception):
             e.cause = unwraplist([Except.wrap(c) for c in listwrap(e.cause)])
             return Except(**e)
         else:
-            this_trace = get_stacktrace(stack_depth + 1)
             tb = getattr(e, "__traceback__", None)
             if tb is not None:
-                short_trace = _parse_traceback(tb)  # 3.12 only traces back to first try block
-                full_trace = short_trace + this_trace
+                trace = _parse_traceback(tb)
+                if SHORT_STACKS:
+                    # 3.12 only traces back to first try block
+                    trace = trace + get_stacktrace(stack_depth + 1)
             else:
-                full_trace = this_trace
+                trace = get_stacktrace(stack_depth + 1)
 
             cause = Except.wrap(getattr(e, "__cause__", None))
             message = getattr(e, "message", None)
             if message:
                 output = Except(
-                    severity=ERROR, template=f"{e.__class__.__name__}: {message}", trace=full_trace, cause=cause,
+                    severity=ERROR, template=f"{e.__class__.__name__}: {message}", trace=trace, cause=cause,
                 )
             else:
-                output = Except(severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=full_trace, cause=cause,)
+                output = Except(severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=trace, cause=cause)
 
-            full_trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
-            output.trace.extend(full_trace)
+            trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
+            output.trace.extend(trace)
             return output
 
     @property
@@ -156,7 +159,7 @@ class Except(Exception):
 
 
 def get_stacktrace(start=0):
-    stack = traceback.extract_stack()[:-start-1]
+    stack = traceback.extract_stack()[: -start - 1]
     stack.reverse()
     stack = [{"file": f.filename, "line": f.lineno, "method": f.name} for f in stack]
     return stack
