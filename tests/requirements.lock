@@ -1,0 +1,27 @@
+# Tests pass with these versions 2024-01-31T04:03:35Z
+beautifulsoup4==4.12.3
+boto==2.49.0
+certifi==2023.11.17
+charset-normalizer==3.3.2
+graypy==2.1.0
+hjson==3.1.0
+idna==3.6
+jx-python==3.99.20292
+mo-collections==3.96.20290
+mo-dots==8.519.24031
+mo-files==6.370.23104
+mo-future==7.519.24031
+mo-imports==5.519.24031
+mo-json==6.370.23104
+mo-json-config==3.370.23104
+mo-kwargs==7.519.24031
+mo-logs==8.519.24031
+mo-math==7.368.23092
+mo-testing==3.124.20293
+mo-threads==5.368.23092
+mo-times==5.368.23092
+pip==23.3.2
+requests==2.31.0
+setuptools==69.0.3
+soupsieve==2.5
+urllib3==2.2.0
