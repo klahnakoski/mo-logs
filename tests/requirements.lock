@@ -1,21 +1,21 @@
-# Tests pass with these versions 2024-01-31T04:03:35Z
+# Tests pass with these versions 2024-02-02
 beautifulsoup4==4.12.3
 boto==2.49.0
-certifi==2023.11.17
+certifi==2024.2.2
 charset-normalizer==3.3.2
 graypy==2.1.0
 hjson==3.1.0
 idna==3.6
 jx-python==3.99.20292
 mo-collections==3.96.20290
-mo-dots==8.519.24031
+mo-dots==9.520.24032
 mo-files==6.370.23104
-mo-future==7.519.24031
-mo-imports==5.519.24031
+mo-future==7.520.24032
+mo-imports==5.520.24032
 mo-json==6.370.23104
 mo-json-config==3.370.23104
-mo-kwargs==7.519.24031
-mo-logs==8.519.24031
+mo-kwargs==7.520.24032
+mo-logs==8.522.24033
 mo-math==7.368.23092
 mo-testing==3.124.20293
 mo-threads==5.368.23092
