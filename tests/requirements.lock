@@ -15,7 +15,7 @@ mo-imports==7.527.24034
 mo-json==6.370.23104
 mo-json-config==3.370.23104
 mo-kwargs==7.527.24034
-mo-logs==7.368.23092
+mo-logs==8.527.24034
 mo-math==7.368.23092
 mo-testing==3.124.20293
 mo-threads==5.368.23092
