@@ -37,7 +37,10 @@ class StructuredLogger_usingStream(StructuredLogger):
             self.flush()
 
     def stop(self):
-        self.flush()
+        try:
+            self.flush()
+        except Exception:
+            pass
 
 
 class _UTF8Encoder(object):
