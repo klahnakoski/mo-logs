@@ -14,14 +14,14 @@
     ],
     "description": "More Logs! Structured Logging and Exception Handling",
     "extras_require": {"tests": [
-                        "mo-json", "mo-threads==5.368.23092",              "mo-testing",
-                      "mo-kwargs",               "jx-python",                    "boto",
-                 "beautifulsoup4",                  "graypy"
+           "mo-json>=6.370.23104", "mo-threads==5.368.23092", "mo-testing>=3.124.20293",
+         "mo-kwargs>=7.368.23092",   "jx-python>=3.99.20292",            "boto>=2.49.0",
+         "beautifulsoup4>=4.12.3",           "graypy>=2.1.0"
     ]},
     "include_package_data": true,
     "install_requires": [
-           "mo-dots==9.530.24035",  "mo-future==7.520.24032", "mo-imports==7.530.24035",
-         "mo-kwargs==7.530.24035"
+           "mo-dots==9.531.24035",  "mo-future==7.531.24035", "mo-imports==7.531.24035",
+         "mo-kwargs==7.531.24035"
     ],
     "license": "MPL 2.0",
     "long_description": {
@@ -506,6 +506,6 @@
     "name": "mo-logs",
     "packages": ["mo_logs"],
     "url": "https://github.com/klahnakoski/mo-logs",
-    "version": "8.530.24035",
+    "version": "8.531.24035",
     "zip_safe": false
 }
