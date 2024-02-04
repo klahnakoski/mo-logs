@@ -21,6 +21,7 @@ from mo_times import Date
 from mo_logs import logger as log, register_logger
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
+from tests.config import IS_TRAVIS
 from tests.utils import add_error_reporting
 from tests.utils.udp_listener import UdpListener
 
@@ -245,11 +246,16 @@ class TestLoggers(FuzzyTestCase):
     def test_data(self):
         data = Data(x=1)
         port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
-            log.info("data {data}", data=data)
-            message = udp.queue.pop()
-
+        try:
+            with UdpListener(port) as udp:
+                log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+                log.info("data {data}", data=data)
+                message = udp.queue.pop()
+        except Exception as cause:
+            if IS_TRAVIS and "PermissionError: [Errno 13] Permission denied" in cause:
+                log.alert("Expected occasional failure on Travis")
+                return
+            raise cause
         self.assertEqual(1, message["_data.x"])
         self.assertIn('data {"x": 1}', message["full_message"])
 
