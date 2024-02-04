@@ -24,6 +24,7 @@ from mo_logs.exceptions import (
     format_trace,
     WARNING,
     get_stacktrace,
+    ERROR
 )
 from mo_logs.log_usingStream import StructuredLogger_usingStream
 from mo_logs.strings import CR, indent
