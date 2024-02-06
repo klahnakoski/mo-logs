@@ -1,4 +1,4 @@
-# Tests pass with these versions 2024-02-04
+# Tests pass with these versions 2024-02-06
 beautifulsoup4==4.12.3
 boto==2.49.0
 certifi==2024.2.2

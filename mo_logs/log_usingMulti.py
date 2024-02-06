@@ -7,7 +7,7 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-from mo_logs import logger
+from mo_logs import logger as _logger
 
 from mo_logs.exceptions import suppress_exception, Except
 from mo_logs.log_usingNothing import StructuredLogger
@@ -25,7 +25,7 @@ class StructuredLogger_usingMulti(StructuredLogger):
             except Exception as e:
                 e = Except.wrap(e)
                 bad.append(m)
-                logger.warning(
+                _logger.warning(
                     "Logger {{type|quote}} failed! It will be removed.", type=m.__class__.__name__, cause=e,
                 )
         with suppress_exception:
@@ -36,7 +36,7 @@ class StructuredLogger_usingMulti(StructuredLogger):
 
     def add_log(self, logger):
         if logger == None:
-            logger.warning("Expecting a non-None logger")
+            _logger.warning("Expecting a non-None logger")
 
         self.many.append(logger)
         return self
