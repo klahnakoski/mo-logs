@@ -26,7 +26,7 @@ from mo_logs.exceptions import (
     get_stacktrace,
     ERROR
 )
-from mo_logs.log_usingStream import StructuredLogger_usingStream
+from mo_logs.log_usingPrint import StructuredLogger_usingPrint
 from mo_logs.strings import CR, indent
 
 STACKTRACE = "\n{trace_text|indent}\n{cause_text}"
@@ -43,9 +43,8 @@ class Log(object):
     """
     FOR STRUCTURED LOGGING AND EXCEPTION CHAINING
     """
-
     trace = False
-    main_log = StructuredLogger_usingStream(STDOUT)
+    main_log = StructuredLogger_usingPrint()
     logging_multi = None
     profiler = None  # simple pypy-friendly profiler
     error_mode = False  # prevent error loops
@@ -123,7 +122,7 @@ class Log(object):
         EXECUTING MULUTIPLE TIMES IN A ROW IS SAFE, IT HAS NO NET EFFECT, IT STILL LOGS TO stdout
         :return: NOTHING
         """
-        old_log, cls.main_log = cls.main_log, StructuredLogger_usingStream(STDOUT)
+        old_log, cls.main_log = cls.main_log, StructuredLogger_usingPrint()
         old_log.stop()
         cls.trace = False
         cls.cprofile = False
@@ -418,7 +417,7 @@ def _using_file(config):
 def _using_console(config):
     from mo_logs.log_usingThread import StructuredLogger_usingThread
 
-    return StructuredLogger_usingThread(StructuredLogger_usingStream(STDOUT))
+    return StructuredLogger_usingThread(StructuredLogger_usingPrint())
 
 
 def _using_mozlog(config):
@@ -429,6 +428,7 @@ def _using_mozlog(config):
 
 def _using_stream(config):
     from mo_logs.log_usingThread import StructuredLogger_usingThread
+    from mo_logs.log_usingStream import StructuredLogger_usingStream
 
     return StructuredLogger_usingThread(StructuredLogger_usingStream(config.stream))
 

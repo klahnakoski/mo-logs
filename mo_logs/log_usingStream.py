@@ -34,7 +34,10 @@ class StructuredLogger_usingStream(StructuredLogger):
         value = expand_template(template, params)
         with self.locker:
             self.writer(value + CR)
-            self.flush()
+            try:
+                self.flush()
+            except Exception:
+                pass
 
     def stop(self):
         try:
