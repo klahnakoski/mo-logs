@@ -44,7 +44,7 @@ class StructuredLogger_usingLogger(StructuredLogger):
             cause = exceptions.Except.wrap(cause)
             import sys
 
-            sys.stderr.write("can not write to logger: " + str(cause))
+            sys.stderr.write("can not write to logger: " + text(cause))
 
     def stop(self):
         try:
