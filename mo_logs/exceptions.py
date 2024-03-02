@@ -85,7 +85,7 @@ class Except(Exception):
                     severity=ERROR, template=f"{e.__class__.__name__}: {message}", trace=trace, cause=cause,
                 )
             else:
-                output = Except(severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=trace, cause=cause)
+                output = Except(severity=ERROR, template=f"{e.__class__.__name__}: {e}", trace=trace, cause=cause,)
 
             trace = get_stacktrace(stack_depth + 2)  # +2 = to remove the caller, and it's call to this' Except.wrap()
             output.trace.extend(trace)

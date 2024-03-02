@@ -10,7 +10,8 @@
 import logging
 from unittest import skip
 
-from mo_dots import Data
+from mo_dots import Data, Null
+from mo_files import File
 from mo_future import StringIO
 from mo_kwargs import override
 from mo_math import randoms
@@ -66,7 +67,7 @@ class TestLoggers(FuzzyTestCase):
     def test_graylogger(self):
         port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
         with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port}},)
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -74,7 +75,6 @@ class TestLoggers(FuzzyTestCase):
         self.assertTrue(message["full_message"].endswith("testing test"))
         self.assertTrue(message["file"].endswith("test_loggers.py"))
 
-        print(message)
         self.assertEqual(
             message,
             {
@@ -83,7 +83,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 70,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 71,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "MainThread",
             },
@@ -93,7 +93,7 @@ class TestLoggers(FuzzyTestCase):
     def test_graylogger_for_debugging(self):
         port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
         with UdpListener(port) as udp:
-            log.main_log = log.new_instance({"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port})
+            log.main_log = log.new_instance({"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,})
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -227,8 +227,8 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual("line 1", logger.lines[1])
 
     def test_hex(self):
-        result = expand_template("{value|hex}", {"value":"test"})
-        expected = '74657374'
+        result = expand_template("{value|hex}", {"value": "test"})
+        expected = "74657374"
         self.assertEqual(result, expected)
 
     def test_date(self):
@@ -239,7 +239,7 @@ class TestLoggers(FuzzyTestCase):
             log.info("date {date2}", date2=date)
             message = udp.queue.pop()
 
-        self.assertEqual('2023-12-10T00:00:00Z', message["_date2"])
+        self.assertEqual("2023-12-10T00:00:00Z", message["_date2"])
         self.assertIn("date 2023-12-10 00:00:00", message["full_message"])
 
     def test_data(self):
@@ -253,6 +253,28 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual(1, message["_data.x"])
         self.assertIn('data {"x": 1}', message["full_message"])
 
+    def test_using_file_handler(self):
+        File("test.log").delete()
+        try:
+            log.start(settings={"logs": {"class": "logging.FileHandler", "filename": "test.log",}})
+            log.info("data {data}", data={}, name=Null)
+            log.stop()
+            logs = File("test.log").read()
+            self.assertTrue(logs.strip().endswith("data {}"))
+        finally:
+            File("test.log").delete()
+
+    def test_using_datagram_handler(self):
+        log.start(settings={"logs": {"class": "logging.handlers.DatagramHandler", "host": "localhost", "port": 1234,}})
+
+        problem = []
+
+        def handleError(record):
+            problem.append(record)
+
+        log.logging_multi.many[0].handler.handleError = handleError
+        log.info("data {data}", data={}, name=Null)
+        self.assertFalse(problem)
 
 
 class LogUsingArray(StructuredLogger):

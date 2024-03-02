@@ -24,7 +24,7 @@ from mo_logs.exceptions import (
     format_trace,
     WARNING,
     get_stacktrace,
-    ERROR
+    ERROR,
 )
 from mo_logs.log_usingPrint import StructuredLogger_usingPrint
 from mo_logs.strings import CR, indent
@@ -43,6 +43,7 @@ class Log(object):
     """
     FOR STRUCTURED LOGGING AND EXCEPTION CHAINING
     """
+
     trace = False
     main_log = StructuredLogger_usingPrint()
     logging_multi = None
@@ -155,7 +156,9 @@ class Log(object):
             old_log.stop()
 
     @classmethod
-    def note(cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params):
+    def note(
+        cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params,
+    ):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -182,7 +185,9 @@ class Log(object):
     info = note
 
     @classmethod
-    def alarm(cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params):
+    def alarm(
+        cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params,
+    ):
         """
         :param template: *string* human readable string with placeholders for parameters
         :param default_params: *dict* parameters to fill in template
@@ -235,7 +240,9 @@ class Log(object):
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
         e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace,)
-        Log._annotate(e, stack_depth + 1, cls.static_template if static_template is None else static_template)
+        Log._annotate(
+            e, stack_depth + 1, cls.static_template if static_template is None else static_template,
+        )
 
     warn = warning
 

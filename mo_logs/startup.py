@@ -80,8 +80,7 @@ def read_settings(*, defs=None, filename=None, default_filename=None, complain=T
         logger.info("Using {{filename}} for configuration", filename=settings_file.abs_path)
     else:
         logger.error(
-            "Can not read configuration file {{filename}}",
-            filename=settings_file.abs_path,
+            "Can not read configuration file {{filename}}", filename=settings_file.abs_path,
         )
 
     settings = mo_json_config.get_file(settings_file)

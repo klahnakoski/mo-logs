@@ -59,7 +59,6 @@ class UdpListener(object):
         self.thread.join()
         return
 
-
     def _worker(self, please_stop):
         acc = {}
         try:
