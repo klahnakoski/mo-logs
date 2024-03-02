@@ -9,7 +9,7 @@
 #
 import logging
 
-from mo_dots import from_data, dict_to_data
+from mo_dots import from_data, dict_to_data, is_missing
 from mo_imports import delay_import
 from mo_kwargs import override
 
@@ -49,10 +49,15 @@ class StructuredLogger_usingHandler(StructuredLogger):
         record.threadName = params.thread.name
         record.process = params.machine.pid
 
-        record.exc_text = expand_template(template, params)
+        if params.cause or record.levelno >= logging.WARNING:
+            record.exc_text = expand_template(template, params)
+        else:
+            record.exc_text = record.msg
         for k, v in params.params.leaves():
+            if is_missing(v):
+                continue
             if v.__class__.__name__ == "Date":
-                ms = round(float("0."+v.format("%f")), 3)
+                ms = round(float("0." + v.format("%f")), 3)
                 if not ms:
                     ms = ""
                 else:

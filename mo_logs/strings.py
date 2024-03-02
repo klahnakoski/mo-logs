@@ -497,7 +497,7 @@ def hex(value):
         return builtin_hex(value)
     elif isinstance(value, bytes):
         return value.hex()
-    return str(value).encode('utf8').hex()
+    return str(value).encode("utf8").hex()
 
 
 _SNIP = "...<snip>..."
@@ -670,9 +670,7 @@ def _simple_expand(template, seq: Tuple[Data]):
                     result.append(val)
             except Exception as f:
                 logger.warning(
-                    f"Can not expand {op}|{rest} in template: {template_|json}",
-                    template_=template,
-                    cause=cause,
+                    f"Can not expand {op}|{rest} in template: {template_|json}", template_=template, cause=cause,
                 )
             result.append(f"[template expansion error: ({cause.message})]")
 
@@ -681,7 +679,7 @@ def _simple_expand(template, seq: Tuple[Data]):
 
 def chunk(data, size=0):
     for i in range(0, len(data), size):
-        yield data[i:i + size]
+        yield data[i : i + size]
 
 
 def toString(val):
@@ -934,11 +932,11 @@ def parse_template(template):
         prefix, residue = template[:i], template[i:]
         code, template = parse_code(residue)
         if code == '""':
-            append(prefix+'"', "")
+            append(prefix + '"', "")
         elif code == "''":
             append(prefix + "'", "")
         elif code.startswith("{{") and code.endswith("}}"):
-        # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
+            # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
             append(prefix, code[2:-2])
         elif code.startswith("{") and code.endswith("}"):
             # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
@@ -955,7 +953,7 @@ def parse_code(code):
     result = [first]
     while True:
         body = bodies[first].match(residue)
-        remainder = residue[body.end():]
+        remainder = residue[body.end() :]
         if not remainder:
             result.append(first)
             return "".join(result), residue

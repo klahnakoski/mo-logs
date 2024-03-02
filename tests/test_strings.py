@@ -97,35 +97,37 @@ class TestStrings(FuzzyTestCase):
 
     def test_parse4(self):
         result = parse_template("this is a test of {name|capitalize(\"some value\", lambda x: {'x': x})}")
-        expected = [("this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})')]
+        expected = [("this is a test of ", "name|capitalize(\"some value\", lambda x: {'x': x})",)]
         self.assertEqual(result, expected)
 
     def test_parse5(self):
         result = parse_template("this is a test of {{name|capitalize(\"some value\", lambda x: {'x': x})}}")
-        expected = [("this is a test of ", 'name|capitalize("some value", lambda x: {\'x\': x})')]
+        expected = [("this is a test of ", "name|capitalize(\"some value\", lambda x: {'x': x})",)]
         self.assertEqual(result, expected)
 
     def test_parse6(self):
-        result = parse_template("this is a test of {name|capitalize(\"some () value\")}")
+        result = parse_template('this is a test of {name|capitalize("some () value")}')
         expected = [("this is a test of ", 'name|capitalize("some () value")')]
         self.assertEqual(result, expected)
 
     def test_parse_extra_curly(self):
         with self.assertRaises(Exception):
-            parse_template("this is a test of {name|capitalize{(\"some () value\"}")
+            parse_template('this is a test of {name|capitalize{("some () value"}')
 
     def test_double_braces(self):
         result = parse_template("this is a {{{test}}} of {name|capitalize('some () value')}")
-        expected = [("this is a ", "{test}"), (" of ", 'name|capitalize(\'some () value\')')]
+        expected = [
+            ("this is a ", "{test}"),
+            (" of ", "name|capitalize('some () value')"),
+        ]
         self.assertEqual(result, expected)
 
     def test_code(self):
         result = parse_template('a = "{"\nb="}"\n')
-        expected=[('a = "{"\nb="}"\n', '')]
+        expected = [('a = "{"\nb="}"\n', "")]
         self.assertEqual(result, expected)
 
     def test_double_quote(self):
         result = parse_template(' - ""{location.file}:{location.line}"" -')
-        expected = [(' - "', 'location.file'), (':', 'location.line'), ('" -', '')]
+        expected = [(' - "', "location.file"), (":", "location.line"), ('" -', "")]
         self.assertEqual(result, expected)
-

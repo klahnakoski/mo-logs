@@ -7,6 +7,7 @@ from mo_logs import Log
 def add_error_reporting(suite):
     def add_hanlder(function):
         test_name = get_function_name(function)
+
         def error_hanlder(*args, **kwargs):
             try:
                 return function(*args, **kwargs)
