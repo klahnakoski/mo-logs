@@ -14,7 +14,6 @@ from mo_dots import Data, Null
 from mo_files import File
 from mo_future import StringIO
 from mo_kwargs import override
-from mo_math import randoms
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till, stop_main_thread, start_main_thread
 from mo_times import Date
@@ -24,8 +23,6 @@ from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
 from tests.utils import add_error_reporting
 from tests.utils.udp_listener import UdpListener
-
-UDP_PORT_RANGE = Data(FROM=12200, LENGTH=4000)
 
 
 @add_error_reporting
@@ -65,9 +62,8 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual(logs[-len(expected) :], expected)
 
     def test_graylogger(self):
-        port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+        with UdpListener() as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port}})
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -83,7 +79,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 71,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 67,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "MainThread",
             },
@@ -91,9 +87,8 @@ class TestLoggers(FuzzyTestCase):
         self.assertIsNone(message["_stack_info"])
 
     def test_graylogger_for_debugging(self):
-        port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
-            log.main_log = log.new_instance({"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,})
+        with UdpListener() as udp:
+            log.main_log = log.new_instance({"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port})
             log.note("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -117,11 +112,10 @@ class TestLoggers(FuzzyTestCase):
         self.assertIsNone(message["_stack_info"])
 
     def test_extras(self):
-        port = UDP_PORT_RANGE.FROM + randoms.int(UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
+        with UdpListener() as udp:
             log.start(
                 settings={
-                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,},
+                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port},
                     "extra": {"some_name": {"v": "some_value"}},
                 },
             )
@@ -133,9 +127,8 @@ class TestLoggers(FuzzyTestCase):
         self.assertTrue(message["file"].endswith("test_loggers.py"))
 
     def test_graylogger_exception(self):
-        port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+        with UdpListener() as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port}})
             log.warning("testing {{value}}", value="test")
             message = udp.queue.pop()
 
@@ -233,9 +226,8 @@ class TestLoggers(FuzzyTestCase):
 
     def test_date(self):
         date = Date("2023-12-10")
-        port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+        with UdpListener() as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port}})
             log.info("date {date2}", date2=date)
             message = udp.queue.pop()
 
@@ -244,9 +236,8 @@ class TestLoggers(FuzzyTestCase):
 
     def test_data(self):
         data = Data(x=1)
-        port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
-        with UdpListener(port) as udp:
-            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": port,}},)
+        with UdpListener() as udp:
+            log.start(settings={"logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port}})
             log.info("data {data}", data=data)
             message = udp.queue.pop()
 
