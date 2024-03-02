@@ -11,6 +11,7 @@ import json
 import socket
 import zlib
 
+from mo_dots import Data
 from mo_math import randoms
 
 from mo_logs import Log, Except, logger
@@ -19,30 +20,38 @@ from mo_threads import Queue, Thread, Till
 from tests.config import IS_TRAVIS
 
 
+UDP_PORT_RANGE = Data(FROM=12200, LENGTH=4000)
+
+
 class UdpListener(object):
-    def __init__(self, port):
-        self.port = port
+    def __init__(self):
+        self.port = None
         self.sock = None
         self.queue = None
         self.thread = None
 
     def __enter__(self):
-        while True:
+        for i in range(10):
             try:
+                self.port = randoms.int(UDP_PORT_RANGE.FROM + UDP_PORT_RANGE.LENGTH)
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 self.sock.bind(("", self.port))
                 self.queue = Queue("from udp " + str(self.port))
                 self.thread = Thread.run("listen on " + str(self.port), self._worker)
-                break
+                return self
             except Exception as cause:
                 cause = Except.wrap(cause)
+                try:
+                    self.sock.close()
+                except Exception:
+                    pass
+
                 if "[Errno 13] Permission denied" in cause:
-                    # happens on travis occasionally, and then an infinite loop
-                    raise cause
-                self.sock.close()
+                    # happens occasionally, try a few more times
+                    continue
                 Log.warning("unable to setup listener", cause=cause)
                 Till(seconds=randoms.int(10)).wait()
-        return self
+        raise cause
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_val is not None and IS_TRAVIS and "PermissionError: [Errno 13] Permission denied" in exc_val:
