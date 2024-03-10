@@ -267,6 +267,31 @@ class TestLoggers(FuzzyTestCase):
         log.info("data {data}", data={}, name=Null)
         self.assertFalse(problem)
 
+    @skip
+    def test_log_bytes(self):
+        with UdpListener() as udp:
+            log.start(
+                settings={
+                    "logs": {"class": "graypy.GELFUDPHandler", "host": "localhost", "port": udp.port},
+                    "extra": {"some_name": {"v": "some_value"}},
+                },
+            )
+            # log odd characters
+            log.info("data {data}", data=b"\x1b[31mThis text is red.\x1b[0m")
+            message = udp.queue.pop()
+
+        self.assertIsInstance(message, dict)
+        self.assertEqual(message, {"_some_name.v": "some_value"})
+        self.assertTrue(message["file"].endswith("test_loggers.py"))
+
+    def test_do_not_start_in_start(self):
+        with self.assertRaises("start() from within start()"):
+            log.start(logs={"class": "tests.utils.setup_logging.JsonHandler"})
+
+    def test_missing_class(self):
+        with self.assertRaises("Can not find class"):
+            log.start(logs={"class": "tests.utils.setup_logging.MissingHandler"})
+
 
 class LogUsingArray(StructuredLogger):
     @override

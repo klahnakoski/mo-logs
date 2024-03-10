@@ -87,7 +87,7 @@ def make_handler_from_settings(settings):
         temp = __import__(path, globals(), locals(), [class_name], 0)
         constructor = object.__getattribute__(temp, class_name)
     except Exception as cause:
-        logger.error("Can not find class {{class}}", {"class": path}, cause=cause)
+        logger.error("Can not find class {class_name} in {path}", class_name=class_name, path=path, cause=cause)
 
     # IF WE NEED A FILE, MAKE SURE DIRECTORY EXISTS
     if settings.filename != None:
