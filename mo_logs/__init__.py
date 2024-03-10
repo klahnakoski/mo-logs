@@ -79,6 +79,9 @@ class Log(object):
         :param settings: ALL THE ABOVE PARAMETERS
         :return:
         """
+        if any("mo_logs" in step['file'] and step['method'] == "start" for step in get_stacktrace(1)):
+            raise Except(template="Can not call start() from within start().  Are you still importing?")
+
         if app_name:
             return LoggingContext(app_name)
 
