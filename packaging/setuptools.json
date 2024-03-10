@@ -30,7 +30,7 @@
             "# More Logs - Structured Logging and Exception Handling",
             "",
             "[![PyPI Latest Release](https://img.shields.io/pypi/v/mo-logs.svg)](https://pypi.org/project/mo-logs/)",
-            "[![Build Status](https://app.travis-ci.com/klahnakoski/mo-logs.svg?branch=master)](https://travis-ci.com/github/klahnakoski/mo-logs)",
+            " [![Build Status](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml)",
             " [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)",
             "[![Downloads](https://pepy.tech/badge/mo-logs)](https://pepy.tech/project/mo-logs)",
             "",
@@ -506,6 +506,6 @@
     "name": "mo-logs",
     "packages": ["mo_logs"],
     "url": "https://github.com/klahnakoski/mo-logs",
-    "version": "8.551.24062",
+    "version": "8.556.24070",
     "zip_safe": false
 }
