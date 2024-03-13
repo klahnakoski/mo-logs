@@ -50,6 +50,8 @@ def worker(logger: StructuredLogger, queue, period, please_stop):
     try:
         while not please_stop:
             log = queue.pop(till=please_stop)
+            if please_stop:
+                break
             logs = [log] + queue.pop_all()
             for log in logs:
                 if log is THREAD_STOP:

@@ -17,3 +17,6 @@ class StructuredLogger(object):
 
     def stop(self):
         pass
+
+
+StructuredLogger_usingNothing = StructuredLogger

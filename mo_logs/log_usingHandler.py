@@ -65,6 +65,9 @@ class StructuredLogger_usingHandler(StructuredLogger):
                 else:
                     ms = ms[1:]
                 v = v.format(f"%Y-%m-%dT%H:%M:%S{ms}Z")
+            elif isinstance(v, bytes):
+                # TODO: REMOVE ME
+                v = v.decode('latin1')
             elif isinstance(v, timedelta):
                 v = v.total_seconds()
             else:

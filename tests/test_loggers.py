@@ -7,8 +7,8 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-import logging
 import datetime
+import logging
 from unittest import skip
 
 from mo_dots import Data, Null
@@ -80,7 +80,7 @@ class TestLoggers(FuzzyTestCase):
                 "_process_name": "MainProcess",
                 "facility": "mo-logs",
                 "level": 6,
-                "line": 67,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
+                "line": 68,  # <-- CAREFUL WHEN REFORMATTING THIS FILE, THIS CAN CHANGE
                 "version": "1.0",
                 "_thread_name": "MainThread",
             },
@@ -295,6 +295,8 @@ class TestLoggers(FuzzyTestCase):
 
     def test_bytes_in_log(self):
         log.start(settings={"logs": {"class": "tests.test_loggers.HandlerUsingArray"}})
+        log.main_log.thread.stop().join()
+        log.main_log = log.logging_multi
         data = 'this平和'
         log.info("data {data}", data=data.encode('utf8'))
 
@@ -303,6 +305,8 @@ class TestLoggers(FuzzyTestCase):
 
     def test_timedelta_in_log(self):
         log.start(settings={"logs": {"class": "tests.test_loggers.HandlerUsingArray"}})
+        log.main_log.thread.stop().join()
+        log.main_log = log.logging_multi
         data = datetime.timedelta(days=1)
         log.info("data {data}", data=data)
 
