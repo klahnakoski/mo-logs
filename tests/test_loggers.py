@@ -8,6 +8,7 @@
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import logging
+import datetime
 from unittest import skip
 
 from mo_dots import Data, Null
@@ -292,6 +293,28 @@ class TestLoggers(FuzzyTestCase):
         with self.assertRaises("Can not find class"):
             log.start(logs={"class": "tests.utils.setup_logging.MissingHandler"})
 
+    def test_bytes_in_log(self):
+        log.start(settings={"logs": {"class": "tests.test_loggers.HandlerUsingArray"}})
+        data = 'this平和'
+        log.info("data {data}", data=data.encode('utf8'))
+
+        handler = log.logging_multi.many[0].handler
+        self.assertEqual(handler.lines[0].data, data.encode('utf8').decode('latin1'))
+
+    def test_timedelta_in_log(self):
+        log.start(settings={"logs": {"class": "tests.test_loggers.HandlerUsingArray"}})
+        data = datetime.timedelta(days=1)
+        log.info("data {data}", data=data)
+
+        handler = log.logging_multi.many[0].handler
+        self.assertEqual(handler.lines[0].data, 24*60*60)
+
+    def test_params_to_handler(self):
+        log.start(settings={"logs": {"class": "tests.test_loggers.HandlerUsingArray", "params": {"a": 1}}})
+        handler = log.logging_multi.many[0].handler
+
+        self.assertTrue(isinstance(handler.params, dict))
+
 
 class LogUsingArray(StructuredLogger):
     @override
@@ -310,6 +333,17 @@ class LogUsingLines(StructuredLogger):
     def write(self, template, params):
         value = expand_template(template, params)
         self.lines.append(value)
+
+
+class HandlerUsingArray(logging.Handler):
+
+    def __init__(self, params=None):
+        super().__init__()
+        self.params = params
+        self.lines = []
+
+    def emit(self, record):
+        self.lines.append(record)
 
 
 register_logger("array", LogUsingArray)
