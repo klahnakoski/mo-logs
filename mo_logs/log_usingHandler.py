@@ -8,9 +8,11 @@
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import logging
+from datetime import timedelta
 
 from mo_dots import from_data, dict_to_data, is_missing
 from mo_imports import delay_import
+from mo_json import scrub
 from mo_kwargs import override
 
 from mo_logs import logger, STACKTRACE
@@ -31,7 +33,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
         except Exception as cause:
             Log.trace = True
         self.count = 0
-        self.handler = make_handler_from_settings(settings)
+        self.handler = make_handler_from_config(settings)
 
     def write(self, template, params):
         record = logging.LogRecord(
@@ -63,6 +65,13 @@ class StructuredLogger_usingHandler(StructuredLogger):
                 else:
                     ms = ms[1:]
                 v = v.format(f"%Y-%m-%dT%H:%M:%S{ms}Z")
+            elif isinstance(v, bytes):
+                # TODO: REMOVE ME
+                v = v.decode('latin1')
+            elif isinstance(v, timedelta):
+                v = v.total_seconds()
+            else:
+                v = scrub(v)
             setattr(record, k, v)
         self.handler.handle(record)
         self.count += 1
@@ -72,14 +81,14 @@ class StructuredLogger_usingHandler(StructuredLogger):
         self.handler.close()
 
 
-def make_handler_from_settings(settings):
-    assert settings["class"]
-    settings.self = None
+def make_handler_from_config(config):
+    assert config["class"]
+    config.self = None
 
-    settings = dict_to_data({**settings})
+    config = dict_to_data({**config})
 
     # IMPORT MODULE FOR HANDLER
-    path = settings["class"].split(".")
+    path = config["class"].split(".")
     class_name = path[-1]
     path = ".".join(path[:-1])
     constructor = None
@@ -90,20 +99,19 @@ def make_handler_from_settings(settings):
         logger.error("Can not find class {class_name} in {path}", class_name=class_name, path=path, cause=cause)
 
     # IF WE NEED A FILE, MAKE SURE DIRECTORY EXISTS
-    if settings.filename != None:
+    if config.filename != None:
         from mo_files import File
 
-        f = File(settings.filename)
+        f = File(config.filename)
         if not f.parent.exists:
             f.parent.create()
 
-    settings["class"] = None
-    settings["cls"] = None
-    settings["log_type"] = None
-    settings["settings"] = None
-    params = from_data(settings)
+    config["class"] = None
+    config["cls"] = None
+    config["log_type"] = None
+    config["settings"] = None
     try:
-        log_instance = constructor(**params)
+        log_instance = constructor(**{k:from_data(v) for k, v in config.items()})
         return log_instance
     except Exception as cause:
         logger.error("problem with making handler", cause=cause)

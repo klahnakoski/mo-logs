@@ -677,9 +677,19 @@ def _simple_expand(template, seq: Tuple[Data]):
     return "".join(result)
 
 
-def chunk(data, size=0):
-    for i in range(0, len(data), size):
-        yield data[i : i + size]
+def chunk(data, size):
+    if size < 1:
+        logger.error("Can not chunk data into size less than 1", size=size)
+    i = 0
+    acc = []
+    for v in data:
+        acc.append(v)
+        if len(acc) >= size:
+            yield i, acc
+            i += 1
+            acc = []
+    if acc:
+        yield i, acc
 
 
 def toString(val):
