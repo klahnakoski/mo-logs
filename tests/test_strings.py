@@ -11,7 +11,7 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk
+from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma
 
 
 class TestStrings(FuzzyTestCase):
@@ -151,3 +151,8 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(
             result, [(0, [0, 1, 2, 3, 4, 5, 6]), (1, [7, 8, 9, 10, 11, 12, 13]), (2, [14, 15, 16, 17, 18, 19])]
         )
+
+    def test_comma(self):
+        self.assertEqual(comma(1000), "1,000")
+        self.assertEqual(comma(2000.1), "2,000.1")
+        self.assertEqual(comma(3000000.99), "3,000,000.99")
