@@ -9,13 +9,14 @@
 #
 from unittest import skip
 
-from mo_testing.fuzzytestcase import FuzzyTestCase
+from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 
 from mo_logs import constants
 
 CONSTANT = True
 
 
+@add_error_reporting
 class TestConstants(FuzzyTestCase):
     def test_set(self):
         constants.set({"mo_logs": {"constants": {"DEBUG": False}}})
