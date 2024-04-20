@@ -111,7 +111,7 @@ class Except(Exception):
         return self._desc_text(0)
 
     def _desc_text(self, depth):
-        output = self.severity + ": " + self.template + CR
+        output = f"{self.severity}: {self.template}{CR}"
         if self.params:
             try:
                 output = expand_template(output, self.params)
