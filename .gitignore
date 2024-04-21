@@ -8,7 +8,5 @@ vendor
 *.egg-info
 build
 __pycache__
-
 /setup.py
-
-
+/MANIFEST.in
