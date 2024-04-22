@@ -1,4 +1,4 @@
-mo-json>=6.597.24113
+mo-json>=6.589.24111
 mo-threads>=6.589.24111
 mo-testing>=8.590.24111
 mo-kwargs>=7.584.24095
