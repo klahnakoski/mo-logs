@@ -11,7 +11,7 @@ import datetime
 import logging
 from unittest import skip
 
-from mo_dots import Data, Null
+from mo_dots import Data, Null, register_primitive
 from mo_files import File
 from mo_future import StringIO
 from mo_kwargs import override
@@ -350,4 +350,5 @@ class HandlerUsingArray(logging.Handler):
         self.lines.append(record)
 
 
+register_primitive(Date)  # TODO: REMOVE THIS LINE
 register_logger("array", LogUsingArray)
