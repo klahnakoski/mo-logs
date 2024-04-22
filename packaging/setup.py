@@ -15,6 +15,6 @@ setup(
     name='mo-logs',
     packages=["mo_logs"],
     url='https://github.com/klahnakoski/mo-logs',
-    version='8.596.24113',
+    version='8.597.24113',
     zip_safe=False
 )
