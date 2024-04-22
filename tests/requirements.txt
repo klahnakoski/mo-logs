@@ -1,6 +1,6 @@
 mo-json>=6.589.24111
 mo-threads>=6.589.24111
-mo-testing>=8.590.24111
+mo-testing>=8.591.24112
 mo-kwargs>=7.584.24095
 jx-python>=3.99.20292
 boto>=2.49.0
