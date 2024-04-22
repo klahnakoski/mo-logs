@@ -14,7 +14,7 @@
     ],
     "description": "More Logs! Structured Logging and Exception Handling",
     "extras_require": {"tests": [
-           "mo-json>=6.589.24111", "mo-threads>=6.589.24111", "mo-testing>=8.590.24111",
+           "mo-json>=6.597.24113", "mo-threads>=6.589.24111", "mo-testing>=8.590.24111",
          "mo-kwargs>=7.584.24095",   "jx-python>=3.99.20292",            "boto>=2.49.0",
          "beautifulsoup4>=4.12.3",           "graypy>=2.1.0"
     ]},
