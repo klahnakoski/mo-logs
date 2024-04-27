@@ -14,40 +14,20 @@ import string
 from datetime import date, datetime as builtin_datetime, timedelta
 from typing import Tuple
 
-from mo_dots import (
-    Data,
-    coalesce,
-    is_data,
-    is_list,
-    to_data,
-    is_sequence,
-    is_many,
-)
-from mo_future import (
-    get_function_name,
-    is_text,
-    round as _round,
-    transpose,
-    xrange,
-    zip_longest,
-    binary_type,
-)
+from mo_dots import Data, coalesce, is_data, is_list, to_data, is_sequence, is_many, is_null
+from mo_future import get_function_name, is_text, round as _round, transpose, xrange, zip_longest, binary_type
 from mo_imports import delay_import
 
-from mo_logs.convert import (
-    datetime2string,
-    datetime2unix,
-    milli2datetime,
-    unix2datetime,
-    value2json,
-)
+from mo_logs.convert import datetime2string, datetime2unix, milli2datetime, unix2datetime, value2json
 
 builtin_hex = hex
+_str, str = str, None
 
 logger = delay_import("mo_logs.logger")
 json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
 Duration = delay_import("mo_times.durations.Duration")
+value2url_param = delay_import("mo_files.url.value2url_param")
 
 
 FORMATTERS = {}
@@ -94,9 +74,21 @@ def unicode(value):
     :param value: any value
     :return: unicode
     """
-    if value == None:
+    if is_null(value):
         return ""
-    return str(value)
+    return _str(value)
+
+
+@formatter
+def str(value):
+    """
+    Convert to a unicode string
+    :param value: any value
+    :return: unicode
+    """
+    if is_null(value):
+        return ""
+    return _str(value)
 
 
 @formatter
@@ -113,10 +105,7 @@ def unix(value):
     else:
         value = milli2datetime(value)
 
-    return str(datetime2unix(value))
-
-
-value2url_param = None
+    return _str(datetime2unix(value))
 
 
 @formatter
@@ -124,9 +113,6 @@ def url(value):
     """
     convert FROM dict OR string TO URL PARAMETERS
     """
-    global value2url_param
-    if not value2url_param:
-        from mo_files.url import value2url_param
     return value2url_param(value)
 
 
@@ -135,9 +121,9 @@ def html(value):
     """
     convert FROM unicode TO HTML OF THE SAME
     """
-    import cgi
+    import html
 
-    return cgi.escape(value)
+    return html.escape(value)
 
 
 @formatter
@@ -151,7 +137,7 @@ def upper(value):
 
 
 @formatter
-def capitalize(value: str):
+def capitalize(value: _str):
     """
     convert first character of word to uppercase
     :param value:
@@ -211,7 +197,7 @@ def tab(value):
         h, d = transpose(*to_data(value).leaves())
         return "\t".join(map(value2json, h)) + CR + "\t".join(map(value2json, d))
     else:
-        str(value)
+        _str(value)
 
 
 @formatter
@@ -288,7 +274,7 @@ def percent(value, decimal=None, digits=None, places=None):
     :param places:
     :return:
     """
-    if value == None:
+    if is_null(value):
         return ""
 
     value = float(value)
@@ -376,7 +362,7 @@ def between(value, prefix=None, suffix=None, start=0):
     :return:
     """
     value = toString(value)
-    if prefix == None:
+    if is_null(prefix):
         e = value.find(suffix, start)
         if e == -1:
             return None
@@ -423,7 +409,7 @@ def right_align(value, length):
     if length <= 0:
         return ""
 
-    value = str(value)
+    value = _str(value)
 
     if len(value) < length:
         return (" " * (length - len(value))) + value
@@ -436,7 +422,7 @@ def left_align(value, length):
     if length <= 0:
         return ""
 
-    value = str(value)
+    value = _str(value)
 
     if len(value) < length:
         return value + (" " * (length - len(value)))
@@ -468,7 +454,7 @@ def comma(value):
         else:
             output = "{:,}".format(float(value))
     except Exception:
-        output = str(value)
+        output = _str(value)
 
     return output
 
@@ -480,9 +466,9 @@ def quote(value):
     :param value:
     :return:
     """
-    if value == None:
+    if is_null(value):
         return ""
-    output = _json.dumps(str(value))
+    output = _json.dumps(_str(value))
     return output
 
 
@@ -497,7 +483,7 @@ def hex(value):
         return builtin_hex(value)
     elif isinstance(value, bytes):
         return value.hex()
-    return str(value).encode("utf8").hex()
+    return _str(value).encode("utf8").hex()
 
 
 _SNIP = "...<snip>..."
@@ -508,7 +494,7 @@ def limit(value, length):
     """
     LIMIT THE STRING value TO GIVEN LENGTH, CHOPPING OUT THE MIDDLE IF REQUIRED
     """
-    if value == None:
+    if is_null(value):
         return None
     try:
         if len(value) <= length:
@@ -693,12 +679,12 @@ def chunk(data, size):
 
 
 def toString(val):
-    if val == None:
+    if is_null(val):
         return ""
     elif is_data(val) or is_many(val):
         return json_encoder(val, pretty=True)
     elif val.__class__.__name__ == "Date":
-        return str(val)
+        return _str(val)
     elif hasattr(val, "__data__"):
         return json_encoder(val.__data__(), pretty=True)
     elif hasattr(val, "__json__"):
@@ -722,7 +708,7 @@ def toString(val):
             logger.error(f"{type(val)} type can not be converted to unicode", cause=e)
     else:
         try:
-            return str(val)
+            return _str(val)
         except Exception as e:
             logger.error(f"{type(val)} type can not be converted to unicode", cause=e)
 
@@ -918,7 +904,7 @@ code_opener = re.compile(r'[{"\']')
 def parse_template(template):
     """
     WITH template = "a {b} c {d} e"
-    RETURN LIST OF (str, code) PAIRS [("a ", b), (" c ", d), (" e", "")]
+    RETURN LIST OF (_str, code) PAIRS [("a ", b), (" c ", d), (" e", "")]
     """
 
     result = []
