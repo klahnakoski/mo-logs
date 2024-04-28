@@ -10,6 +10,7 @@
 from math import pi
 
 from mo_testing.fuzzytestcase import FuzzyTestCase
+from mo_times import DAY, HOUR
 
 from mo_logs.strings import expand_template
 
@@ -59,3 +60,11 @@ class TestFormatters(FuzzyTestCase):
             value = pi * (10 ** order)
             test = expand_template("{{value|round(places=4)}}", value={"value": value})
             self.assertEqual(test, expected[order - start])
+
+    def test_duration(self):
+        test = expand_template("{duration|str}", value={"duration":DAY+3*HOUR})
+        self.assertEqual(test, "day+3hour")
+
+    def test_html(self):
+        test = expand_template("{{html|html}}", {"html": "<p>hello</p>"})
+        self.assertEqual(test, "&lt;p&gt;hello&lt;/p&gt;")
