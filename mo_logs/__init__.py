@@ -533,4 +533,5 @@ class _DeferDataTypes:
 
 
 setattr(mo_dots.datas, '_data_types', _DeferDataTypes())
+setattr(mo_dots.datas, 'data_types', _DeferDataTypes())
 
