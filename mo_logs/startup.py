@@ -12,6 +12,7 @@ import os
 import sys
 import tempfile
 
+import mo_dots
 from mo_dots import coalesce, listwrap, from_data, to_data
 
 from mo_logs import logger
@@ -93,7 +94,7 @@ class SingleInstance:
     """
     ONLY ONE INSTANCE OF PROGRAM ALLOWED
     If you want to prevent your script from running in parallel just instantiate SingleInstance() class.
-    If is there another instance already running it will exist the application with the message
+    If is there another instance already running it will exit the application with the message
     "Another instance is already running, quitting.", returning -1 error code.
 
     with SingleInstance():
@@ -125,7 +126,7 @@ class SingleInstance:
                     os.unlink(self.lockfile)
                 self.fd = os.open(self.lockfile, os.O_CREAT | os.O_EXCL | os.O_RDWR)
             except Exception as e:
-                Log.alarm("Another instance is already running, quitting.")
+                logger.alarm("Another instance is already running, quitting.")
                 sys.exit(-1)
         else:  # non Windows
             import fcntl
@@ -134,7 +135,7 @@ class SingleInstance:
             try:
                 fcntl.lockf(self.fp, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
-                Log.alarm("Another instance is already running, quitting.")
+                logger.alarm("Another instance is already running, quitting.")
                 sys.exit(-1)
         self.initialized = True
 
@@ -159,3 +160,51 @@ class SingleInstance:
         except Exception as e:
             logger.warning("Problem with SingleInstance __del__()", e)
             sys.exit(-1)
+
+
+# TODO: remove all below
+
+def cache(func):
+    """
+    DECORATOR TO CACHE THE RESULT OF A FUNCTION
+    """
+    cache = {}
+
+    def wrapper(*args):
+        if args in cache:
+            return cache[args]
+        else:
+            result = func(*args)
+            cache[args] = result
+            return result
+
+    return wrapper
+
+# LEGACY PROPERTIES
+class _DeferManyTypes:
+
+    @cache
+    def warning(self):
+        logger.warning("DEPRECATED: Use mo_dots.utils._data_types", stack_depth=2)
+
+    def __iter__(self):
+        from mo_dots import utils
+        yield from utils._many_types
+setattr(mo_dots.lists, '_many_types', _DeferManyTypes())
+setattr(mo_dots.lists, 'many_types', _DeferManyTypes())
+
+
+class _DeferDataTypes:
+
+    @cache
+    def warning(self):
+        logger.warning("DEPRECATED: Use mo_dots.utils._data_types", stack_depth=2)
+
+    def __iter__(self):
+        self.warning()
+        from mo_dots import utils
+        yield from utils._data_types
+
+
+setattr(mo_dots.datas, '_data_types', _DeferDataTypes())
+
