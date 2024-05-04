@@ -15,22 +15,19 @@ from unittest import skip
 
 from mo_dots import listwrap, wrap, Data, to_data
 from mo_dots.objects import DataObject
-from mo_json import value2json
-from mo_logs.exceptions import ERROR, TOO_DEEP
+from mo_json import value2json, Scrubber
 from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_threads import Till
 
 from mo_logs import Except, logger
-
-try:
-    from tests.utils.log_usingQueue import StructuredLogger_usingQueue
-except Exception as e:
-    from test_logs.utils.log_usingQueue import StructuredLogger_usingQueue
+from mo_logs.exceptions import ERROR, TOO_DEEP
+from tests.utils.log_usingQueue import StructuredLogger_usingQueue
 
 
 class TestExcept(FuzzyTestCase):
     @classmethod
     def setUpClass(cls):
+        Scrubber()  # TODO: remove me
         logger.start({"trace": False})
 
     def test_trace_of_simple_raises(self):
