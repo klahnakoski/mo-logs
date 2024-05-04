@@ -484,3 +484,53 @@ _known_loggers = {
 
 def register_logger(name, factory):
     _known_loggers[name] = factory
+
+
+# TODO: remove all below
+
+import mo_dots
+
+def cache(func):
+    """
+    DECORATOR TO CACHE THE RESULT OF A FUNCTION
+    """
+    cache = {}
+
+    def wrapper(*args):
+        if args in cache:
+            return cache[args]
+        else:
+            result = func(*args)
+            cache[args] = result
+            return result
+
+    return wrapper
+
+# LEGACY PROPERTIES
+class _DeferManyTypes:
+
+    @cache
+    def warning(self):
+        logger.warning("DEPRECATED: Use mo_dots.utils._data_types", stack_depth=2)
+
+    def __iter__(self):
+        from mo_dots import utils
+        yield from utils._many_types
+setattr(mo_dots.lists, '_many_types', _DeferManyTypes())
+setattr(mo_dots.lists, 'many_types', _DeferManyTypes())
+
+
+class _DeferDataTypes:
+
+    @cache
+    def warning(self):
+        logger.warning("DEPRECATED: Use mo_dots.utils._data_types", stack_depth=2)
+
+    def __iter__(self):
+        self.warning()
+        from mo_dots import utils
+        yield from utils._data_types
+
+
+setattr(mo_dots.datas, '_data_types', _DeferDataTypes())
+
