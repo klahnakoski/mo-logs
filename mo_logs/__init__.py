@@ -38,7 +38,7 @@ startup_read_settings = delay_import("mo_logs.startup.read_settings")
 all_log_callers = {}
 
 
-class Log(object):
+class Log:
     """
     FOR STRUCTURED LOGGING AND EXCEPTION CHAINING
     """
@@ -307,6 +307,8 @@ class Log(object):
         if not param_template.startswith(CR) and CR in param_template:
             param_template = CR + param_template
 
+        thread = current_thread()
+        thread_extra = getattr(thread, "mo-logs-extras", {})
         if cls.trace:
             item.machine = machine_metadata()
             log_format = item.template = (
@@ -332,17 +334,20 @@ class Log(object):
                             trace=get_stacktrace(stack_depth + 1),
                         )
                     all_log_callers[last_caller_loc] = given_template
-            thread = current_thread()
             item.thread = {"name": thread.name, "id": thread.ident}
         else:
             log_format = param_template
             # log_format = item.template = "{timestamp|datetime} - " + template
 
-        item.params = {**cls.extra, **item.params}
+        item.params = {**thread_extra, **cls.extra, **item.params}
         cls.main_log.write(log_format, item)
 
     def write(self):
         raise NotImplementedError
+
+    @classmethod
+    def extras(cls, **kwargs):
+        return ExtrasContext(kwargs)
 
 
 logger = Log
@@ -371,6 +376,17 @@ class LoggingContext:
                 "Problem with {name}! Shutting down.", name=self.app_name, cause=exc_val,
             )
         Log.stop()
+
+
+class ExtrasContext:
+    def __init__(self, extra):
+        self.extra = extra
+
+    def __enter__(self):
+        setattr(current_thread(), "mo-logs-extras", self.extra)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        delattr(current_thread(), "mo-logs-extras")
 
 
 def _same_frame(frameA, frameB):
