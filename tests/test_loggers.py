@@ -16,7 +16,7 @@ from mo_files import File
 from mo_future import StringIO
 from mo_kwargs import override
 from mo_testing.fuzzytestcase import FuzzyTestCase
-from mo_threads import Till, stop_main_thread, start_main_thread
+from mo_threads import Till, stop_main_thread, start_main_thread, Signal, Thread, join_all_threads
 from mo_times import Date
 
 from mo_logs import logger as log, register_logger
@@ -318,6 +318,43 @@ class TestLoggers(FuzzyTestCase):
         handler = log.logging_multi.many[0].handler
 
         self.assertTrue(isinstance(handler.params, dict))
+
+    def test_context_loggers(self):
+        old, log.main_log = log.main_log, LogUsingArray()
+
+        done_1 = Signal()
+        done_2 = Signal()
+
+        def worker1(please_stop):
+            with log.extras(a=1):
+                while not please_stop:
+                    log.info("data {data}", data="test1")
+                    done_1.go()
+                    Till(seconds=0.1).wait(till=please_stop)
+
+        def worker2(please_stop):
+            with log.extras(b=2):
+                while not please_stop:
+                    log.info("data {data}", data="test2")
+                    done_2.go()
+                    Till(seconds=0.1).wait(till=please_stop)
+
+        threads = [Thread.run("1", worker1), Thread.run("2", worker2)]
+        (done_1 & done_2).wait()
+        for t in threads:
+            t.stop()
+        join_all_threads(threads)
+        lines, log.main_log = log.main_log.lines, old
+
+        self.assertGreaterEqual(len(lines), 2)
+        for template, params in lines:
+            if params.params.a == 1:
+                self.assertEqual(params.params.data, "test1")
+                self.assertNotIn("b", params.params)
+            else:
+                self.assertEqual(params.params.b, 2)
+                self.assertEqual(params.params.data, "test2")
+                self.assertNotIn("a", params.params)
 
 
 class LogUsingArray(StructuredLogger):

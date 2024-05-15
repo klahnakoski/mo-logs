@@ -1,7 +1,7 @@
-mo-json>=6.609.24119
-mo-threads>=6.610.24119
-mo-testing>=8.610.24119
-mo-kwargs>=7.606.24115
+mo-json>=6.624.24125
+mo-threads>=6.623.24125
+mo-testing>=8.623.24125
+mo-kwargs>=7.623.24125
 jx-python>=3.99.20292
 boto>=2.49.0
 beautifulsoup4>=4.12.3
