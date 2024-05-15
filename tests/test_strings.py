@@ -96,13 +96,13 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(result, expected)
 
     def test_parse4(self):
-        result = parse_template("this is a test of {name|capitalize(\"some value\", lambda x: {'x': x})}")
-        expected = [("this is a test of ", "name|capitalize(\"some value\", lambda x: {'x': x})",)]
+        result = parse_template("this is a test of {name|capitalize(\"some value\", lambda x: {3: x})}")
+        expected = [("this is a test of ", "name|capitalize(\"some value\", lambda x: {3: x})")]
         self.assertEqual(result, expected)
 
     def test_parse5(self):
         result = parse_template("this is a test of {{name|capitalize(\"some value\", lambda x: {'x': x})}}")
-        expected = [("this is a test of ", "name|capitalize(\"some value\", lambda x: {'x': x})",)]
+        expected = [("this is a test of ", "name|capitalize(\"some value\", lambda x: {'x': x})")]
         self.assertEqual(result, expected)
 
     def test_parse6(self):
@@ -156,3 +156,7 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(comma(1000), "1,000")
         self.assertEqual(comma(2000.1), "2,000.1")
         self.assertEqual(comma(3000000.99), "3,000,000.99")
+
+    def test_json_in_template(self):
+        result = expand_template("{'example':42}", {"list": [1, 2, 3]})
+        self.assertEqual(result, "{'example':42}")
