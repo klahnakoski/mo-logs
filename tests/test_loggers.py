@@ -16,7 +16,7 @@ from mo_files import File
 from mo_future import StringIO
 from mo_kwargs import override
 from mo_testing.fuzzytestcase import FuzzyTestCase
-from mo_threads import Till, stop_main_thread, start_main_thread
+from mo_threads import Till, stop_main_thread, start_main_thread, Signal, Thread, join_all_threads
 from mo_times import Date
 
 from mo_logs import logger as log, register_logger
@@ -318,6 +318,27 @@ class TestLoggers(FuzzyTestCase):
         handler = log.logging_multi.many[0].handler
 
         self.assertTrue(isinstance(handler.params, dict))
+
+    def test_context_loggers(self):
+        old, log.main_log = log.main_log, LogUsingArray()
+
+        def worker1(please_stop):
+            with log.extras("a", 1):
+                while not please_stop:
+                    log.info("data {data}", data="test")
+
+        def worker2(please_stop):
+            with log.extras("b", 2):
+                while not please_stop:
+                    log.info("data {data}", data="test")
+
+        stopper = Signal()
+        threads = [Thread.run("1", worker1, please_stop=stopper), Thread.run("2", worker2, stopper)]
+        Till(seconds=1)
+        stopper.go()
+        join_all_threads(threads)
+
+        log.main_log = old
 
 
 class LogUsingArray(StructuredLogger):
