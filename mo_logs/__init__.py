@@ -32,7 +32,6 @@ from mo_logs.strings import CR, indent
 STACKTRACE = "\n{trace_text|indent}\n{cause_text}"
 
 StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
-StructuredLogger_usingThread = delay_import("mo_logs.log_usingThread.StructuredLogger_usingThread")
 
 startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
@@ -110,12 +109,7 @@ class Log(object):
             for log in listwrap(logs):
                 Log._add_log(Log.new_instance(log))
 
-            from mo_logs.log_usingThread import StructuredLogger_usingThread
-
-            old_log, cls.main_log = (
-                cls.main_log,
-                StructuredLogger_usingThread(cls.logging_multi),
-            )
+            old_log, cls.main_log = cls.main_log, _add_thread(cls.logging_multi)
             old_log.stop()
         cls.extra = extra or {}
 
@@ -153,9 +147,7 @@ class Log(object):
         if cls.logging_multi:
             cls.logging_multi.add_log(logger)
         else:
-            from mo_logs.log_usingThread import StructuredLogger_usingThread
-
-            old_log, cls.main_log = cls.main_log, StructuredLogger_usingThread(logger)
+            old_log, cls.main_log = cls.main_log, _add_thread(logger)
             old_log.stop()
 
     @classmethod
@@ -425,9 +417,7 @@ def _using_file(config):
 
 
 def _using_console(config):
-    from mo_logs.log_usingThread import StructuredLogger_usingThread
-
-    return StructuredLogger_usingThread(StructuredLogger_usingPrint())
+    return _add_thread(StructuredLogger_usingPrint())
 
 
 def _using_mozlog(config):
@@ -437,10 +427,9 @@ def _using_mozlog(config):
 
 
 def _using_stream(config):
-    from mo_logs.log_usingThread import StructuredLogger_usingThread
     from mo_logs.log_usingStream import StructuredLogger_usingStream
 
-    return StructuredLogger_usingThread(StructuredLogger_usingStream(config.stream))
+    return _add_thread(StructuredLogger_usingStream(config.stream))
 
 
 def _using_elasticsearch(config):
@@ -484,3 +473,12 @@ _known_loggers = {
 
 def register_logger(name, factory):
     _known_loggers[name] = factory
+
+
+def _add_thread(logger):
+    try:
+        from mo_logs.log_usingThread import StructuredLogger_usingThread
+
+        return StructuredLogger_usingThread(logger)
+    except:
+        return logger
