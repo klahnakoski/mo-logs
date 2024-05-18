@@ -899,6 +899,7 @@ closers = {
 }
 any_opener = re.compile(r'[\[{("\']')
 code_opener = re.compile(r'[{"\']')
+json_signature = re.compile(r"[\"']\s*:")
 
 
 def parse_template(template):
@@ -934,7 +935,7 @@ def parse_template(template):
         elif code.startswith("{{") and code.endswith("}}"):
             # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
             append(prefix, code[2:-2])
-        elif code.startswith("{") and code.endswith("}"):
+        elif code.startswith("{") and code.endswith("}") and not json_signature.search(code):
             # STILL ALLOWING MOUSTACHES TO BE USED AS ESCAPE SEQUENCE
             append(prefix, code[1:-1])
         else:
