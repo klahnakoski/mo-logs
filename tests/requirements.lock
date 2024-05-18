@@ -1,4 +1,4 @@
-# Tests pass with python 3.8 on 2024-05-15 and with these versions
+# Tests pass with python 3.8 on 2024-05-18 and with these versions
 # pip install --no-deps -r tests/requirements.lock
 beautifulsoup4==4.12.3
 boto==2.49.0
@@ -9,13 +9,13 @@ hjson==3.1.0
 idna==3.6
 jx-python==3.99.20292
 mo-collections==5.623.24125
-mo-dots==10.627.24136
+mo-dots==10.630.24136
 mo-files==6.624.24125
 mo-future==7.584.24095
 mo-imports==7.584.24095
 mo-json==6.624.24125
 mo-json-config==3.77.20190
-mo-kwargs==7.627.24136
+mo-kwargs==7.631.24139
 mo-math==7.623.24125
 mo-testing==8.623.24125
 mo-threads==6.623.24125
