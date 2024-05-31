@@ -13,7 +13,9 @@ from mo_dots import Null, is_data, listwrap, unwraplist, to_data, dict_to_data
 from mo_future import is_text, utcnow
 import traceback
 
-from mo_logs.strings import CR, expand_template, indent, between
+from mo_logs.strings import CR, expand_template, indent
+
+_new = Exception.__new__
 
 FATAL = "FATAL"
 ERROR = "ERROR"
@@ -39,8 +41,23 @@ class LogItem(object):
 
 
 class Except(Exception):
+
+
+    def __new__(cls, *args, **kwargs):
+        if len(args) == 1:
+            if isinstance(args[0], Except):
+                return args[0]
+            elif isinstance(args[0], Exception):
+                return cls.wrap(args[0])
+        else:
+            return _new(cls)
+
+
     def __init__(self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
         self.timestamp = utcnow()
+        if isinstance(severity, Except):
+            return
+
         if severity == None:
             raise ValueError("expecting severity to not be None")
 
