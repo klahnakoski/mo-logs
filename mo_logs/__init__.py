@@ -308,7 +308,7 @@ class Log:
             param_template = CR + param_template
 
         thread = current_thread()
-        thread_extra = getattr(thread, "mo-logs-extras", {})
+        thread_extra = getattr(thread, "mo-logs-extras", [{}])[-1]
         if cls.trace:
             item.machine = machine_metadata()
             log_format = item.template = (
@@ -383,10 +383,16 @@ class ExtrasContext:
         self.extra = extra
 
     def __enter__(self):
-        setattr(current_thread(), "mo-logs-extras", self.extra)
+        stack = getattr(current_thread(), "mo-logs-extras", None)
+        if stack:
+            stack.append({**stack[-1], **self.extra})
+        else:
+            stack = [{}, self.extra]
+            setattr(current_thread(), "mo-logs-extras", stack)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        delattr(current_thread(), "mo-logs-extras")
+        stack = getattr(current_thread(), "mo-logs-extras")
+        stack.pop()
 
 
 def _same_frame(frameA, frameB):
