@@ -356,6 +356,20 @@ class TestLoggers(FuzzyTestCase):
                 self.assertEqual(params.params.data, "test2")
                 self.assertNotIn("a", params.params)
 
+    def test_nested_loggers(self):
+        old, log.main_log = log.main_log, LogUsingArray()
+
+        with log.extras(a=1):
+            with log.extras(b=2):
+                log.info("data {data}", data="test")
+
+        lines, log.main_log = log.main_log.lines, old
+        self.assertGreaterEqual(len(lines), 1)
+        template, params = lines[0]
+        self.assertEqual(params.params.a, 1)
+        self.assertEqual(params.params.b, 2)
+
+
 
 class LogUsingArray(StructuredLogger):
     @override

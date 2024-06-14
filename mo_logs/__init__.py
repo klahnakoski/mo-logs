@@ -30,6 +30,7 @@ from mo_logs.log_usingPrint import StructuredLogger_usingPrint
 from mo_logs.strings import CR, indent
 
 STACKTRACE = "\n{trace_text|indent}\n{cause_text}"
+MO_LOGS_EXTRAS = "mo-logs-extras"
 
 StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
 
@@ -308,7 +309,7 @@ class Log:
             param_template = CR + param_template
 
         thread = current_thread()
-        thread_extra = getattr(thread, "mo-logs-extras", {})
+        thread_extra = getattr(thread, MO_LOGS_EXTRAS, [{}])[-1]
         if cls.trace:
             item.machine = machine_metadata()
             log_format = item.template = (
@@ -383,10 +384,16 @@ class ExtrasContext:
         self.extra = extra
 
     def __enter__(self):
-        setattr(current_thread(), "mo-logs-extras", self.extra)
+        stack = getattr(current_thread(), MO_LOGS_EXTRAS, None)
+        if stack:
+            stack.append({**stack[-1], **self.extra})
+        else:
+            stack = [{}, self.extra]
+            setattr(current_thread(), MO_LOGS_EXTRAS, stack)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        delattr(current_thread(), "mo-logs-extras")
+        stack = getattr(current_thread(), MO_LOGS_EXTRAS)
+        stack.pop()
 
 
 def _same_frame(frameA, frameB):
