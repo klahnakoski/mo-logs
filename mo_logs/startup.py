@@ -46,7 +46,7 @@ def argparse(defs, complain=True):
         parser.add_argument(*from_data(listwrap(name)), **args)
     namespace, unknown = parser.parse_known_args()
     if unknown and complain:
-        logger.warning("Ignoring arguments: {{unknown|json}}", unknown=unknown)
+        logger.warning("Ignoring arguments: {unknown|json}", unknown=unknown)
     output = {k: getattr(namespace, k) for k in vars(namespace)}
     return to_data(output)
 
@@ -78,10 +78,10 @@ def read_settings(*, defs=None, filename=None, default_filename=None, complain=T
     )
     settings_file = File(args.filename)
     if settings_file.exists:
-        logger.info("Using {{filename}} for configuration", filename=settings_file.abs_path)
+        logger.info("Using {filename} for configuration", filename=settings_file.abs_path)
     else:
         logger.error(
-            "Can not read configuration file {{filename}}", filename=settings_file.abs_path,
+            "Can not read configuration file {filename}", filename=settings_file.abs_path,
         )
 
     settings = mo_json_config.get_file(settings_file)

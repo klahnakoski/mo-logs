@@ -370,7 +370,6 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual(params.params.b, 2)
 
 
-
 class LogUsingArray(StructuredLogger):
     @override
     def __init__(self, kwargs=None):

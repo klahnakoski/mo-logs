@@ -61,7 +61,7 @@ combined at call time, rather they are held in a JSON-izable data structure for
 structured logging. The template is only expanded *if* the log is serialized for humans.  
 
 ```python
-logger.info("Hello, {{name}}!", name="World!")
+logger.info("Hello, {name}!", name="World!")
 ```
 
 **Do not use Python's string formatting features:**
@@ -79,7 +79,7 @@ nightmare for log analysis tools.
 All the `logger` functions accept a `default_params` as a second parameter, like so:
 
 ```python
-logger.info("Hello, {{name}}!", {"name": "World!"})
+logger.info("Hello, {name}!", {"name": "World!"})
 ```
 
 this is meant for the situation your code already has a bundled structure you
@@ -93,7 +93,7 @@ structures, they will be logged!
 def worker(value):
     name = "tout le monde!"
     password = "123"
-    logger.info("Hello, {{name}}", locals())      # DO NOT DO THIS!
+    logger.info("Hello, {name}", locals())      # DO NOT DO THIS!
 ```
 
 Despite the fact using `locals()` is a wonderful shortcut for logging it is
@@ -109,13 +109,13 @@ pipe (`|`) symbol.
 In this example we cast the `name` to uppercase
 
 ```python
-logger.info("Hello, {{name|upper}}!", name="World!")
+logger.info("Hello, {name|upper}!", name="World!")
 ```
 
 Some formatters accept arguments:
 
 ```python
-logger.info("pi is {{pi|round(places=3)}}!", pi=3.14159265)
+logger.info("pi is {pi|round(places=3)}!", pi=3.14159265)
 ```
 
 You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the formatters available.
@@ -386,8 +386,8 @@ Notice the `expensive_function()` is not run when `DEBUG` is false.
 
 ## Log Configuration and Setup
 
-The `mo-logs` library will log to the console by default. ```logger.start(settings)```
-will redirect the logging to other streams, as defined by the settings:
+The `mo-logs` library will log to the console by default. ```logger.start(config)```
+will redirect the logging to other streams, as defined by the `config` dict:
 
  *  **logs** - List of all log-streams and their parameters
  *  **trace** - Show more details in every log line (default False)
