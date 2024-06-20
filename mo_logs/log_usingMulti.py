@@ -26,7 +26,7 @@ class StructuredLogger_usingMulti(StructuredLogger):
                 e = Except.wrap(e)
                 bad.append(m)
                 _logger.warning(
-                    "Logger {{type|quote}} failed! It will be removed.", type=m.__class__.__name__, cause=e,
+                    "Logger {type|quote} failed! It will be removed.", type=m.__class__.__name__, cause=e,
                 )
         with suppress_exception:
             for b in bad:

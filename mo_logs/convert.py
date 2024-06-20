@@ -42,7 +42,7 @@ def datetime2string(value, format="%Y-%m-%d %H:%M:%S"):
         from mo_logs import logger
 
         logger.error(
-            "Can not format {{value}} with {{format}}", value=value, format=format, cause=e,
+            "Can not format {value} with {format}", value=value, format=format, cause=e,
         )
 
 
@@ -57,14 +57,14 @@ def datetime2unix(d):
         else:
             from mo_logs import logger
 
-            raise logger.error("Can not convert {{value}} of type {{type}}", value=d, type=d.__class__)
+            raise logger.error("Can not convert {value} of type {type}", value=d, type=d.__class__)
 
         diff = d - epoch
         return float(diff.total_seconds())
     except Exception as e:
         from mo_logs import logger
 
-        logger.error("Can not convert {{value}}", value=d, cause=e)
+        logger.error("Can not convert {value}", value=d, cause=e)
 
 
 def int2hex(value, size):
