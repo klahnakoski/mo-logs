@@ -4,7 +4,7 @@
 [![PyPI Latest Release](https://img.shields.io/pypi/v/mo-logs.svg)](https://pypi.org/project/mo-logs/)
  [![Build Status](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml)
  [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)
-[![Downloads](https://pepy.tech/badge/mo-logs)](https://pepy.tech/project/mo-logs)
+[![Downloads](https://static.pepy.tech/badge/mo-logs)](https://pepy.tech/project/mo-logs)
 
 
 This library provides two main features
@@ -60,6 +60,8 @@ can be added to the call to provide values. The template and arguments are not
 combined at call time, rather they are held in a JSON-izable data structure for 
 structured logging. The template is only expanded *if* the log is serialized for humans.  
 
+Notice this is not an f-string
+
 ```python
 logger.info("Hello, {name}!", name="World!")
 ```
@@ -98,7 +100,7 @@ def worker(value):
 
 Despite the fact using `locals()` is a wonderful shortcut for logging it is
 dangerous because it also picks up sensitive local variables. Even if
-`{{name}}` is the only value in the template, the whole `locals()` dict will
+`{name}` is the only value in the template, the whole `locals()` dict will
 be sent to the structured loggers for recording. 
 
 ### Formatting parameters
@@ -399,7 +401,7 @@ settings of course). For this reason, applications should have the following
 structure:
 
 ```python
-from mo_logs import logger
+from mo_logs import logger, startup
 
 def main():
     try:
@@ -417,11 +419,13 @@ def main():
 or more simply 
 
 ```python
-from mo_logs import LoggingContext
+from mo_logs import logger, startup
 
 def main():
-    with LoggingContext():
+    settings = startup.read_settings()
+    with logger.start(settings.debug):
         # DO WORK HERE
+        logger.info("Hello, World!")
 ```
 
 

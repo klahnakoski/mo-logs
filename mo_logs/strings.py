@@ -14,7 +14,7 @@ import string
 from datetime import date, datetime as builtin_datetime, timedelta
 from typing import Tuple
 
-from mo_dots import Data, coalesce, is_data, is_list, to_data, is_sequence, is_many, is_null
+from mo_dots import Data, coalesce, is_data, is_list, to_data, is_sequence, is_many, is_null, is_missing
 from mo_future import get_function_name, is_text, round as _round, transpose, xrange, zip_longest, binary_type
 from mo_imports import delay_import
 
@@ -28,6 +28,7 @@ json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
 Duration = delay_import("mo_times.durations.Duration")
 value2url_param = delay_import("mo_files.url.value2url_param")
+Date = delay_import("mo_times.dates.Date")
 
 
 FORMATTERS = {}
@@ -68,18 +69,6 @@ def datetime(value):
 
 
 @formatter
-def unicode(value):
-    """
-    Convert to a unicode string
-    :param value: any value
-    :return: unicode
-    """
-    if is_null(value):
-        return ""
-    return _str(value)
-
-
-@formatter
 def str(value):
     """
     Convert to a unicode string
@@ -92,20 +81,21 @@ def str(value):
 
 
 @formatter
+def unicode(value):
+    return str(value)
+
+
+@formatter
 def unix(value):
     """
     Convert a date, or datetime to unix timestamp
     :param value:
     :return:
     """
-    if isinstance(value, (date, builtin_datetime)):
-        pass
-    elif value < 10000000000:
-        value = unix2datetime(value)
-    else:
-        value = milli2datetime(value)
-
-    return _str(datetime2unix(value))
+    try:
+        return _str(int(Date(value)))
+    except Exception:
+        return _str(value)
 
 
 @formatter
@@ -319,37 +309,11 @@ def find(value, find, start=0):
 
 @formatter
 def strip(value):
-    """
-    REMOVE WHITESPACE (INCLUDING CONTROL CHARACTERS)
-    """
-    if not value or (ord(value[0]) > 32 and ord(value[-1]) > 32):
-        return value
-
-    s = 0
-    e = len(value)
-    while s < e:
-        if ord(value[s]) > 32:
-            break
-        s += 1
-    else:
-        return ""
-
-    for i in reversed(range(s, e)):
-        if ord(value[i]) > 32:
-            return value[s : i + 1]
-
-    return ""
-
+    return _str(value).strip()
 
 @formatter
 def trim(value):
-    """
-    Alias for `strip`
-    :param value:
-    :return:
-    """
-    return strip(value)
-
+    return _str(value).strip()
 
 @formatter
 def between(value, prefix=None, suffix=None, start=0):
@@ -387,16 +351,16 @@ def between(value, prefix=None, suffix=None, start=0):
 
 
 @formatter
-def right(value, len):
+def right(value, length):
     """
     Return the `len` last characters of a string
     :param value:
     :param len:
     :return:
     """
-    if len <= 0:
+    if length <= 0:
         return ""
-    return value[-len:]
+    return value[-length:]
 
 
 @formatter
@@ -448,11 +412,13 @@ def comma(value):
     """
     FORMAT WITH THOUSANDS COMMA (,) SEPARATOR
     """
+    if is_missing(value):
+        return ""
     try:
         if float(value) == _round(float(value), 0):
-            output = "{:,}".format(int(value))
+            output = f"{int(value):,}"
         else:
-            output = "{:,}".format(float(value))
+            output = f"{float(value):,}"
     except Exception:
         output = _str(value)
 
@@ -480,10 +446,10 @@ def hex(value):
     :return:
     """
     if isinstance(value, int):
-        return builtin_hex(value)
+        return builtin_hex(value).upper()[2:]
     elif isinstance(value, bytes):
-        return value.hex()
-    return _str(value).encode("utf8").hex()
+        return value.hex().upper()
+    return _str(value).encode("utf8").hex().upper()
 
 
 _SNIP = "...<snip>..."
@@ -642,7 +608,11 @@ def _simple_expand(template, seq: Tuple[Data]):
                 if len(parts) > 1:
                     val = eval(parts[0] + "(val, " + parts[1])
                 else:
-                    val = FORMATTERS[func_name](val)
+                    func = FORMATTERS.get(func_name)
+                    if not func:
+                        logger.error(f"Can not find formatter {func_name}")
+                    val = func(val)
+
             val = toString(val)
             result.append(val)
         except Exception as cause:

@@ -369,6 +369,18 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual(params.params.a, 1)
         self.assertEqual(params.params.b, 2)
 
+    def test_log_startup(self):
+        array_log = LogUsingArray()
+        with log.start(logs=array_log, extra={"a": 1}):
+            with log.extras(b=2):
+                log.info("data {data}", data="test")
+            lines = array_log.lines
+
+        self.assertGreaterEqual(len(lines), 1)
+        template, params = lines[0]
+        self.assertEqual(params.params.a, 1)
+        self.assertEqual(params.params.b, 2)
+
 
 class LogUsingArray(StructuredLogger):
     @override

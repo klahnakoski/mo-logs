@@ -55,15 +55,15 @@ class Log:
     @classmethod
     @override("settings")
     def start(
-        cls,
-        trace=False,
-        cprofile=False,
-        constants=None,
-        logs=None,
-        extra=None,
-        app_name=None,
-        settings=None,
-        static_template=True,
+            cls,
+            trace=False,
+            cprofile=False,
+            constants=None,
+            logs=None,
+            extra=None,
+            app_name=None,
+            static_template=True,
+            settings=None,
     ):
         """
         RUN ME FIRST TO SETUP THE THREADED LOGGING
@@ -76,15 +76,30 @@ class Log:
         :param logs: LIST OF PARAMETERS FOR LOGGER(S)
         :param extra: ADDITIONAL DATA TO BE INCLUDED IN EVERY LOG LINE
         :param app_name: GIVE THIS APP A NAME, AND RETURN A CONTEXT MANAGER
+        :param static_template: IF TRUE, THEN ASSUME TEMPLATE IS STATIC AND CACHE PARSED TEMPLATE
         :param settings: ALL THE ABOVE PARAMETERS
         :return:
         """
         if any("mo_logs" in step['file'] and step['method'] == "start" for step in get_stacktrace(1)):
             raise Except(template="Can not call start() from within start().  Are you still importing?")
 
-        if app_name:
-            return LoggingContext(app_name)
+        log_context = BackupLogContext(settings)
+        log_context.__enter__()
+        return log_context
 
+    @classmethod
+    @override("settings")
+    def _start(
+            cls,
+            trace=False,
+            cprofile=False,
+            constants=None,
+            logs=None,
+            extra=None,
+            app_name=None,
+            static_template=True,
+            settings=None,
+    ):
         Log.stop()
 
         cls.settings = settings
@@ -113,12 +128,14 @@ class Log:
             old_log, cls.main_log = cls.main_log, _add_thread(cls.logging_multi)
             old_log.stop()
         cls.extra = extra or {}
+        if isinstance(app_name, str):
+            cls.extra["app_name"] = app_name
 
     @classmethod
     def stop(cls):
         """
         DECONSTRUCTS ANY LOGGING, AND RETURNS TO DIRECT-TO-stdout LOGGING
-        EXECUTING MULUTIPLE TIMES IN A ROW IS SAFE, IT HAS NO NET EFFECT, IT STILL LOGS TO stdout
+        EXECUTING MULTIPLE TIMES IN A ROW IS SAFE, IT HAS NO NET EFFECT, IT STILL LOGS TO stdout
         :return: NOTHING
         """
         old_log, cls.main_log = cls.main_log, StructuredLogger_usingPrint()
@@ -133,11 +150,17 @@ class Log:
             from mo_logs.log_usingHandler import StructuredLogger_usingHandler
 
             return StructuredLogger_usingHandler(settings)
-
-        clazz = _known_loggers.get(log_type.lower())
-        if clazz:
-            return clazz(settings)
-        logger.error("Log type of {config|json} is not recognized", config=settings)
+        if isinstance(log_type, type):
+            return log_type(settings)
+        elif isinstance(log_type, str):
+            clazz = _known_loggers.get(log_type.lower())
+            if clazz:
+                return clazz(settings)
+            logger.error("Log type of {config|json} is not recognized", config=settings)
+        else:
+            if hasattr(log_type, "write"):
+                return log_type
+            return log_type
 
     @classmethod
     def _add_log(cls, log):
@@ -153,7 +176,7 @@ class Log:
 
     @classmethod
     def note(
-        cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params,
+            cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params,
     ):
         """
         :param template: *string* human readable string with placeholders for parameters
@@ -182,7 +205,7 @@ class Log:
 
     @classmethod
     def alarm(
-        cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params,
+            cls, template, default_params={}, *, stack_depth=0, static_template=None, **more_params,
     ):
         """
         :param template: *string* human readable string with placeholders for parameters
@@ -208,16 +231,16 @@ class Log:
 
     @classmethod
     def warning(
-        cls,
-        template: str,  # human readable string with placeholders for parameters
-        default_params={},  # parameters to fill in template
-        cause=None,  # for chaining
-        *,
-        stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
-        log_severity=WARNING,  # set the logging severity
-        exc_info=None,  # used by python logging as the cause
-        static_template=None,
-        **more_params,  # any more parameters (which will overwrite default_params)
+            cls,
+            template: str,  # human readable string with placeholders for parameters
+            default_params={},  # parameters to fill in template
+            cause=None,  # for chaining
+            *,
+            stack_depth=0,  # how many calls you want popped off the stack to report the *true* caller
+            log_severity=WARNING,  # set the logging severity
+            exc_info=None,  # used by python logging as the cause
+            static_template=None,
+            **more_params,  # any more parameters (which will overwrite default_params)
     ):
         if exc_info is True:
             exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -235,7 +258,7 @@ class Log:
         cause = unwraplist([Except.wrap(c, stack_depth=2) for c in listwrap(cause or exc_info)])
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
-        e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace,)
+        e = Except(severity=log_severity, template=template, params=params, cause=cause, trace=trace, )
         Log._annotate(
             e, stack_depth + 1, cls.static_template if static_template is None else static_template,
         )
@@ -244,14 +267,14 @@ class Log:
 
     @classmethod
     def error(
-        cls,
-        template,  # human readable template
-        default_params={},  # parameters for template
-        *,
-        cause=None,  # pausible cause
-        stack_depth=0,
-        exc_info=None,  # used by python logging as the cause
-        **more_params,
+            cls,
+            template,  # human readable template
+            default_params={},  # parameters for template
+            *,
+            cause=None,  # pausible cause
+            stack_depth=0,
+            exc_info=None,  # used by python logging as the cause
+            **more_params,
     ):
         """
         raise an exception with a trace for the cause too
@@ -280,7 +303,7 @@ class Log:
         cause = unwraplist([Except.wrap(c, stack_depth=2) for c in listwrap(cause or exc_info)])
         trace = exceptions.get_stacktrace(stack_depth + 1)
 
-        e = Except(severity=exceptions.ERROR, template=template, params=params, cause=cause, trace=trace,)
+        e = Except(severity=exceptions.ERROR, template=template, params=params, cause=cause, trace=trace, )
         raise_from_none(e)
 
     @classmethod
@@ -313,10 +336,10 @@ class Log:
         if cls.trace:
             item.machine = machine_metadata()
             log_format = item.template = (
-                "{machine.name} (pid {machine.pid}) - {timestamp|datetime} -"
-                ' {thread.name} - ""{location.file}:{location.line}"" -'
-                " ({location.method}) - "
-                + param_template
+                    "{machine.name} (pid {machine.pid}) - {timestamp|datetime} -"
+                    ' {thread.name} - ""{location.file}:{location.line}"" -'
+                    " ({location.method}) - "
+                    + param_template
             )
             f = sys._getframe(stack_depth + 1)
             item.location = {
@@ -351,6 +374,42 @@ class Log:
         return ExtrasContext(kwargs)
 
 
+class BackupLogContext:
+    """
+    MOSTLY USED FOR TESTING, TO TEMPORARILY CHANGE LOGGING SETTINGS
+    """
+
+    def __init__(self, new_settings):
+        self.new_settings = new_settings
+        self.old_settings = Data(
+            trace=Log.trace,
+            main_log=Log.main_log,
+            logging_multi=Log.logging_multi,
+            profiler=Log.profiler,
+            error_mode=Log.error_mode,
+            extra=Log.extra,
+            static_template=Log.static_template,
+        )
+        self.inside = False
+
+    def __enter__(self):
+        if self.inside:
+            return
+        self.inside = True
+        Log._start(settings=self.new_settings)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.inside = False
+        Log.stop()
+        Log.trace = self.old_settings.trace
+        Log.main_log = self.old_settings.main_log
+        Log.logging_multi = self.old_settings.logging_multi
+        Log.profiler = self.old_settings.profiler
+        Log.error_mode = self.old_settings.error_mode
+        Log.extra = self.old_settings.extra
+        Log.static_template = self.old_settings.static_template
+
+
 logger = Log
 
 
@@ -358,25 +417,7 @@ def getLogger(*args, **kwargs):
     return logger
 
 
-class LoggingContext:
-    def __init__(self, app_name=None):
-        self.app_name = app_name
-        self.config = None
-
-    def __enter__(self):
-        self.config = config = startup_read_settings()
-        from mo_logs import constants
-
-        constants.set(config.constants)
-        Log.start(config.debug)
-        return config
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_val:
-            logger.warning(
-                "Problem with {name}! Shutting down.", name=self.app_name, cause=exc_val,
-            )
-        Log.stop()
+LoggingContext = Log.start
 
 
 class ExtrasContext:
