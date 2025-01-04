@@ -18,8 +18,6 @@ from mo_dots import Data, coalesce, is_data, is_list, to_data, is_sequence, is_m
 from mo_future import get_function_name, is_text, round as _round, transpose, xrange, zip_longest, binary_type
 from mo_imports import delay_import
 
-from mo_logs.convert import datetime2string, datetime2unix, milli2datetime, unix2datetime, value2json
-
 builtin_hex = hex
 _str, str = str, None
 
@@ -50,23 +48,13 @@ def datetime(value):
     :param value:  unix timestamp
     :return: string with GMT time
     """
-    if isinstance(value, (date, builtin_datetime)):
-        pass
-    elif value.__class__.__name__ == "Date":
-        value = unix2datetime(value.unix)
-    elif value < 10000000000:
-        value = unix2datetime(value)
-    else:
-        value = milli2datetime(value)
-
-    output = datetime2string(value, "%Y-%m-%d %H:%M:%S.%f")
+    output = Date(value).format("%Y-%m-%d %H:%M:%S.%f")
     if output.endswith(".000000"):
         return output[:-7]
     elif output.endswith("000"):
         return output[:-3]
     else:
         return output
-
 
 @formatter
 def str(value):

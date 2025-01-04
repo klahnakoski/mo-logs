@@ -12,7 +12,6 @@ import os
 import sys
 import tempfile
 
-import mo_dots
 from mo_dots import coalesce, listwrap, from_data, to_data
 
 from mo_logs import logger
@@ -32,13 +31,8 @@ from mo_logs import logger
 # help - A brief description of what the argument does.
 # metavar - A name for the argument in usage messages.
 # dest - The name of the attribute to be added to the object returned by parse_args().
-class _ArgParser(_argparse.ArgumentParser):
-    def error(self, message):
-        logger.error("argparse error: {error}", error=message)
-
-
 def argparse(defs, complain=True):
-    parser = _ArgParser()
+    parser = _argparse.ArgumentParser()
     for d in listwrap(defs):
         args = d.copy()
         name = args.name
