@@ -27,16 +27,16 @@ from mo_logs.exceptions import (
     ERROR,
 )
 from mo_logs.log_usingPrint import StructuredLogger_usingPrint
-from mo_logs.strings import CR, indent
+from mo_logs.strings import CR, indent, parse_template
 
 STACKTRACE = "\n{trace_text|indent}\n{cause_text}"
 MO_LOGS_EXTRAS = "mo-logs-extras"
 
 StructuredLogger_usingMulti = delay_import("mo_logs.log_usingMulti.StructuredLogger_usingMulti")
-
 startup_read_settings = delay_import("mo_logs.startup.read_settings")
 
 all_log_callers = {}
+cached_templates = {}
 
 
 class Log:
@@ -314,10 +314,13 @@ class Log:
         :return:
         """
         given_template = item.template
-        given_template = strings.limit(given_template, 10000)
-        param_template = "".join(
-            f"{text}{{params.{code}}}" if code else text for text, code in strings.parse_template(given_template)
-        )
+        given_template = strings.limit(given_template, 10_000)
+        if static_template:
+            param_template = cached_templates.get(given_template)
+            if param_template is None:
+                param_template = cached_templates[given_template] = add_param(parse_template(given_template))
+        else:
+            param_template = add_param(parse_template(given_template))
 
         if isinstance(item, Except):
             param_template = "{severity}: " + param_template + STACKTRACE
@@ -546,3 +549,7 @@ def _add_thread(logger):
         return StructuredLogger_usingThread(logger)
     except:
         return logger
+
+
+def add_param(parsed_template):
+    return "".join(f"{text}{{params.{code}}}" if code else text for text, code in parsed_template)
