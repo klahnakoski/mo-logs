@@ -14,11 +14,9 @@ import string
 from datetime import date, datetime as builtin_datetime, timedelta
 from typing import Tuple
 
-from mo_dots import Data, coalesce, is_data, is_list, to_data, is_sequence, is_many, is_null
+from mo_dots import Data, coalesce, is_data, is_list, to_data, is_sequence, is_many, is_null, is_missing
 from mo_future import get_function_name, is_text, round as _round, transpose, xrange, zip_longest, binary_type
 from mo_imports import delay_import
-
-from mo_logs.convert import datetime2string, datetime2unix, milli2datetime, unix2datetime, value2json
 
 builtin_hex = hex
 _str, str = str, None
@@ -28,6 +26,7 @@ json_encoder = delay_import("mo_json.encoder.json_encoder")
 Except = delay_import("mo_logs.exceptions.Except")
 Duration = delay_import("mo_times.durations.Duration")
 value2url_param = delay_import("mo_files.url.value2url_param")
+Date = delay_import("mo_times.dates.Date")
 
 
 FORMATTERS = {}
@@ -49,35 +48,13 @@ def datetime(value):
     :param value:  unix timestamp
     :return: string with GMT time
     """
-    if isinstance(value, (date, builtin_datetime)):
-        pass
-    elif value.__class__.__name__ == "Date":
-        value = unix2datetime(value.unix)
-    elif value < 10000000000:
-        value = unix2datetime(value)
-    else:
-        value = milli2datetime(value)
-
-    output = datetime2string(value, "%Y-%m-%d %H:%M:%S.%f")
+    output = Date(value).format("%Y-%m-%d %H:%M:%S.%f")
     if output.endswith(".000000"):
         return output[:-7]
     elif output.endswith("000"):
         return output[:-3]
     else:
         return output
-
-
-@formatter
-def unicode(value):
-    """
-    Convert to a unicode string
-    :param value: any value
-    :return: unicode
-    """
-    if is_null(value):
-        return ""
-    return _str(value)
-
 
 @formatter
 def str(value):
@@ -92,20 +69,21 @@ def str(value):
 
 
 @formatter
+def unicode(value):
+    return str(value)
+
+
+@formatter
 def unix(value):
     """
     Convert a date, or datetime to unix timestamp
     :param value:
     :return:
     """
-    if isinstance(value, (date, builtin_datetime)):
-        pass
-    elif value < 10000000000:
-        value = unix2datetime(value)
-    else:
-        value = milli2datetime(value)
-
-    return _str(datetime2unix(value))
+    try:
+        return _str(int(Date(value)))
+    except Exception:
+        return _str(value)
 
 
 @formatter
@@ -319,37 +297,11 @@ def find(value, find, start=0):
 
 @formatter
 def strip(value):
-    """
-    REMOVE WHITESPACE (INCLUDING CONTROL CHARACTERS)
-    """
-    if not value or (ord(value[0]) > 32 and ord(value[-1]) > 32):
-        return value
-
-    s = 0
-    e = len(value)
-    while s < e:
-        if ord(value[s]) > 32:
-            break
-        s += 1
-    else:
-        return ""
-
-    for i in reversed(range(s, e)):
-        if ord(value[i]) > 32:
-            return value[s : i + 1]
-
-    return ""
-
+    return _str(value).strip()
 
 @formatter
 def trim(value):
-    """
-    Alias for `strip`
-    :param value:
-    :return:
-    """
-    return strip(value)
-
+    return _str(value).strip()
 
 @formatter
 def between(value, prefix=None, suffix=None, start=0):
@@ -387,16 +339,16 @@ def between(value, prefix=None, suffix=None, start=0):
 
 
 @formatter
-def right(value, len):
+def right(value, length):
     """
     Return the `len` last characters of a string
     :param value:
     :param len:
     :return:
     """
-    if len <= 0:
+    if length <= 0:
         return ""
-    return value[-len:]
+    return value[-length:]
 
 
 @formatter
@@ -448,11 +400,13 @@ def comma(value):
     """
     FORMAT WITH THOUSANDS COMMA (,) SEPARATOR
     """
+    if is_missing(value):
+        return ""
     try:
         if float(value) == _round(float(value), 0):
-            output = "{:,}".format(int(value))
+            output = f"{int(value):,}"
         else:
-            output = "{:,}".format(float(value))
+            output = f"{float(value):,}"
     except Exception:
         output = _str(value)
 
@@ -480,10 +434,10 @@ def hex(value):
     :return:
     """
     if isinstance(value, int):
-        return builtin_hex(value)
+        return builtin_hex(value).upper()[2:]
     elif isinstance(value, bytes):
-        return value.hex()
-    return _str(value).encode("utf8").hex()
+        return value.hex().upper()
+    return _str(value).encode("utf8").hex().upper()
 
 
 _SNIP = "...<snip>..."
@@ -642,7 +596,11 @@ def _simple_expand(template, seq: Tuple[Data]):
                 if len(parts) > 1:
                     val = eval(parts[0] + "(val, " + parts[1])
                 else:
-                    val = FORMATTERS[func_name](val)
+                    func = FORMATTERS.get(func_name)
+                    if not func:
+                        logger.error(f"Can not find formatter {func_name}")
+                    val = func(val)
+
             val = toString(val)
             result.append(val)
         except Exception as cause:
@@ -741,124 +699,6 @@ def edit_distance(s1, s2):
 
 
 DIFF_PREFIX = re.compile(r"@@ -(\d+(?:\s*,\d+)?) \+(\d+(?:\s*,\d+)?) @@")
-
-
-def apply_diff(text, diff, reverse=False, verify=True):
-    """
-    SOME EXAMPLES OF diff
-    #@@ -1 +1 @@
-    #-before china goes live, the content team will have to manually update the settings for the china-ready apps currently in marketplace.
-    #+before china goes live (end January developer release, June general audience release) , the content team will have to manually update the settings for the china-ready apps currently in marketplace.
-    @@ -0,0 +1,3 @@
-    +before china goes live, the content team will have to manually update the settings for the china-ready apps currently in marketplace.
-    +
-    +kward has the details.
-    @@ -1 +1 @@
-    -before china goes live (end January developer release, June general audience release), the content team will have to manually update the settings for the china-ready apps currently in marketplace.
-    +before china goes live , the content team will have to manually update the settings for the china-ready apps currently in marketplace.
-    @@ -3 +3 ,6 @@
-    -kward has the details.+kward has the details.
-    +
-    +Target Release Dates :
-    +https://mana.mozilla.org/wiki/display/PM/Firefox+OS+Wave+Launch+Cross+Functional+View
-    +
-    +Content Team Engagement & Tasks : https://appreview.etherpad.mozilla.org/40
-    """
-
-    if not diff:
-        return text
-    output = text
-    hunks = [
-        (new_diff[start_hunk], new_diff[start_hunk + 1 : end_hunk])
-        for new_diff in [
-            [d.lstrip() for d in diff if d.lstrip() and d != "\\ No newline at end of file"] + ["@@"]
-        ]  # ANOTHER REPAIR
-        for start_hunk, end_hunk in pairwise(i for i, l in enumerate(new_diff) if l.startswith("@@"))
-    ]
-    for header, hunk_body in reversed(hunks) if reverse else hunks:
-        matches = DIFF_PREFIX.match(header.strip())
-        if not matches:
-            logger.error("Can not handle \n---\n{{diff}}\n---\n", diff=diff)
-
-        removes = tuple(int(i.strip()) for i in matches.group(1).split(","))  # EXPECTING start_line, length TO REMOVE
-        remove = Data(start=removes[0], length=1 if len(removes) == 1 else removes[1])  # ASSUME FIRST LINE
-        adds = tuple(int(i.strip()) for i in matches.group(2).split(","))  # EXPECTING start_line, length TO ADD
-        add = Data(start=adds[0], length=1 if len(adds) == 1 else adds[1])
-
-        if add.length == 0 and add.start == 0:
-            add.start = remove.start
-
-        def repair_hunk(hunk_body):
-            # THE LAST DELETED LINE MAY MISS A "\n" MEANING THE FIRST
-            # ADDED LINE WILL BE APPENDED TO THE LAST DELETED LINE
-            # EXAMPLE: -kward has the details.+kward has the details.
-            # DETECT THIS PROBLEM FOR THIS HUNK AND FIX THE DIFF
-            if reverse:
-                last_lines = [o for b, o in zip(reversed(hunk_body), reversed(output)) if b != "+" + o]
-                if not last_lines:
-                    return hunk_body
-
-                last_line = last_lines[0]
-                for problem_index, problem_line in enumerate(hunk_body):
-                    if problem_line.startswith("-") and problem_line.endswith("+" + last_line):
-                        split_point = len(problem_line) - (len(last_line) + 1)
-                        break
-                    elif problem_line.startswith("+" + last_line + "-"):
-                        split_point = len(last_line) + 1
-                        break
-                else:
-                    return hunk_body
-            else:
-                if not output:
-                    return hunk_body
-                last_line = output[-1]
-                for problem_index, problem_line in enumerate(hunk_body):
-                    if problem_line.startswith("+") and problem_line.endswith("-" + last_line):
-                        split_point = len(problem_line) - (len(last_line) + 1)
-                        break
-                    elif problem_line.startswith("-" + last_line + "+"):
-                        split_point = len(last_line) + 1
-                        break
-                else:
-                    return hunk_body
-
-            new_hunk_body = (
-                hunk_body[:problem_index]
-                + [problem_line[:split_point], problem_line[split_point:]]
-                + hunk_body[problem_index + 1 :]
-            )
-            return new_hunk_body
-
-        hunk_body = repair_hunk(hunk_body)
-
-        if reverse:
-            new_output = (
-                output[: add.start - 1]
-                + [d[1:] for d in hunk_body if d and d[0] == "-"]
-                + output[add.start + add.length - 1 :]
-            )
-        else:
-            new_output = (
-                output[: add.start - 1]
-                + [d[1:] for d in hunk_body if d and d[0] == "+"]
-                + output[add.start + remove.length - 1 :]
-            )
-        output = new_output
-
-    if verify:
-        original = apply_diff(output, diff, not reverse, False)
-        if set(text) != set(original):  # bugzilla-etl diffs are a jumble
-
-            for t, o in zip_longest(text, original):
-                if t in ["reports: https://goo.gl/70o6w6\r"]:
-                    break  # KNOWN INCONSISTENCIES
-                if t != o:
-                    logger.error("logical verification check failed")
-                    break
-
-    return output
-
-
 WORDS = re.compile(r"[A-Z][0-9a-z]+|[A-Z][0-9A-Z]+(?=$|[^a-z])|[a-z][0-9a-z]+|[0-9][0-9]+|[0-9A-Za-z]")
 
 

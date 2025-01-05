@@ -7,17 +7,26 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-from unittest import skip
-
+import importlib
+import unittest
 from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 
 from mo_logs import constants
 
 CONSTANT = True
+EXIST = None
 
 
 @add_error_reporting
 class TestConstants(FuzzyTestCase):
+    def test_set_import_self_false(self):
+        constants.set({"tests": {"test_constants": {"CONSTANT": False}}})
+        self.assertEqual(importlib.import_module(__name__).CONSTANT, False, "expecting change")
+
+    def test_set_self_false(self):
+        constants.set({"tests": {"test_constants": {"CONSTANT": False}}})
+        self.assertEqual(CONSTANT, False, "expecting change")
+
     def test_set(self):
         constants.set({"mo_logs": {"constants": {"DEBUG": False}}})
         self.assertEqual(constants.DEBUG, False, "expecting change")
@@ -31,22 +40,34 @@ class TestConstants(FuzzyTestCase):
         constants.set({"mo_logs": {"constants": {"DEBUG": "true"}}})
         self.assertEqual(constants.DEBUG, "true", "expecting change")
 
-    @skip("Can not get to pass on command line")
-    def test_set_self_false(self):
-        constants.set({"tests": {"test_constants": {"CONSTANT": False}}})
-        self.assertEqual(CONSTANT, False, "expecting change")
-
-    @skip("Can not get to pass on command line")
     def test_set_self_true(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": True}}})
         self.assertEqual(globals()["CONSTANT"], True, "expecting change")
 
-    @skip("Can not get to pass on command line")
     def test_set_self_number(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": 42}}})
         self.assertEqual(CONSTANT, 42, "expecting change")
 
-    @skip("Can not get to pass on command line")
     def test_set_self_string(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": "true"}}})
         self.assertEqual(CONSTANT, "true", "expecting change")
+
+    def test_set_impossible(self):
+        with self.assertRaises(Exception):
+            constants.set({"DEBUG": "true"})
+
+    def test_set_does_not_exist(self):
+        with self.assertRaises(Exception):
+            constants.set({"tests": {"test_constants": {"NOT_EXIST": True}}})
+
+    def test_set_does_exist(self):
+        constants.set({"tests": {"test_constants": {"EXIST": True}}})
+        self.assertEqual(EXIST, True, "expecting change")
+
+    def test_module_does_not_exist(self):
+        with self.assertRaises(Exception):
+            constants.set({"no_exist": {"VALUE": True}})
+
+
+if __name__ == "__main__":
+    unittest.main()

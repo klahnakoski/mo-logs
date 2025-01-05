@@ -12,7 +12,6 @@ import os
 import sys
 import tempfile
 
-import mo_dots
 from mo_dots import coalesce, listwrap, from_data, to_data
 
 from mo_logs import logger
@@ -32,13 +31,8 @@ from mo_logs import logger
 # help - A brief description of what the argument does.
 # metavar - A name for the argument in usage messages.
 # dest - The name of the attribute to be added to the object returned by parse_args().
-class _ArgParser(_argparse.ArgumentParser):
-    def error(self, message):
-        logger.error("argparse error: {error}", error=message)
-
-
 def argparse(defs, complain=True):
-    parser = _ArgParser()
+    parser = _argparse.ArgumentParser()
     for d in listwrap(defs):
         args = d.copy()
         name = args.name
@@ -56,7 +50,7 @@ def read_settings(*, defs=None, filename=None, default_filename=None, complain=T
     :param filename: Force load a file
     :param defs: more arguments you want to accept (see https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument)
     :param default_filename: A config file from an environment variable (a fallback config file, if no other provided)
-    :parma complain: Complain about args mismatch
+    :param complain: Complain about args mismatch
     """
     from mo_files import File
     import mo_json_config

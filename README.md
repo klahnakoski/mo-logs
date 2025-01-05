@@ -2,17 +2,19 @@
 # More Logs - Structured Logging and Exception Handling
 
 [![PyPI Latest Release](https://img.shields.io/pypi/v/mo-logs.svg)](https://pypi.org/project/mo-logs/)
- [![Build Status](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml)
- [![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)
-[![Downloads](https://pepy.tech/badge/mo-logs)](https://pepy.tech/project/mo-logs)
+[![Build Status](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/klahnakoski/mo-logs/actions/workflows/build.yml)
+[![Coverage Status](https://coveralls.io/repos/github/klahnakoski/mo-logs/badge.svg?branch=dev)](https://coveralls.io/github/klahnakoski/mo-logs?branch=dev)
+[![Downloads](https://static.pepy.tech/badge/mo-logs)](https://pepy.tech/project/mo-logs)
 
 
 This library provides two main features
 
-* **Structured logging** - output is all JSON (with options to serialize to text for humans)
+* **Structured logging** - output is all JSON (with options to serialize to text for line loggers)
 * **Exception handling weaved in** - Good logs must represent what happened,
 and that can only be done if the logging library is intimately familiar with
 the (exceptional) code paths taken.
+* **Extra properties** - attach additional properties with every subsequent log message; including spawned threads
+
 
 ## Motivation
 
@@ -56,9 +58,11 @@ from mo_logs import logger
 ### Using named parameters
 
 All logging calls accept a string template with named parameters. Keyword arguments
-can be added to the call to provide values. The template and arguments are not 
-combined at call time, rather they are held in a JSON-izable data structure for 
-structured logging. The template is only expanded *if* the log is serialized for humans.  
+can be added to provide values. The template and arguments are not 
+combined at call time, rather they are held in a JSON-serializable object for 
+structured logging. The template is only expanded *if* the log is serialized line logging.  
+
+Notice the template is not an f-string
 
 ```python
 logger.info("Hello, {name}!", name="World!")
@@ -76,7 +80,7 @@ nightmare for log analysis tools.
 
 ### Parametric parameters
 
-All the `logger` functions accept a `default_params` as a second parameter, like so:
+All the `logger` functions accept a `default_params` as a second argument, like so:
 
 ```python
 logger.info("Hello, {name}!", {"name": "World!"})
@@ -98,7 +102,7 @@ def worker(value):
 
 Despite the fact using `locals()` is a wonderful shortcut for logging it is
 dangerous because it also picks up sensitive local variables. Even if
-`{{name}}` is the only value in the template, the whole `locals()` dict will
+`{name}` is the only value in the template, the whole `locals()` dict will
 be sent to the structured loggers for recording. 
 
 ### Formatting parameters
@@ -120,19 +124,19 @@ logger.info("pi is {pi|round(places=3)}!", pi=3.14159265)
 
 You can look at the [`strings` module](https://github.com/klahnakoski/mo-logs/blob/dev/mo_logs/strings.py#L56) to see the formatters available.
 
-### Destination: Database!
+### Destination: Datastore!
 
 All logs are structured logs; the parameters will be included, unchanged, in
-the log structure. This library also expects all parameter values to be JSON-
+the log structure. This library also expects all arguments to be JSON-
 serializable so they can be stored/processed by downstream JSON tools.
 
 **Example structured log** 
 ```json
 {
-    "template": "Hello, {{name}}!",
+    "template": "Hello, {name}!",
     "params": {"name": "World!"},
     "severity": "NOTE",
-    "format": "{{machine.name}} (pid {{machine.pid}}) - {{timestamp|datetime}} - {{thread.name}} - \"{{location.file}}:{{location.line}}\" - ({{location.method}}) - Hello, {{params.name}}!",
+    "format": "{machine.name} (pid {machine.pid}) - {timestamp|datetime} - {thread.name} - \"{location.file}:{location.line}\" - ({location.method}) - Hello, {params.name}!",
     "location": {
         "file": "/home/kyle/code/example.py",
         "line": 10,
@@ -154,15 +158,18 @@ serializable so they can be stored/processed by downstream JSON tools.
 
 ## Exception Handling
 
+Exceptions should be raised or logged, but not both. `mo-logs` provides one function to raise exceptions.
+
 ### Instead of `raise` use `logger.error()`
 
 ```python
 logger.error("This will throw an error")
 ```
 
-The actual call will always raise an exception, and it manipulates the stack
-trace to ensure the caller is appropriately blamed. Feel free to use the
-`raise` keyword (as in `raise logger.error("")`), if that looks nicer to you. 
+The `logger.error()` call will always raise an exception, which is crafted from the arguments it is given. If the callers do not catch the exception, then it will be logged.
+
+> Feel free to write `raise logger.error("")`, if that looks nicer to you.
+
 
 ### Always chain your exceptions
 
@@ -203,10 +210,10 @@ Error logging accepts keyword parameters just like `logger.info()` does
 ```python
 def worker(value):
     try:
-        logger.info("Start working with {{key1}}", key1=value1)
+        logger.info("Start working with {key1}", key1=value1)
         # Do something that might raise exception
     except Exception as cause:
-        logger.error("Failure to work with {{key2}}", key2=value2, cause=cause)
+        logger.error("Failure to work with {key2}", key2=value2, cause=cause)
 ```
 
 ### No need to formally type your exceptions
@@ -227,7 +234,7 @@ def worker(value):
     try:
         # Do something that might raise exception
     except Exception as cause:
-        if "Failure to work with {{key2}}" in cause:
+        if "Failure to work with {key2}" in cause:
             # Deal with exception thrown in above code, no matter
             # how many other exception handlers were in the chain
 ```
@@ -235,7 +242,7 @@ def worker(value):
 For those who may abhor the use of magic strings, feel free to use constants instead:
 
 ```python
-KEY_ERROR = "Failure to work with {{key}}"
+KEY_ERROR = "Failure to work with {key}"
 
 try:
     logger.error(KEY_ERROR, key=42)        
@@ -243,8 +250,6 @@ except Exception as cause:
     if KEY_ERROR in cause:
         logger.info("dealt with key error")
 ```
-
-
 
 
 ### If you can deal with an exception, then it will never be logged
@@ -257,7 +262,7 @@ logging an error would be deceptive.
 ```python
 def worker(value):
     try:
-        logger.error("Failure to work with {{key3}}", key3=value3)
+        logger.error("Failure to work with {key3}", key3=value3)
     except Exception as cause:
         # Try something else
 ```
@@ -267,10 +272,10 @@ def worker(value):
 ```python
 def worker(value):
     try:
-        logger.info("Start working with {{key4}}", key4=value4)
+        logger.info("Start working with {key4}", key4=value4)
         # Do something that might raise exception
     except Exception as cause:
-        logger.warning("Failure to work with {{key4}}", key4=value4, cause=cause)
+        logger.warning("Failure to work with {key4}", key4=value4, cause=cause)
 ```
 ### Don't loose your stack trace!
 
@@ -315,7 +320,7 @@ occur. The original cause (the SQLException) is in the causal chain.
 
 Another example, involves *nested exceptions*: If you catch a particular type 
 of exception, you may inadvertently catch the same type of exception 
-from deeper in the call chain. Narrow exception handling is an illusion. 
+from deeper in the call chain. Narrow exception handling does not exist, it is an illusion. 
 Broad exception handling will force you to consider a variety of failures 
 early; force you to consider what it means when a block of code fails; and 
 force you to describe it for others.
@@ -335,8 +340,7 @@ There is an argument that suggests you should break your code into logical metho
 ## Log 'Levels'
 
 The `mo-logs` module has no concept of logging "levels". It's expected you use debug
-variables: Variables prefixed with `DEBUG_` are used to control the logging
-output.
+variables.  By convention, variables prefixed with `DEBUG_` are used to control the logging output.
 
 
 ```python
@@ -352,17 +356,6 @@ def worker():
     if DEBUG_SHOW_DETAIL:
         logger.info("Done")
 
-def main():
-    try:
-        settings = startup.read_settings()
-        logger.start(settings.debug)
-
-        # DO WORK HERE
-
-    except Exception as cause:
-        logger.error("Complain, or not", cause)
-    finally:
-        logger.stop()
 ```
 
 This pattern of using explict debug variables allows the programmer to switch logging on and off on individual subsystems that share that variable: Either multiple debug variables in a single module, or multiple modules sharing a single debug variable.
@@ -399,31 +392,13 @@ settings of course). For this reason, applications should have the following
 structure:
 
 ```python
-from mo_logs import logger
+from mo_logs import logger, startup
 
 def main():
-    try:
-        settings = startup.read_settings()
-        logger.start(settings.debug)
-
-        # DO WORK HERE
-
-    except Exception as cause:
-        logger.error("Complain, or not", cause)
-    finally:
-        logger.stop()
+    settings = startup.read_settings()
+    with logger.start(settings.debug):
+        ...
 ```
-
-or more simply 
-
-```python
-from mo_logs import LoggingContext
-
-def main():
-    with LoggingContext():
-        # DO WORK HERE
-```
-
 
 Example configuration file
 

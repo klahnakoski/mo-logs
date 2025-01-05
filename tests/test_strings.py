@@ -51,6 +51,8 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(strings.percent(0.0120, digits=3), "1.20%")
 
         self.assertEqual(strings.percent(0.5), "50%")
+        self.assertEqual(strings.percent(0), "0%")
+        self.assertEqual(strings.percent(None), "")
 
     def test_wordify(self):
         self.assertEqual(wordify("thisIsATest"), ["this", "is", "a", "test"])
@@ -160,3 +162,129 @@ class TestStrings(FuzzyTestCase):
     def test_json_in_template(self):
         result = expand_template("{'example':42}", {"list": [1, 2, 3]})
         self.assertEqual(result, "{'example':42}")
+
+    def test_unicode_formatter(self):
+        result = expand_template("{name|unicode}", {"name": {"a": 10}})
+        self.assertEqual(result, "{'a': 10}")
+
+        result = expand_template("{name|unicode}", {"name": None})
+        self.assertEqual(result, "")
+
+    def test_str_formatter(self):
+        result = expand_template("{name|str}", {"name": {"a": 10}})
+        self.assertEqual(result, "{'a': 10}")
+
+        result = expand_template("{name|str}", {"name": None})
+        self.assertEqual(result, "")
+
+    def test_unix_formatter(self):
+        now = Date("2025-01-04 14:21:34.999")
+
+        result = expand_template("{name|unix}", {"name": "a/b/c"})
+        self.assertEqual(result, "a/b/c")
+
+        result = expand_template("{value|unix}", {"value": now.format()})
+        self.assertEqual(result, str(int(now.unix)))
+
+        result = expand_template("{value|unix}", {"value": now.milli})
+        self.assertEqual(result, str(int(now.unix)))
+
+    def test_strip_formatter(self):
+        result = expand_template("{name|strip}", {"name": "  a  "})
+        self.assertEqual(result, "a")
+
+        result = expand_template("{name|trim}", {"name": "  a  b  "})
+        self.assertEqual(result, "a  b")
+
+    def test_right_formatter(self):
+        result = expand_template("{value|right(10)}", {"value": "01234567890"})
+        self.assertEqual(result, "1234567890")
+
+        result = expand_template("{value|right(10)}", {"value": "012345"})
+        self.assertEqual(result, "012345")
+
+        result = expand_template("{value|right(-1)}", {"value": "01234567890"})
+        self.assertEqual(result, "")
+
+    def test_left_formatter(self):
+        result = expand_template("{value|left(10)}", {"value": "01234567890"})
+        self.assertEqual(result, "0123456789")
+
+        result = expand_template("{value|left(10)}", {"value": "012345"})
+        self.assertEqual(result, "012345")
+
+        result = expand_template("{value|left(-1)}", {"value": "01234567890"})
+        self.assertEqual(result, "")
+
+    def test_right_align_formatter(self):
+        result = expand_template("{value|right_align(10)}", {"value": "01234567890"})
+        self.assertEqual(result, "1234567890")
+
+        result = expand_template("{value|right_align(10)}", {"value": "012345"})
+        self.assertEqual(result, "    012345")
+
+        result = expand_template("{value|right_align(-1)}", {"value": "01234567890"})
+        self.assertEqual(result, "")
+
+    def test_left_align_formatter(self):
+        result = expand_template("{value|left_align(10)}", {"value": "01234567890"})
+        self.assertEqual(result, "0123456789")
+
+        result = expand_template("{value|left_align(10)}", {"value": "012345"})
+        self.assertEqual(result, "012345    ")
+
+        result = expand_template("{value|left_align(-1)}", {"value": "01234567890"})
+        self.assertEqual(result, "")
+
+    def test_comma_formatter(self):
+        result = expand_template("{value|comma}", {"value": 1234567890})
+        self.assertEqual(result, "1,234,567,890")
+
+        result = expand_template("{value|comma}", {"value": 123456})
+        self.assertEqual(result, "123,456")
+
+        result = expand_template("{value|comma}", {"value": 123})
+        self.assertEqual(result, "123")
+
+        result = expand_template("{value|comma}", {"value": None})
+        self.assertEqual(result, "")
+
+        result = expand_template("{value|comma}", {"value": "abc"})
+        self.assertEqual(result, "abc")
+
+    def test_quote_formatter(self):
+        result = expand_template("{value|quote}", {"value": "abc"})
+        self.assertEqual(result, '"abc"')
+
+        result = expand_template("{value|quote}", {"value": 123})
+        self.assertEqual(result, '"123"')
+
+        result = expand_template("{value|quote}", {"value": None})
+        self.assertEqual(result, "")
+
+    def test_hex_formatter(self):
+        result = expand_template("{value|hex}", {"value": 123})
+        self.assertEqual(result, "7B")
+
+        result = expand_template("{value|hex}", {"value": 0})
+        self.assertEqual(result, "0")
+
+        result = expand_template("{value|hex}", {"value": None})
+        self.assertEqual(result, "")
+
+        result = expand_template("{value|hex}", {"value": b"hello"})
+        self.assertEqual(result, "68656C6C6F")
+
+    def test_edit_distance(self):
+        result = strings.edit_distance("abc", "abc")
+        self.assertEqual(result, 0)
+
+        result = strings.edit_distance("abc", "abcd")
+        self.assertEqual(result, 0.25)
+
+        result = strings.edit_distance("abc", "ab")
+        self.assertEqual(result, 0.3333333333333333)
+
+        result = strings.edit_distance("abc", "def")
+        self.assertEqual(result, 1)
+
