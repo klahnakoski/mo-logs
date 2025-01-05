@@ -10,7 +10,8 @@
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12"
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13"
     ],
     "description": "More Logs! Structured Logging and Exception Handling",
     "extras_require": {"tests": [
@@ -20,8 +21,8 @@
     ]},
     "include_package_data": true,
     "install_requires": [
-          "mo-dots==10.647.24166",  "mo-future==7.584.24095", "mo-imports==7.584.24095",
-         "mo-kwargs==7.647.24166"
+          "mo-dots==10.659.25005",  "mo-future==7.584.24095", "mo-imports==7.584.24095",
+         "mo-kwargs==7.659.25005"
     ],
     "license": "MPL 2.0",
     "long_description": {
