@@ -14,6 +14,6 @@ python -m unittest discover .
 
 ```
 python -m pip install coverage
-python -m coverage run -m unittest discover tests
+python -m coverage run -m unittest discover .
 python -m coverage html --omit="tests/"
 ```
