@@ -40,17 +40,14 @@ class TestConstants(FuzzyTestCase):
         constants.set({"mo_logs": {"constants": {"DEBUG": "true"}}})
         self.assertEqual(constants.DEBUG, "true", "expecting change")
 
-    @skip("Can not get to pass on command line")
     def test_set_self_true(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": True}}})
         self.assertEqual(globals()["CONSTANT"], True, "expecting change")
 
-    @skip("Can not get to pass on command line")
     def test_set_self_number(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": 42}}})
         self.assertEqual(CONSTANT, 42, "expecting change")
 
-    @skip("Can not get to pass on command line")
     def test_set_self_string(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": "true"}}})
         self.assertEqual(CONSTANT, "true", "expecting change")
