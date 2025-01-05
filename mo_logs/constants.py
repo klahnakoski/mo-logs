@@ -8,7 +8,14 @@
 #
 import sys
 
-from mo_dots import _set_attr as mo_dots_set_attr, split_field, to_data
+from mo_dots import (
+    _set_attr as mo_dots_set_attr,
+    _get_attr as mo_dots_get_attr,
+    split_field, to_data, startswith_field, relative_field, join_field, NullType, SLOT, KEY)
+from mo_imports import delay_import
+
+logger = delay_import("mo_logs.logger")
+
 
 DEBUG = False
 
@@ -19,53 +26,48 @@ def set(constants):
     THINK OF THIS AS PRIMITIVE DEPENDENCY INJECTION FOR MODULES.
     USEFUL FOR SETTING DEBUG FLAGS.
     """
-    if not constants:
-        return
-    constants = to_data(constants)
+    for full_path, new_value in to_data(constants).leaves():
+        _set_one(full_path, new_value)
 
-    for full_path, new_value in constants.leaves():
-        errors = []
-        k_path = split_field(full_path)
-        if len(k_path) < 2:
-            from mo_logs import logger
 
-            logger.error("expecting <module>.<constant> format, not {path|quote}", path=k_path)
-        name = k_path[-1]
-        try:
-            mo_dots_set_attr(sys.modules, k_path, new_value)
-            continue
-        except Exception as e:
-            errors.append(e)
+def _set_one(full_path, new_value):
+    k_path = split_field(full_path)
+    if len(k_path) < 2:
+        logger.error("expecting <module>.<constant> format, not {path|quote}", path=k_path)
+    candidate = ""
+    main_module = None
+    for module_path, module in (*sys.modules.items(), get_main_module()):
+        if startswith_field(full_path, module_path):
+            if len(module_path) > len(candidate):
+                candidate = module_path
+                main_module = module
+    if not candidate:
+        logger.error(
+            "no module starting with {module|quote}",
+            module=full_path,
+            stack_depth=2
+        )
 
-        # ONE MODULE IS MISSING, THE CALLING MODULE
-        try:
-            caller_globals = sys._getframe(1).f_globals
-            caller_file = caller_globals["__file__"]
-            if not caller_file.endswith(".py"):
-                raise Exception("do not know how to handle non-python caller")
-            caller_module = caller_file[:-3].replace("\\", "/")
-            module_path = caller_module.split("/")
+    if startswith_field(full_path, candidate):
+        k_path = split_field(relative_field(full_path, candidate))
+        current_value = mo_dots_get_attr(main_module, k_path)
+        if isinstance(current_value, NullType) and not _slot_exists(current_value):
+            logger.error(
+                "property {path|quote} not found in {module|quote}",
+                path=join_field(k_path),
+                module=main_module,
+                stack_depth=2
+            )
+        mo_dots_set_attr(main_module, k_path, new_value)
 
-            # ENSURE THERE IS SOME EVIDENCE THE MODULE MATCHES THE PATH
-            if k_path[-2] != module_path[-1]:
-                continue
 
-            old_value = mo_dots_set_attr(caller_globals, [name], new_value)
-            if DEBUG:
-                from mo_logs import logger
+def _slot_exists(null):
+    obj = object.__getattribute__(null, SLOT)
+    key = object.__getattribute__(null, KEY)
+    return hasattr(obj, key)
 
-                logger.info(
-                    "Changed {module}[{attribute}] from {old_value} to {new_value}",
-                    module=caller_module,
-                    attribute=name,
-                    old_value=old_value,
-                    new_value=new_value,
-                )
-            break
-        except Exception as e:
-            errors.append(e)
-
-        if errors:
-            from mo_logs import logger
-
-            logger.error("Can not set constant {path}", path=full_path, cause=errors)
+def get_main_module():
+    main_module = sys.modules["__main__"]
+    if not main_module.__file__.endswith(".py"):
+        raise Exception("do not know how to handle non-python main")
+    return join_field(main_module.__file__[:-3].replace("\\", "/").split("/")), main_module

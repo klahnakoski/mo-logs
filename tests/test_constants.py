@@ -8,13 +8,13 @@
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
 import importlib
-from unittest import skip
-
+import unittest
 from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 
 from mo_logs import constants
 
 CONSTANT = True
+EXIST = None
 
 
 @add_error_reporting
@@ -52,3 +52,22 @@ class TestConstants(FuzzyTestCase):
         constants.set({"tests": {"test_constants": {"CONSTANT": "true"}}})
         self.assertEqual(CONSTANT, "true", "expecting change")
 
+    def test_set_impossible(self):
+        with self.assertRaises(Exception):
+            constants.set({"DEBUG": "true"})
+
+    def test_set_does_not_exist(self):
+        with self.assertRaises(Exception):
+            constants.set({"tests": {"test_constants": {"NOT_EXIST": True}}})
+
+    def test_set_does_exist(self):
+        constants.set({"tests": {"test_constants": {"EXIST": True}}})
+        self.assertEqual(EXIST, True, "expecting change")
+
+    def test_module_does_not_exist(self):
+        with self.assertRaises(Exception):
+            constants.set({"no_exist": {"VALUE": True}})
+
+
+if __name__ == "__main__":
+    unittest.main()
