@@ -9,25 +9,23 @@
 #
 import logging
 import sys
-import unittest
 import zlib
 from unittest import skip
 
 from mo_dots import listwrap, wrap, Data, to_data
 from mo_dots.objects import DataObject
-from mo_json import value2json, Scrubber
-from mo_testing.fuzzytestcase import FuzzyTestCase
-from mo_threads import Till
+from mo_json import value2json
+from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 
 from mo_logs import Except, logger
 from mo_logs.exceptions import ERROR, TOO_DEEP
 from tests.utils.log_usingQueue import StructuredLogger_usingQueue
 
 
+@add_error_reporting
 class TestExcept(FuzzyTestCase):
     @classmethod
     def setUpClass(cls):
-        Scrubber()  # TODO: remove me
         logger.start({"trace": False})
 
     def test_trace_of_simple_raises(self):
@@ -192,43 +190,34 @@ class TestExcept(FuzzyTestCase):
         AB = "d"
         BC = "b"
 
-        # DURING TESTING SOME OTHER THREADS MAY STILL BE WRITING TO THE LOG
-        Till(seconds=1).wait()
-        # HIGHJACK LOG FOR TESTING OUTPUT
         log_queue = StructuredLogger_usingQueue()
-        backup_log, logger.main_log = logger.main_log, log_queue
-
-        try:
-            raise Exception("problem")
-        except Exception as e:
+        with logger.start(log=log_queue):
             logger.info("test")
-            self.assertEqual(logger.main_log.pop(), WARNING)
+            self.assertEqual(log_queue.pop(), WARNING)
 
             logger.info("test: {{a}}", a=a)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + A)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + A)
 
             logger.info("test: {{a}}: {{b}}", a=a, b=b)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + A + ": " + B)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + A + ": " + B)
 
             logger.info("test: {{a.c}}", a=a)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + AC)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + AC)
 
             logger.info("test: {{a}}: {{b}}", params)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + A + ": " + B)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + A + ": " + B)
 
             logger.info("test: {{a}}: {{b}}", params, a=b)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + B + ": " + B)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + B + ": " + B)
 
             logger.info("test: {{a}}: {{b}}", wrap(params), a=b)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + B + ": " + B)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + B + ": " + B)
 
             logger.info("test: {{a.c}}: {{a.b}}", a=a, b=b)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + AC + ": " + AB)
+            self.assertEqual(log_queue.pop(), WARNING + ": " + AC + ": " + AB)
 
             logger.info("test: {{a.c}}: {{b.c}}", a=a, b=b)
-            self.assertEqual(logger.main_log.pop(), WARNING + ": " + AC + ": " + BC)
-        finally:
-            logger.main_log = backup_log
+            self.assertEqual(log_queue.pop(), WARNING + ": " + AC + ": " + BC)
 
     # NORMAL RAISING
     def test_python_raise_from(self):
@@ -375,11 +364,3 @@ def problem_c(value):
     a = Data(value=value)
     b = "something"
     c = 1 / 0
-
-
-if __name__ == "__main__":
-    try:
-        Log.start()
-        unittest.main()
-    finally:
-        Log.stop()

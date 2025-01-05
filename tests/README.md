@@ -6,7 +6,7 @@
 ```
 python -m pip install -r tests/requirements.txt
 python -m pip install -r requirements.txt
-python -m unittest discover tests
+python -m unittest discover .
 ```
 
 

@@ -354,17 +354,6 @@ def worker():
     if DEBUG_SHOW_DETAIL:
         logger.info("Done")
 
-def main():
-    try:
-        settings = startup.read_settings()
-        logger.start(settings.debug)
-
-        # DO WORK HERE
-
-    except Exception as cause:
-        logger.error("Complain, or not", cause)
-    finally:
-        logger.stop()
 ```
 
 This pattern of using explict debug variables allows the programmer to switch logging on and off on individual subsystems that share that variable: Either multiple debug variables in a single module, or multiple modules sharing a single debug variable.
@@ -404,30 +393,10 @@ structure:
 from mo_logs import logger, startup
 
 def main():
-    try:
-        settings = startup.read_settings()
-        logger.start(settings.debug)
-
-        # DO WORK HERE
-
-    except Exception as cause:
-        logger.error("Complain, or not", cause)
-    finally:
-        logger.stop()
-```
-
-or more simply 
-
-```python
-from mo_logs import logger, startup
-
-def main():
     settings = startup.read_settings()
     with logger.start(settings.debug):
-        # DO WORK HERE
-        logger.info("Hello, World!")
+        ...
 ```
-
 
 Example configuration file
 

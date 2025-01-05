@@ -62,7 +62,7 @@ jobs:
       env:
         CI: true
       run: |
-        python -m unittest discover tests -v
+        python -m unittest discover . -v
 
   coverage:
     if: github.ref == 'refs/heads/dev'

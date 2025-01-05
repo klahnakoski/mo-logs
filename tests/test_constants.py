@@ -7,6 +7,7 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
+import importlib
 from unittest import skip
 
 from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
@@ -18,6 +19,14 @@ CONSTANT = True
 
 @add_error_reporting
 class TestConstants(FuzzyTestCase):
+    def test_set_import_self_false(self):
+        constants.set({"tests": {"test_constants": {"CONSTANT": False}}})
+        self.assertEqual(importlib.import_module(__name__).CONSTANT, False, "expecting change")
+
+    def test_set_self_false(self):
+        constants.set({"tests": {"test_constants": {"CONSTANT": False}}})
+        self.assertEqual(CONSTANT, False, "expecting change")
+
     def test_set(self):
         constants.set({"mo_logs": {"constants": {"DEBUG": False}}})
         self.assertEqual(constants.DEBUG, False, "expecting change")
@@ -30,11 +39,6 @@ class TestConstants(FuzzyTestCase):
 
         constants.set({"mo_logs": {"constants": {"DEBUG": "true"}}})
         self.assertEqual(constants.DEBUG, "true", "expecting change")
-
-    @skip("Can not get to pass on command line")
-    def test_set_self_false(self):
-        constants.set({"tests": {"test_constants": {"CONSTANT": False}}})
-        self.assertEqual(CONSTANT, False, "expecting change")
 
     @skip("Can not get to pass on command line")
     def test_set_self_true(self):
@@ -50,3 +54,4 @@ class TestConstants(FuzzyTestCase):
     def test_set_self_string(self):
         constants.set({"tests": {"test_constants": {"CONSTANT": "true"}}})
         self.assertEqual(CONSTANT, "true", "expecting change")
+
