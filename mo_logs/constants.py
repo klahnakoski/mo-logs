@@ -6,6 +6,7 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
+import os
 import sys
 
 from mo_dots import (
@@ -48,6 +49,9 @@ def _set_one(full_path, new_value):
             stack_depth=2
         )
 
+    # '...AppData.Local.Programs.PyCharm Community.plugins.python-ce.helpers.pycharm._jb_unittest_runner'
+    # 'no_exist.VALUE'
+
     if startswith_field(full_path, candidate):
         k_path = split_field(relative_field(full_path, candidate))
         current_value = mo_dots_get_attr(main_module, k_path)
@@ -66,8 +70,21 @@ def _slot_exists(null):
     key = object.__getattribute__(null, KEY)
     return hasattr(obj, key)
 
+
 def get_main_module():
+    curr_dir = file_path_as_field(abs_path(os.getcwd()))
     main_module = sys.modules["__main__"]
     if not main_module.__file__.endswith(".py"):
         raise Exception("do not know how to handle non-python main")
-    return join_field(main_module.__file__[:-3].replace("\\", "/").split("/")), main_module
+    module_path = relative_field(file_path_as_field(abs_path(main_module.__file__)[:-3]), curr_dir)
+    if module_path.startswith(".."):
+        module_path = "*"  # hopefully no file has this name, todo remove this if block when new mo-dots available
+    return module_path, main_module
+
+
+def abs_path(path):
+    return os.path.abspath(path).replace(os.sep, "/").lstrip("/")
+
+
+def file_path_as_field(file_path):
+    return join_field(file_path.split("/"))
