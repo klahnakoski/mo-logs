@@ -17,8 +17,7 @@ from mo_dots.objects import DataObject
 from mo_json import value2json
 from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 
-from mo_logs import Except, logger
-from mo_logs.exceptions import ERROR, TOO_DEEP
+from mo_logs import Except, logger, ERROR, TOO_DEEP
 from tests.utils.log_usingQueue import StructuredLogger_usingQueue
 
 

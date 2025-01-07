@@ -15,7 +15,7 @@ from mo_imports import delay_import
 from mo_json import scrub
 from mo_kwargs import override
 
-from mo_logs import logger, STACKTRACE
+from mo_logs.utils import logger, STACKTRACE
 from mo_logs.exceptions import FATAL, ERROR, WARNING, ALARM, UNEXPECTED, INFO, NOTE, format_trace
 from mo_logs.log_usingNothing import StructuredLogger
 from mo_logs.strings import expand_template
@@ -67,7 +67,7 @@ class StructuredLogger_usingHandler(StructuredLogger):
                 v = v.format(f"%Y-%m-%dT%H:%M:%S{ms}Z")
             elif isinstance(v, bytes):
                 # TODO: REMOVE ME
-                v = v.decode('latin1')
+                v = v.decode("latin1")
             elif isinstance(v, timedelta):
                 v = v.total_seconds()
             else:
@@ -111,7 +111,7 @@ def make_handler_from_config(config):
     config["log_type"] = None
     config["settings"] = None
     try:
-        log_instance = constructor(**{k:from_data(v) for k, v in config.items()})
+        log_instance = constructor(**{k: from_data(v) for k, v in config.items()})
         return log_instance
     except Exception as cause:
         logger.error("problem with making handler", cause=cause)
