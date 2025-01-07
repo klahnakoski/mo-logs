@@ -489,11 +489,7 @@ def expand_template(template, value):
     :return: UNICODE STRING WITH VARIABLES EXPANDED
     """
     try:
-        value = to_data(value)
-        if is_text(template):
-            return _simple_expand(template, (value,))
-
-        return _expand(template, (value,))
+        return _expand(template, (to_data(value),))
     except Exception as e:
         return "FAIL TO EXPAND: " + template
 
@@ -518,23 +514,15 @@ def is_hex(value):
     return all(c in string.hexdigits for c in value)
 
 
-delchars = "".join(c for c in map(chr, range(256)) if not c.isalnum())
+
+delchars_pattern = re.compile(r'[^a-zA-Z0-9]')
 
 
 def deformat(value):
     """
     REMOVE NON-ALPHANUMERIC CHARACTERS
-
-    FOR SOME REASON translate CAN NOT BE CALLED:
-        ERROR: translate() takes exactly one argument (2 given)
-        File "C:\\Python27\\lib\\string.py", line 493, in translate
     """
-    output = []
-    for c in value:
-        if c in delchars:
-            continue
-        output.append(c)
-    return "".join(output)
+    return delchars_pattern.sub('', value)
 
 
 def _expand(template, seq):

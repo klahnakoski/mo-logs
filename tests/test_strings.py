@@ -12,7 +12,7 @@ from mo_times import Date
 
 from mo_logs import strings
 from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between, limit, \
-    common_prefix
+    common_prefix, deformat
 
 
 class TestStrings(FuzzyTestCase):
@@ -368,3 +368,25 @@ class TestStrings(FuzzyTestCase):
         # Add the following asserts to the appropriate test file
         self.assertEqual(common_prefix("flower", "flow", "flight"), "fl")
         self.assertEqual(common_prefix("dog", "racecar", "car"), "")
+
+    def test_deformat(self):
+        self.assertEqual(deformat("abc123"), "abc123")
+        self.assertEqual(deformat("a!b@c#1$2%3^"), "abc123")
+        self.assertEqual(deformat(""), "")
+        self.assertEqual(deformat("!@#$%^&*()"), "")
+
+    def test_expand_template(self):
+        result = expand_template(
+            {"from": "value", "template": "{name} is {age}\n"},
+            {"value": [{"name": "Kyle", "age": 50}, {"name": "John", "age": 30}]}
+        )
+        self.assertEqual(result, "Kyle is 50\nJohn is 30\n")
+
+        result = expand_template(
+            [
+                "summary {header|upper}\n",
+                {"from": "value", "template": "{name} is {age}", "separator": "\n"},
+            ],
+            {"header": "ages", "value": [{"name": "Kyle", "age": 50}, {"name": "John", "age": 30}]}
+        )
+        self.assertEqual(result, "summary AGES\nKyle is 50\nJohn is 30")
