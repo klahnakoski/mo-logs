@@ -9,6 +9,7 @@
 #
 import json as _json
 import math
+import os
 import re
 import string
 from datetime import date, datetime as builtin_datetime, timedelta
@@ -463,7 +464,6 @@ def limit(value, length):
         logger.error("Not expected", cause=e)
 
 
-@formatter
 def split(value, sep=CR):
     # GENERATOR VERSION OF split()
     # SOMETHING TERRIBLE HAPPENS, SOMETIMES, IN PYPY
@@ -475,7 +475,6 @@ def split(value, sep=CR):
         s = n + len_sep
         n = value.find(sep, s)
     yield value[s:]
-    value = None
 
 
 """
@@ -500,13 +499,7 @@ def expand_template(template, value):
 
 
 def common_prefix(*args):
-    prefix = args[0]
-    for a in args[1:]:
-        for i in range(min(len(prefix), len(a))):
-            if a[i] != prefix[i]:
-                prefix = prefix[:i]
-                break
-    return prefix
+    os.path.commonprefix(args)
 
 
 def find_first(value, find_arr, start=0):

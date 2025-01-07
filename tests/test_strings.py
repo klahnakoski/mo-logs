@@ -11,7 +11,8 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between, limit
+from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between, limit, \
+    common_prefix
 
 
 class TestStrings(FuzzyTestCase):
@@ -329,17 +330,41 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(between("this is a test", None, "pie"), None)
 
     def test_limit(self):
+        old, strings._SNIP = strings._SNIP, '...'
         result = limit("short", 10)
         self.assertEqual(result, "short")
 
         result = limit("exactlength", 11)
         self.assertEqual(result, "exactlength")
 
+        result = limit("lonstr", 4)
+        self.assertEqual(result, "lons")
+
         result = limit("this is a very long string", 10)
-        self.assertEqual(result, "thi...ing")
+        self.assertEqual(result, "this...ing")
 
         result = limit("this is a very long string", 11)
         self.assertEqual(result, "this...ring")
 
         result = limit(None, 10)
         self.assertIsNone(result)
+
+        strings._SNIP = old
+
+    def test_split(self):
+        result = list(strings.split("line1\nline2\nline3", "\n"))
+        self.assertEqual(result, ["line1", "line2", "line3"])
+
+        result = list(strings.split("line1\nline2\nline3\n", "\n"))
+        self.assertEqual(result, ["line1", "line2", "line3", ""])
+
+        result = list(strings.split("line1\n\nline2\n\nline3", "\n"))
+        self.assertEqual(result, ["line1", "", "line2", "", "line3"])
+
+        result = list(strings.split("", "\n"))
+        self.assertEqual(result, [""])
+
+    def test_prefix(self):
+        # Add the following asserts to the appropriate test file
+        self.assertEqual(common_prefix("flower", "flow", "flight"), "fl")
+        self.assertEqual(common_prefix("dog", "racecar", "car"), "")
