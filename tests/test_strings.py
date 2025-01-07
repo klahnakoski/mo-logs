@@ -431,7 +431,7 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(result, '[1, 2, 3]')
 
         result = expand_template("{test}", {"test": _Str()})
-        self.assertEqual(result, "<class 'test_strings._Str'> type can not be converted to str")
+        self.assertEqual(result, "<class 'tests.test_strings._Str'> type can not be converted to str")
 
 
 class _Data:

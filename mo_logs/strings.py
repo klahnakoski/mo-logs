@@ -495,7 +495,7 @@ def expand_template(template, value):
 
 
 def common_prefix(*args):
-    os.path.commonprefix(args)
+    return os.path.commonprefix(args)
 
 
 def find_first(value, find_arr, start=0):
