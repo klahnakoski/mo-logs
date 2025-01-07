@@ -579,7 +579,7 @@ def _simple_expand(template, seq: Tuple[Data]):
                 else:
                     func = FORMATTERS.get(func_name)
                     if not func:
-                        logger.error(f"Can not find formatter {func_name}")
+                        raise Exception(f"Can not find formatter {func_name}")
                     val = func(val)
 
             val = toString(val)
@@ -632,24 +632,21 @@ def toString(val):
         return f"{round(val.seconds, places=4)} seconds"
     elif isinstance(val, timedelta):
         duration = val.total_seconds()
-        return f"{round(duration, 3)} seconds"
+        return f"{round(duration, places=4)} seconds"
     elif is_text(val):
         return val
     elif isinstance(val, binary_type):
         try:
             return val.decode("utf8")
-        except Exception as _:
+        except Exception:
             pass
 
-        try:
-            return val.decode("latin1")
-        except Exception as e:
-            logger.error(f"{type(val)} type can not be converted to unicode", cause=e)
+        return val.decode("latin1")
     else:
         try:
             return _str(val)
-        except Exception as e:
-            logger.error(f"{type(val)} type can not be converted to unicode", cause=e)
+        except Exception:
+            return f"{type(val)} type can not be converted to str"
 
 
 def edit_distance(s1, s2):

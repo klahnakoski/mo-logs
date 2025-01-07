@@ -7,8 +7,11 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
+from datetime import timedelta
+
+from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase
-from mo_times import Date
+from mo_times import Date, Duration, SECOND
 
 from mo_logs import strings
 from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between, limit, \
@@ -377,6 +380,12 @@ class TestStrings(FuzzyTestCase):
 
     def test_expand_template(self):
         result = expand_template(
+            "first name: {0}",
+            ["Kyle", "John"]
+        )
+        self.assertEqual(result, "first name: Kyle")
+
+        result = expand_template(
             {"from": "value", "template": "{name} is {age}\n"},
             {"value": [{"name": "Kyle", "age": 50}, {"name": "John", "age": 30}]}
         )
@@ -390,3 +399,52 @@ class TestStrings(FuzzyTestCase):
             {"header": "ages", "value": [{"name": "Kyle", "age": 50}, {"name": "John", "age": 30}]}
         )
         self.assertEqual(result, "summary AGES\nKyle is 50\nJohn is 30")
+
+        result = expand_template("{test|purple}", {})
+        self.assertEqual(result, '[template expansion error: (Exception: Can not find formatter purple)]')
+
+        result = expand_template("{test}", {"test": None})
+        self.assertEqual(result, "")
+
+        result = expand_template("{test}", {"test": Date("2024-01-06")})
+        self.assertEqual(result, '2024-01-06 00:00:00')
+
+        result = expand_template("{test}", {"test": 3.141592654*SECOND})
+        self.assertEqual(result, '3.142 seconds')
+
+        result = expand_template("{test}", {"test": timedelta(microseconds=3141592)})
+        self.assertEqual(result, '3.142 seconds')
+
+        result = expand_template("{test}", {"test": Data(a=2)})
+        self.assertEqual(result, '{"a": 2}')
+
+        result = expand_template("{test}", {"test": [1, 2, 3]})
+        self.assertEqual(result, '[1, 2, 3]')
+
+        result = expand_template("{test}", {"test": b"\xff"})
+        self.assertEqual(result, 'ÿ')
+
+        result = expand_template("{test}", {"test": _Data()})
+        self.assertEqual(result, '{"a": 2}')
+
+        result = expand_template("{test}", {"test": _Json()})
+        self.assertEqual(result, '[1, 2, 3]')
+
+        result = expand_template("{test}", {"test": _Str()})
+        self.assertEqual(result, "<class 'test_strings._Str'> type can not be converted to str")
+
+
+class _Data:
+    def __data__(self):
+        return {"a": 2}
+
+
+class _Json:
+    def __json__(self):
+        return "[1, 2, 3]"
+
+
+class _Str:
+    def __str__(self):
+        raise Exception("I am an exception")
+
