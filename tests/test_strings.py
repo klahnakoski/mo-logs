@@ -11,7 +11,7 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma
+from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between
 
 
 class TestStrings(FuzzyTestCase):
@@ -288,3 +288,42 @@ class TestStrings(FuzzyTestCase):
         result = strings.edit_distance("abc", "def")
         self.assertEqual(result, 1)
 
+    # tests to cover def datetime(value):
+
+    def test_datetime(self):
+        result = expand_template("{value|datetime}", {"value": 1420119241000})
+        self.assertEqual(result, "2015-01-01 13:34:01")
+
+        # New assert to cover the case where output ends with "000"
+        result = expand_template("{value|datetime}", {"value": 1420119241})
+        self.assertEqual(result, "2015-01-01 13:34:01")
+
+        result = datetime(1420119241.000001)
+        self.assertEqual(result, "2015-01-01 13:34:01.000001")
+
+    def test_url(self):
+        result = expand_template("{value|url}", {"value": {"value": "hello"}})
+        self.assertEqual(result, 'value=hello')
+
+        result = expand_template("{value|url}", {"value": {"value": [1, 2, 3]}})
+        self.assertEqual(result, 'value=1,2,3')
+
+        result = expand_template("{value|url}", {"value": {"value": None}})
+        self.assertEqual(result, '')
+
+        result = expand_template("{value|url}", {"value": {"value": {"a": 1, "b": 2}}})
+        self.assertEqual(result, 'value.a=1&value.b=2')
+
+    def test_between(self):
+        self.assertEqual(between("this is a test", "this", "test"), " is a ")
+        self.assertEqual(between("this is a test", "is", "test"), " a ")
+        self.assertEqual(between("this is a test", "this", "a"), " is ")
+        self.assertEqual(between("this is a test", None, "test"), "this is a ")
+        self.assertEqual(between("this is a test", "this", None), " is a test")
+        self.assertEqual(between("this is a test", " is", None), " a test")
+        self.assertEqual(between("this is a test", "not", "test"), None)
+        self.assertEqual(between("this is a test", "this", "not"), None)
+        self.assertEqual(between("this is a test", "this", "test", 5), None)
+        self.assertEqual(between("this is a test", "is", "test", 5), " a ")
+        self.assertEqual(between("this is a test", "this", "a", 5), None)
+        self.assertEqual(between("this is a test", None, "pie"), None)
