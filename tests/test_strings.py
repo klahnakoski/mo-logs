@@ -11,7 +11,7 @@ from mo_testing.fuzzytestcase import FuzzyTestCase
 from mo_times import Date
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between
+from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between, limit
 
 
 class TestStrings(FuzzyTestCase):
@@ -327,3 +327,19 @@ class TestStrings(FuzzyTestCase):
         self.assertEqual(between("this is a test", "is", "test", 5), " a ")
         self.assertEqual(between("this is a test", "this", "a", 5), None)
         self.assertEqual(between("this is a test", None, "pie"), None)
+
+    def test_limit(self):
+        result = limit("short", 10)
+        self.assertEqual(result, "short")
+
+        result = limit("exactlength", 11)
+        self.assertEqual(result, "exactlength")
+
+        result = limit("this is a very long string", 10)
+        self.assertEqual(result, "thi...ing")
+
+        result = limit("this is a very long string", 11)
+        self.assertEqual(result, "this...ring")
+
+        result = limit(None, 10)
+        self.assertIsNone(result)
