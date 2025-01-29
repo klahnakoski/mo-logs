@@ -7,11 +7,15 @@
 #
 # Author: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
+from datetime import timedelta
+
+from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase
-from mo_times import Date
+from mo_times import Date, Duration, SECOND
 
 from mo_logs import strings
-from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma
+from mo_logs.strings import expand_template, wordify, round, datetime, parse_template, chunk, comma, between, limit, \
+    common_prefix, deformat
 
 
 class TestStrings(FuzzyTestCase):
@@ -287,4 +291,160 @@ class TestStrings(FuzzyTestCase):
 
         result = strings.edit_distance("abc", "def")
         self.assertEqual(result, 1)
+
+    # tests to cover def datetime(value):
+
+    def test_datetime(self):
+        result = expand_template("{value|datetime}", {"value": 1420119241000})
+        self.assertEqual(result, "2015-01-01 13:34:01")
+
+        # New assert to cover the case where output ends with "000"
+        result = expand_template("{value|datetime}", {"value": 1420119241})
+        self.assertEqual(result, "2015-01-01 13:34:01")
+
+        result = datetime(1420119241.000001)
+        self.assertEqual(result, "2015-01-01 13:34:01.000001")
+
+    def test_url(self):
+        result = expand_template("{value|url}", {"value": {"value": "hello"}})
+        self.assertEqual(result, 'value=hello')
+
+        result = expand_template("{value|url}", {"value": {"value": [1, 2, 3]}})
+        self.assertEqual(result, 'value=1,2,3')
+
+        result = expand_template("{value|url}", {"value": {"value": None}})
+        self.assertEqual(result, '')
+
+        result = expand_template("{value|url}", {"value": {"value": {"a": 1, "b": 2}}})
+        self.assertEqual(result, 'value.a=1&value.b=2')
+
+    def test_between(self):
+        self.assertEqual(between("this is a test", "this", "test"), " is a ")
+        self.assertEqual(between("this is a test", "is", "test"), " a ")
+        self.assertEqual(between("this is a test", "this", "a"), " is ")
+        self.assertEqual(between("this is a test", None, "test"), "this is a ")
+        self.assertEqual(between("this is a test", "this", None), " is a test")
+        self.assertEqual(between("this is a test", " is", None), " a test")
+        self.assertEqual(between("this is a test", "not", "test"), None)
+        self.assertEqual(between("this is a test", "this", "not"), None)
+        self.assertEqual(between("this is a test", "this", "test", 5), None)
+        self.assertEqual(between("this is a test", "is", "test", 5), " a ")
+        self.assertEqual(between("this is a test", "this", "a", 5), None)
+        self.assertEqual(between("this is a test", None, "pie"), None)
+
+    def test_limit(self):
+        old, strings._SNIP = strings._SNIP, '...'
+        result = limit("short", 10)
+        self.assertEqual(result, "short")
+
+        result = limit("exactlength", 11)
+        self.assertEqual(result, "exactlength")
+
+        result = limit("lonstr", 4)
+        self.assertEqual(result, "lons")
+
+        result = limit("this is a very long string", 10)
+        self.assertEqual(result, "this...ing")
+
+        result = limit("this is a very long string", 11)
+        self.assertEqual(result, "this...ring")
+
+        result = limit(None, 10)
+        self.assertIsNone(result)
+
+        strings._SNIP = old
+
+    def test_split(self):
+        result = list(strings.split("line1\nline2\nline3", "\n"))
+        self.assertEqual(result, ["line1", "line2", "line3"])
+
+        result = list(strings.split("line1\nline2\nline3\n", "\n"))
+        self.assertEqual(result, ["line1", "line2", "line3", ""])
+
+        result = list(strings.split("line1\n\nline2\n\nline3", "\n"))
+        self.assertEqual(result, ["line1", "", "line2", "", "line3"])
+
+        result = list(strings.split("", "\n"))
+        self.assertEqual(result, [""])
+
+    def test_prefix(self):
+        # Add the following asserts to the appropriate test file
+        self.assertEqual(common_prefix("flower", "flow", "flight"), "fl")
+        self.assertEqual(common_prefix("dog", "racecar", "car"), "")
+
+    def test_deformat(self):
+        self.assertEqual(deformat("abc123"), "abc123")
+        self.assertEqual(deformat("a!b@c#1$2%3^"), "abc123")
+        self.assertEqual(deformat(""), "")
+        self.assertEqual(deformat("!@#$%^&*()"), "")
+
+    def test_expand_template(self):
+        result = expand_template(
+            "first name: {0}",
+            ["Kyle", "John"]
+        )
+        self.assertEqual(result, "first name: Kyle")
+
+        result = expand_template(
+            {"from": "value", "template": "{name} is {age}\n"},
+            {"value": [{"name": "Kyle", "age": 50}, {"name": "John", "age": 30}]}
+        )
+        self.assertEqual(result, "Kyle is 50\nJohn is 30\n")
+
+        result = expand_template(
+            [
+                "summary {header|upper}\n",
+                {"from": "value", "template": "{name} is {age}", "separator": "\n"},
+            ],
+            {"header": "ages", "value": [{"name": "Kyle", "age": 50}, {"name": "John", "age": 30}]}
+        )
+        self.assertEqual(result, "summary AGES\nKyle is 50\nJohn is 30")
+
+        result = expand_template("{test|purple}", {})
+        self.assertEqual(result, '[template expansion error: (Exception: Can not find formatter purple)]')
+
+        result = expand_template("{test}", {"test": None})
+        self.assertEqual(result, "")
+
+        result = expand_template("{test}", {"test": Date("2024-01-06")})
+        self.assertEqual(result, '2024-01-06 00:00:00')
+
+        result = expand_template("{test}", {"test": 3.141592654*SECOND})
+        self.assertEqual(result, '3.142 seconds')
+
+        result = expand_template("{test}", {"test": timedelta(microseconds=3141592)})
+        self.assertEqual(result, '3.142 seconds')
+
+        result = expand_template("{test}", {"test": Data(a=2)})
+        self.assertEqual(result, '{"a": 2}')
+
+        result = expand_template("{test}", {"test": [1, 2, 3]})
+        self.assertEqual(result, '[1, 2, 3]')
+
+        result = expand_template("{test}", {"test": b"\xff"})
+        self.assertEqual(result, 'ÿ')
+
+        result = expand_template("{test}", {"test": _Data()})
+        self.assertEqual(result, '{"a": 2}')
+
+        result = expand_template("{test}", {"test": _Json()})
+        self.assertEqual(result, '[1, 2, 3]')
+
+        result = expand_template("{test}", {"test": _Str()})
+        self.assertEqual(result, "<class 'tests.test_strings._Str'> type can not be converted to str")
+
+
+class _Data:
+    def __data__(self):
+        return {"a": 2}
+
+
+class _Json:
+    def __json__(self):
+        return "[1, 2, 3]"
+
+
+class _Str:
+    def __str__(self):
+        raise Exception("I am an exception")
 

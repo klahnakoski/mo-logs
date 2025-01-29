@@ -9,6 +9,7 @@
 #
 import json as _json
 import math
+import os
 import re
 import string
 from datetime import date, datetime as builtin_datetime, timedelta
@@ -463,7 +464,6 @@ def limit(value, length):
         logger.error("Not expected", cause=e)
 
 
-@formatter
 def split(value, sep=CR):
     # GENERATOR VERSION OF split()
     # SOMETHING TERRIBLE HAPPENS, SOMETIMES, IN PYPY
@@ -475,7 +475,6 @@ def split(value, sep=CR):
         s = n + len_sep
         n = value.find(sep, s)
     yield value[s:]
-    value = None
 
 
 """
@@ -490,23 +489,13 @@ def expand_template(template, value):
     :return: UNICODE STRING WITH VARIABLES EXPANDED
     """
     try:
-        value = to_data(value)
-        if is_text(template):
-            return _simple_expand(template, (value,))
-
-        return _expand(template, (value,))
+        return _expand(template, (to_data(value),))
     except Exception as e:
         return "FAIL TO EXPAND: " + template
 
 
 def common_prefix(*args):
-    prefix = args[0]
-    for a in args[1:]:
-        for i in range(min(len(prefix), len(a))):
-            if a[i] != prefix[i]:
-                prefix = prefix[:i]
-                break
-    return prefix
+    return os.path.commonprefix(args)
 
 
 def find_first(value, find_arr, start=0):
@@ -525,23 +514,15 @@ def is_hex(value):
     return all(c in string.hexdigits for c in value)
 
 
-delchars = "".join(c for c in map(chr, range(256)) if not c.isalnum())
+
+delchars_pattern = re.compile(r'[^a-zA-Z0-9]')
 
 
 def deformat(value):
     """
     REMOVE NON-ALPHANUMERIC CHARACTERS
-
-    FOR SOME REASON translate CAN NOT BE CALLED:
-        ERROR: translate() takes exactly one argument (2 given)
-        File "C:\\Python27\\lib\\string.py", line 493, in translate
     """
-    output = []
-    for c in value:
-        if c in delchars:
-            continue
-        output.append(c)
-    return "".join(output)
+    return delchars_pattern.sub('', value)
 
 
 def _expand(template, seq):
@@ -598,7 +579,7 @@ def _simple_expand(template, seq: Tuple[Data]):
                 else:
                     func = FORMATTERS.get(func_name)
                     if not func:
-                        logger.error(f"Can not find formatter {func_name}")
+                        raise Exception(f"Can not find formatter {func_name}")
                     val = func(val)
 
             val = toString(val)
@@ -651,24 +632,21 @@ def toString(val):
         return f"{round(val.seconds, places=4)} seconds"
     elif isinstance(val, timedelta):
         duration = val.total_seconds()
-        return f"{round(duration, 3)} seconds"
+        return f"{round(duration, places=4)} seconds"
     elif is_text(val):
         return val
     elif isinstance(val, binary_type):
         try:
             return val.decode("utf8")
-        except Exception as _:
+        except Exception:
             pass
 
-        try:
-            return val.decode("latin1")
-        except Exception as e:
-            logger.error(f"{type(val)} type can not be converted to unicode", cause=e)
+        return val.decode("latin1")
     else:
         try:
             return _str(val)
-        except Exception as e:
-            logger.error(f"{type(val)} type can not be converted to unicode", cause=e)
+        except Exception:
+            return f"{type(val)} type can not be converted to str"
 
 
 def edit_distance(s1, s2):
