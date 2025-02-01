@@ -438,7 +438,7 @@ You can receive a copy of all logs and send them to your own logging with
 
     logger.set_logger(myLogger)
     
-where `myLogger` is an instance that can accept a calls to `write(template, parameters)`. If your logging library can only handle strings, then use `message = expand_template(template, params)`.
+where `myLogger` is an instance that can accept a calls to `write(template, parameters)` If your logging library can only handle strings, then use `message = expand_template(template, params)`.
 
 
 ## More Reading

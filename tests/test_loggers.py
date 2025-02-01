@@ -385,6 +385,20 @@ class TestLoggers(FuzzyTestCase):
         with log.start():
             log.set_logger(LogUsingArray())
 
+    def test_alert(self):
+        array_log = LogUsingArray()
+        with log.start(logs=array_log, extra={"a": 1}):
+            log.alert("This is an alert")
+            lines = array_log.lines
+        self.assertEqual(len(lines), 1)
+        self.assertEqual(
+            lines[0][0],
+            "\n"
+            "********************************************************************************\n"
+            "** This is an alert\n"
+            "********************************************************************************"
+        )
+
 
 class LogUsingArray(StructuredLogger):
     @override
