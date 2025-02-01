@@ -103,7 +103,7 @@ def _start(
     if logs:
         globals()["logging_multi"] = StructuredLogger_usingMulti()
         for log in listwrap(logs):
-            _add_log(new_instance(log))
+            logging_multi.add_log(new_instance(log))
 
         old_log, globals()["main_log"] = main_log, _add_thread(logging_multi)
         old_log.stop()
@@ -143,15 +143,12 @@ def new_instance(log_type=None, settings=None):
         return log_type
 
 
-def _add_log(log):
-    logging_multi.add_log(log)
-
-
 def set_logger(logger):
-    if logger.logging_multi:
-        logger.logging_multi.add_log(logger)
+    global main_log
+    if logging_multi:
+        logging_multi.add_log(logger)
     else:
-        old_log, logger.main_log = logger.main_log, _add_thread(logger)
+        old_log, main_log = main_log, _add_thread(logger)
         old_log.stop()
 
 
