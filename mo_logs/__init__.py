@@ -18,5 +18,6 @@ from mo_logs.utils import *
 
 logger.warn = logger.warning
 logger.info = logger.note
+logger.alert = logger.alarm
 Log = logger
 LoggingContext = logger.start

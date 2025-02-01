@@ -17,7 +17,7 @@ mo-json==6.624.24125
 mo-json-config==4.624.24125
 mo-kwargs==7.659.25005
 mo-math==7.623.24125
-mo-testing==8.665.25029
+mo-testing==8.666.25032
 mo-threads==6.624.24125
 mo-times==5.623.24125
 pytz==2024.1
