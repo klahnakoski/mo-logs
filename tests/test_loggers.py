@@ -381,6 +381,10 @@ class TestLoggers(FuzzyTestCase):
         self.assertEqual(params.params.a, 1)
         self.assertEqual(params.params.b, 2)
 
+    def test_set_logger(self):
+        with log.start():
+            log.set_logger(LogUsingArray())
+
 
 class LogUsingArray(StructuredLogger):
     @override
