@@ -9,13 +9,13 @@ hjson==3.1.0
 idna==3.6
 jx-python==4.626.24125
 mo-collections==5.623.24125
-mo-dots==10.671.25036
+mo-dots==10.672.25036
 mo-files==6.624.24125
-mo-future==7.671.25036
-mo-imports==7.671.25036
+mo-future==7.672.25036
+mo-imports==7.672.25036
 mo-json==6.624.24125
 mo-json-config==4.624.24125
-mo-kwargs==7.671.25036
+mo-kwargs==7.672.25036
 mo-math==7.623.24125
 mo-testing==8.667.25032
 mo-threads==6.624.24125
