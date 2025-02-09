@@ -57,6 +57,7 @@ def datetime(value):
     else:
         return output
 
+
 @formatter
 def str(value):
     """
@@ -140,7 +141,7 @@ def newline(value):
     """
     ADD NEWLINE, IF SOMETHING
     """
-    return CR + toString(value).lstrip(CR)
+    return CR + to_string(value).lstrip(CR)
 
 
 @formatter
@@ -191,14 +192,14 @@ def indent(value, prefix="\t", indent=None):
     if indent != None:
         prefix = prefix * indent
 
-    value = toString(value)
+    value = to_string(value)
     try:
         content = value.rstrip()
         suffix = value[len(content) :]
         lines = content.splitlines()
         return prefix + (CR + prefix).join(lines) + suffix
     except Exception as e:
-        raise Exception(f"Problem with indent of value ({e.message})\n{toString(value)}")
+        raise Exception(f"Problem with indent of value ({e.message})\n{to_string(value)}")
 
 
 @formatter
@@ -210,7 +211,7 @@ def outdent(value):
     """
     try:
         num = 100
-        lines = toString(value).splitlines()
+        lines = to_string(value).splitlines()
         for l in lines:
             trim = len(l.lstrip())
             if trim > 0:
@@ -300,9 +301,11 @@ def find(value, find, start=0):
 def strip(value):
     return _str(value).strip()
 
+
 @formatter
 def trim(value):
     return _str(value).strip()
+
 
 @formatter
 def between(value, prefix=None, suffix=None, start=0):
@@ -314,7 +317,7 @@ def between(value, prefix=None, suffix=None, start=0):
     :param start: where to start the search
     :return:
     """
-    value = toString(value)
+    value = to_string(value)
     if is_null(prefix):
         e = value.find(suffix, start)
         if e == -1:
@@ -438,7 +441,7 @@ def hex(value):
         return builtin_hex(value).upper()[2:]
     elif isinstance(value, bytes):
         return value.hex().upper()
-    return _str(value).encode("utf8").hex().upper()
+    return to_string(value).encode("utf8").hex().upper()
 
 
 _SNIP = "...<snip>..."
@@ -514,15 +517,14 @@ def is_hex(value):
     return all(c in string.hexdigits for c in value)
 
 
-
-delchars_pattern = re.compile(r'[^a-zA-Z0-9]')
+delchars_pattern = re.compile(r"[^a-zA-Z0-9]")
 
 
 def deformat(value):
     """
     REMOVE NON-ALPHANUMERIC CHARACTERS
     """
-    return delchars_pattern.sub('', value)
+    return delchars_pattern.sub("", value)
 
 
 def _expand(template, seq):
@@ -582,7 +584,7 @@ def _simple_expand(template, seq: Tuple[Data]):
                         raise Exception(f"Can not find formatter {func_name}")
                     val = func(val)
 
-            val = toString(val)
+            val = to_string(val)
             result.append(val)
         except Exception as cause:
             from mo_logs import Except
@@ -591,7 +593,7 @@ def _simple_expand(template, seq: Tuple[Data]):
             try:
                 if cause.message.find("is not JSON serializable"):
                     # WORK HARDER
-                    val = toString(val)
+                    val = to_string(val)
                     result.append(val)
             except Exception as f:
                 logger.warning(
@@ -617,7 +619,7 @@ def chunk(data, size):
         yield i, acc
 
 
-def toString(val):
+def to_string(val):
     if is_null(val):
         return ""
     elif is_data(val) or is_many(val):
@@ -647,6 +649,9 @@ def toString(val):
             return _str(val)
         except Exception:
             return f"{type(val)} type can not be converted to str"
+
+
+toString = to_string
 
 
 def edit_distance(s1, s2):

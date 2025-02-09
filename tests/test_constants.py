@@ -9,12 +9,15 @@
 #
 import importlib
 import unittest
+
+from mo_dots import Data
 from mo_testing.fuzzytestcase import FuzzyTestCase, add_error_reporting
 
 from mo_logs import constants
 
 CONSTANT = True
 EXIST = None
+DATA_CONSTANT = Data()
 
 
 @add_error_reporting
@@ -67,6 +70,10 @@ class TestConstants(FuzzyTestCase):
     def test_module_does_not_exist(self):
         with self.assertRaises(Exception):
             constants.set({"no_exist": {"VALUE": True}})
+
+    def test_data_constant(self):
+        constants.set({"tests": {"test_constants": {"DATA_CONSTANT": {"a": 1}}}})
+        self.assertEqual(DATA_CONSTANT.a, 1, "expecting change")
 
 
 if __name__ == "__main__":
