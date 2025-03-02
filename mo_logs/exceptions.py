@@ -9,13 +9,11 @@
 #
 import sys
 
-from mo_dots import Null, is_data, listwrap, unwraplist, to_data, dict_to_data
+from mo_dots import Null, is_data, listwrap, unwraplist, to_data, dict_to_data, Data
 from mo_future import is_text, utcnow
 import traceback
 
-from mo_logs.strings import CR, expand_template, indent
-
-_new = Exception.__new__
+from mo_logs.strings import CR, expand_template, indent, between
 
 FATAL = "FATAL"
 ERROR = "ERROR"
@@ -29,7 +27,7 @@ TOO_DEEP = 50  # MAXIMUM DEPTH OF CAUSAL CHAIN
 SHORT_STACKS = sys.version_info >= (3, 12)
 
 
-class LogItem(object):
+class LogItem:
     def __init__(self, severity, template, params, timestamp):
         self.severity = severity
         self.template = template
@@ -41,23 +39,8 @@ class LogItem(object):
 
 
 class Except(Exception):
-
-
-    def __new__(cls, *args, **kwargs):
-        if len(args) == 1:
-            if isinstance(args[0], Except):
-                return args[0]
-            elif isinstance(args[0], Exception):
-                return cls.wrap(args[0])
-        else:
-            return _new(cls)
-
-
     def __init__(self, severity=ERROR, template=Null, params=Null, cause=Null, trace=Null, **_):
         self.timestamp = utcnow()
-        if isinstance(severity, Except):
-            return
-
         if severity == None:
             raise ValueError("expecting severity to not be None")
 
@@ -200,7 +183,7 @@ def format_trace(tbs, start=0):
     return "".join(expand_template('File ""{file}"", line {line}, in {method}\n', d) for d in tbs[start::])
 
 
-class Suppress(object):
+class Suppress:
     """
     IGNORE EXCEPTIONS
     """
@@ -219,7 +202,7 @@ class Suppress(object):
 suppress_exception = Suppress(Exception)
 
 
-class Explanation(object):
+class Explanation:
     """
     EXPLAIN THE ACTION BEING TAKEN
     IF THERE IS AN EXCEPTION WRAP IT WITH THE EXPLANATION
@@ -248,7 +231,7 @@ class Explanation(object):
             return True
 
 
-class WarnOnException(object):
+class WarnOnException:
     """
     EXPLAIN THE ACTION BEING TAKEN
     IF THERE IS AN EXCEPTION WRAP ISSUE A WARNING
@@ -279,7 +262,7 @@ class WarnOnException(object):
             return True
 
 
-class AssertNoException(object):
+class AssertNoException:
     """
     EXPECT NO EXCEPTION IN THIS BLOCK
     """

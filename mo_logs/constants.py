@@ -8,11 +8,19 @@
 #
 import os
 import sys
+from collections.abc import Mapping
 
 from mo_dots import (
     _set_attr as mo_dots_set_attr,
     _get_attr as mo_dots_get_attr,
-    split_field, to_data, startswith_field, relative_field, join_field, NullType, SLOT, KEY)
+    split_field,
+    to_data,
+    startswith_field,
+    relative_field,
+    join_field,
+    SLOT,
+    KEY,
+)
 from mo_imports import delay_import
 
 logger = delay_import("mo_logs.logger")
@@ -43,26 +51,25 @@ def _set_one(full_path, new_value):
                 candidate = module_path
                 main_module = module
     if not candidate:
-        logger.error(
-            "no module starting with {module|quote}",
-            module=full_path,
-            stack_depth=2
-        )
+        logger.error("no module starting with {module|quote}", module=full_path, stack_depth=2)
 
     # '...AppData.Local.Programs.PyCharm Community.plugins.python-ce.helpers.pycharm._jb_unittest_runner'
     # 'no_exist.VALUE'
 
     if startswith_field(full_path, candidate):
         k_path = split_field(relative_field(full_path, candidate))
-        current_value = mo_dots_get_attr(main_module, k_path)
-        if isinstance(current_value, NullType) and not _slot_exists(current_value):
-            logger.error(
-                "property {path|quote} not found in {module|quote}",
-                path=join_field(k_path),
-                module=main_module,
-                stack_depth=2
-            )
-        mo_dots_set_attr(main_module, k_path, new_value)
+        attr = k_path[-1]
+        parent = mo_dots_get_attr(main_module, k_path[:-1])
+        if hasattr(parent, attr) or isinstance(parent, Mapping):
+            mo_dots_set_attr(main_module, k_path, new_value)
+            return
+
+        logger.error(
+            "property {path|quote} not found in {module|quote}",
+            path=join_field(k_path),
+            module=main_module,
+            stack_depth=2,
+        )
 
 
 def _slot_exists(null):
