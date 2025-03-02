@@ -494,6 +494,7 @@ def expand_template(template, value):
     try:
         return _expand(template, (to_data(value),))
     except Exception as e:
+        _expand(template, (to_data(value),))
         return "FAIL TO EXPAND: " + template
 
 

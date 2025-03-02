@@ -7,7 +7,7 @@
 #
 # Contact: Kyle Lahnakoski (kyle@lahnakoski.com)
 #
-class StructuredLogger(object):
+class StructuredLogger:
     """
     ABSTRACT BASE CLASS FOR JSON LOGGING
     """

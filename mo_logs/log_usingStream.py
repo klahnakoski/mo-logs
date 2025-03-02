@@ -46,7 +46,7 @@ class StructuredLogger_usingStream(StructuredLogger):
             pass
 
 
-class _UTF8Encoder(object):
+class _UTF8Encoder:
     def __init__(self, stream):
         self.stream = stream
 
