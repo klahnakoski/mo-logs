@@ -256,6 +256,26 @@ class TestLoggers(FuzzyTestCase):
         finally:
             File("test.log").delete()
 
+    def test_using_rotating_file_handler(self):
+        File("test.log").delete()
+        try:
+            log.start(
+                settings={
+                    "logs": {
+                        "class": "logging.handlers.RotatingFileHandler",
+                        "filename": "test.log",
+                        "maxBytes": 1000,
+                        "backupCount": 2,
+                    }
+                }
+            )
+            log.info("data {data}", data={}, name=Null)
+            log.stop()
+            logs = File("test.log").read()
+            self.assertTrue(logs.strip().endswith("data {}"))
+        finally:
+            File("test.log").delete()
+
     def test_using_datagram_handler(self):
         log.start(settings={"logs": {"class": "logging.handlers.DatagramHandler", "host": "localhost", "port": 1234,}})
 
