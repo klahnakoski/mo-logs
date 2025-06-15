@@ -17,7 +17,7 @@
     "extras_require": {"tests": [
            "mo-json>=6.672.25036", "mo-threads>=6.672.25036", "mo-testing>=8.674.25037",
          "mo-kwargs>=7.672.25036",  "jx-python>=4.673.25037",            "boto>=2.49.0",
-         "beautifulsoup4>=4.13.3",           "graypy>=2.1.0"
+         "beautifulsoup4>=4.13.4",           "graypy>=2.1.0"
     ]},
     "include_package_data": true,
     "install_requires": [
