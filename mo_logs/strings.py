@@ -31,6 +31,7 @@ Date = delay_import("mo_times.dates.Date")
 
 
 FORMATTERS = {}
+CAN_NOT_FIND_FORMATTER = "Can not find formatter"
 CR = "\n"
 
 
@@ -582,7 +583,7 @@ def _simple_expand(template, seq: Tuple[Data]):
                 else:
                     func = FORMATTERS.get(func_name)
                     if not func:
-                        raise Exception(f"Can not find formatter {func_name}")
+                        raise Exception(f"{CAN_NOT_FIND_FORMATTER} {func_name}")
                     val = func(val)
 
             val = to_string(val)
@@ -592,14 +593,13 @@ def _simple_expand(template, seq: Tuple[Data]):
 
             cause = Except.wrap(cause)
             try:
-                if cause.message.find("is not JSON serializable"):
+                if "is not JSON serializable" in cause.message:
                     # WORK HARDER
                     val = to_string(val)
                     result.append(val)
             except Exception as f:
-                logger.warning(
-                    f"Can not expand {op}|{rest} in template: {template_|json}", template_=template, cause=cause,
-                )
+                pass
+            logger.warning("template expansion error {code}", code=str(code), cause=cause)
             result.append(f"[template expansion error: ({cause.message})]")
 
     return "".join(result)

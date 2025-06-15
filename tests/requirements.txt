@@ -4,5 +4,5 @@ mo-testing>=8.674.25037
 mo-kwargs>=7.672.25036
 jx-python>=4.673.25037
 boto>=2.49.0
-beautifulsoup4>=4.13.3
+beautifulsoup4>=4.13.4
 graypy>=2.1.0
