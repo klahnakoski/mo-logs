@@ -15,7 +15,7 @@ mo-future==7.685.25166
 mo-imports==7.685.25166
 mo-json==6.672.25036
 mo-json-config==4.673.25037
-mo-kwargs==8.700.26061
+mo-kwargs==8.702.26061
 mo-math==7.672.25036
 mo-testing==8.685.25166
 mo-threads==6.672.25036
